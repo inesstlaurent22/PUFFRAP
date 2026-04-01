@@ -1,4 +1,5 @@
-/* RESET */
+/* ================= RESET ================= */
+
 html, body {
   margin: 0;
   padding: 0;
@@ -6,10 +7,9 @@ html, body {
   font-family: sans-serif;
   color: white;
   overflow-x: hidden;
-  opacity: 1;
-  transition: opacity 0.6s ease;
 }
 
+/* APP MOBILE */
 .app {
   max-width: 430px;
   margin: auto;
@@ -17,16 +17,16 @@ html, body {
 
 /* ================= SLIDER ================= */
 
-/* SLIDER */
 .slider {
   position: relative;
   width: 100%;
-  height: 250px;
+  height: 260px;
   overflow: hidden;
   border-radius: 20px;
+  margin-top: 20px;
 }
 
-/* IMPORTANT : ordre des layers */
+/* BLUR DERRIÈRE */
 .green-blur {
   position: absolute;
   width: 200%;
@@ -36,55 +36,32 @@ html, body {
   transform: translate(-50%, -50%);
   background: radial-gradient(circle, rgba(0,255,100,0.5), transparent);
   filter: blur(120px);
-  z-index: 0; /* derrière */
+  z-index: 0;
   animation: moveBlur 10s infinite alternate ease-in-out;
 }
 
+/* TRACK */
 .slides {
   display: flex;
   height: 100%;
   transition: transform 0.4s ease;
   position: relative;
-  z-index: 2; /* au-dessus du blur */
+  z-index: 2;
 }
 
+/* SLIDES */
 .slide {
   min-width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-/* VIDEO FIX */
+/* VIDEO */
 video.slide {
   object-fit: cover;
 }
 
 /* ANIMATION BLUR */
-@keyframes moveBlur {
-  0% { transform: translate(-60%, -50%) scale(1); }
-  100% { transform: translate(-40%, -55%) scale(1.2); }
-}
-
-/* CERCLE ROTATION ANIMATION */
-.circle {
-  transition: transform 0.8s cubic-bezier(.2,.8,.2,1);
-}
-
-/* ================= GREEN BLUR ================= */
-
-.green-blur {
-  position: absolute;
-  width: 200%;
-  height: 200%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(0,255,100,0.4), transparent);
-  filter: blur(120px);
-  z-index: -1;
-  animation: moveBlur 10s infinite alternate ease-in-out;
-}
-
 @keyframes moveBlur {
   0% { transform: translate(-60%, -50%) scale(1); }
   100% { transform: translate(-40%, -55%) scale(1.2); }
@@ -104,13 +81,16 @@ video.slide {
   border-radius: 50%;
   background: linear-gradient(145deg, #7ed957, #5fcf3a);
   position: relative;
-  box-shadow: 
+
+  box-shadow:
     0 20px 40px rgba(0,255,100,0.3),
     inset 0 5px 15px rgba(255,255,255,0.2);
+
   transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(.2,.8,.2,1);
 }
 
-/* trou */
+/* TROU CENTRE */
 .circle::after {
   content: "";
   width: 110px;
@@ -123,7 +103,7 @@ video.slide {
   transform: translate(-50%, -50%);
 }
 
-/* séparation */
+/* SÉPARATION */
 .circle::before {
   content: "";
   width: 100%;
@@ -133,17 +113,26 @@ video.slide {
   top: 50%;
 }
 
-/* zones */
+/* ZONES TEXTE */
 .top-zone, .bottom-zone {
   position: absolute;
   width: 100%;
   text-align: center;
   font-weight: bold;
   font-size: 22px;
+  cursor: pointer;
+  user-select: none;
 }
 
+/* POSITION */
 .top-zone { top: 40px; }
 .bottom-zone { bottom: 40px; }
+
+/* EFFET TOUCH */
+.top-zone:active,
+.bottom-zone:active {
+  transform: scale(0.95);
+}
 
 /* ================= TEXTE ================= */
 
@@ -154,10 +143,11 @@ video.slide {
 
 .content h1 {
   font-size: 28px;
+  margin-bottom: 10px;
 }
 
 .content p {
-  font-size: 18px;
+  font-size: 17px;
   color: #ccc;
   line-height: 1.6;
 }
