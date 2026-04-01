@@ -9,7 +9,7 @@ html, body {
   overflow-x: hidden;
 }
 
-/* APP MOBILE */
+/* APP FORMAT MOBILE */
 .app {
   max-width: 430px;
   margin: auto;
@@ -26,7 +26,7 @@ html, body {
   margin-top: 20px;
 }
 
-/* BLUR DERRIÈRE */
+/* FLUO VERT DERRIÈRE */
 .green-blur {
   position: absolute;
   width: 200%;
@@ -49,9 +49,9 @@ html, body {
   z-index: 2;
 }
 
-/* SLIDES */
+/* SLIDES (IMPORTANT) */
 .slide {
-  min-width: 100%;
+  min-width: 100%; /* CLÉ DU SLIDER */
   height: 100%;
   object-fit: cover;
 }
