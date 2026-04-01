@@ -1,54 +1,71 @@
-/* ================= SLIDER ================= */
-
+const slider = document.querySelector(".slider");
 const slidesContainer = document.querySelector(".slides");
 const slides = document.querySelectorAll(".slide");
 
+let isDragging = false;
 let startX = 0;
-let currentIndex = 0;
+let currentTranslate = 0;
+let prevTranslate = 0;
+let index = 0;
+
 const totalSlides = slides.length;
 
-/* ================= SWIPE TOUCH ================= */
+/* ================= TOUCH ================= */
 
-slidesContainer.addEventListener("touchstart", (e) => {
+slider.addEventListener("touchstart", startDrag);
+slider.addEventListener("touchmove", drag);
+slider.addEventListener("touchend", endDrag);
+
+/* ================= START ================= */
+
+function startDrag(e) {
+  isDragging = true;
   startX = e.touches[0].clientX;
-});
-
-slidesContainer.addEventListener("touchend", (e) => {
-  const endX = e.changedTouches[0].clientX;
-  const diff = startX - endX;
-
-  if (diff > 50) {
-    // swipe vers la gauche → slide suivant
-    currentIndex = Math.min(currentIndex + 1, totalSlides - 1);
-  } 
-  else if (diff < -50) {
-    // swipe vers la droite → slide précédent
-    currentIndex = Math.max(currentIndex - 1, 0);
-  }
-
-  updateSlide();
-});
-
-/* ================= UPDATE POSITION ================= */
-
-function updateSlide() {
-  slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
 }
 
-/* ================= RESET SI RESIZE ================= */
+/* ================= MOVE ================= */
 
-window.addEventListener("resize", () => {
-  updateSlide();
-});
+function drag(e) {
+  if (!isDragging) return;
+
+  const currentX = e.touches[0].clientX;
+  const diff = currentX - startX;
+
+  slidesContainer.style.transform =
+    `translateX(${prevTranslate + diff}px)`;
+}
+
+/* ================= END ================= */
+
+function endDrag(e) {
+  if (!isDragging) return;
+  isDragging = false;
+
+  const endX = e.changedTouches[0].clientX;
+  const diff = endX - startX;
+
+  if (diff < -50) index = Math.min(index + 1, totalSlides - 1);
+  if (diff > 50) index = Math.max(index - 1, 0);
+
+  snap();
+}
+
+/* ================= SNAP ================= */
+
+function snap() {
+  const width = slider.offsetWidth;
+  currentTranslate = -index * width;
+  prevTranslate = currentTranslate;
+
+  slidesContainer.style.transition = "transform 0.3s ease";
+  slidesContainer.style.transform = `translateX(${currentTranslate}px)`;
+
+  setTimeout(() => {
+    slidesContainer.style.transition = "none";
+  }, 300);
+}
 
 /* ================= INIT ================= */
 
-updateSlide();
-
-/* ================= SERVICE WORKER ================= */
-
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js")
-    .then(() => console.log("Service Worker actif"))
-    .catch(err => console.log("Erreur SW :", err));
-}
+window.addEventListener("resize", snap);
+snap();
