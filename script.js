@@ -1,47 +1,64 @@
-/* ================= NAVIGATION ================= */
+/* FADE IN */
+window.addEventListener("load", () => {
+  document.body.style.opacity = "1";
+});
 
-function goToapplication() {
-  window.location.href = "application.html";
+/* NAV */
+function goToapplication(){
+  const app = document.querySelector(".app");
+
+  app.style.transition = "transform 0.6s ease, opacity 0.6s ease";
+  app.style.transform = "scale(1.1)";
+  app.style.opacity = "0";
+
+  setTimeout(() => {
+    window.location.href = "application.html";
+  }, 500);
 }
 
 /* ================= SLIDER ================= */
 
-const slider = document.querySelector(".slider");
-const slidesContainer = document.querySelector(".slides");
-const slides = document.querySelectorAll(".slide");
-
+const slides = document.querySelector(".slides");
 let startX = 0;
 let index = 0;
-const totalSlides = slides.length;
+const total = document.querySelectorAll(".slide").length;
 
-/* ================= SWIPE ================= */
-
-slider.addEventListener("touchstart", (e) => {
+slides.addEventListener("touchstart", e => {
   startX = e.touches[0].clientX;
 });
 
-slider.addEventListener("touchend", (e) => {
+slides.addEventListener("touchend", e => {
   const endX = e.changedTouches[0].clientX;
   const diff = startX - endX;
 
-  if (diff > 50) {
-    // swipe gauche → suivant
-    index = Math.min(index + 1, totalSlides - 1);
-  }
+  if(diff > 50) index = Math.min(index + 1, total - 1);
+  if(diff < -50) index = Math.max(index - 1, 0);
 
-  if (diff < -50) {
-    // swipe droite → précédent
-    index = Math.max(index - 1, 0);
-  }
-
-  updateSlide();
+  slides.style.transform = `translateX(-${index * 100}%)`;
 });
 
-/* ================= UPDATE ================= */
+/* ================= ROTATION CERCLE ================= */
 
-function updateSlide() {
-  slidesContainer.style.transform = `translateX(-${index * 100}%)`;
-}
+const circle = document.querySelector(".circle");
 
-/* INIT */
-updateSlide();
+let rotate = 0;
+let startXCircle = 0;
+
+circle.addEventListener("touchstart", (e) => {
+  startXCircle = e.touches[0].clientX;
+});
+
+circle.addEventListener("touchmove", (e) => {
+  let currentX = e.touches[0].clientX;
+  let diff = currentX - startXCircle;
+
+  rotate += diff * 0.3;
+
+  circle.style.transform = `
+    rotate(${rotate}deg)
+    rotateX(10deg)
+    rotateY(10deg)
+  `;
+
+  startXCircle = currentX;
+});
