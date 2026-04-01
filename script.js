@@ -1,65 +1,77 @@
-/* ================= SLIDER ================= */
+/* ================= INIT ================= */
 
-const slides = document.querySelector(".slides");
-const allSlides = document.querySelectorAll(".slide");
+document.addEventListener("DOMContentLoaded", () => {
 
-let startX = 0;
-let index = 0;
-const total = allSlides.length;
+  /* ================= SLIDER ================= */
 
-slides.addEventListener("touchstart", e => {
-  startX = e.touches[0].clientX;
-});
+  const slides = document.querySelector(".slides");
+  const allSlides = document.querySelectorAll(".slide");
 
-slides.addEventListener("touchend", e => {
-  const endX = e.changedTouches[0].clientX;
-  const diff = startX - endX;
+  if (slides && allSlides.length > 0) {
 
-  if(diff > 50) index = Math.min(index + 1, total - 1);
-  if(diff < -50) index = Math.max(index - 1, 0);
+    let startX = 0;
+    let index = 0;
+    const total = allSlides.length;
 
-  updateSlide();
-});
+    slides.addEventListener("touchstart", e => {
+      startX = e.touches[0].clientX;
+    });
 
-/* UPDATE SLIDE + VIDEO */
-function updateSlide(){
-  slides.style.transform = `translateX(-${index * 100}%)`;
+    slides.addEventListener("touchend", e => {
+      const endX = e.changedTouches[0].clientX;
+      const diff = startX - endX;
 
-  // gérer lecture vidéo
-  allSlides.forEach(slide => {
-    if(slide.tagName === "VIDEO"){
-      slide.pause();
+      if (diff > 50) index = Math.min(index + 1, total - 1);
+      if (diff < -50) index = Math.max(index - 1, 0);
+
+      updateSlide();
+    });
+
+    function updateSlide() {
+      slides.style.transform = `translateX(-${index * 100}%)`;
+
+      // Pause toutes les vidéos
+      allSlides.forEach(slide => {
+        if (slide.tagName === "VIDEO") {
+          slide.pause();
+        }
+      });
+
+      // Lance la vidéo active
+      const active = allSlides[index];
+      if (active.tagName === "VIDEO") {
+        active.play();
+      }
     }
-  });
-
-  const active = allSlides[index];
-  if(active.tagName === "VIDEO"){
-    active.play();
   }
-}
 
-/* ================= CERCLE ================= */
 
-const circle = document.getElementById("circle");
+  /* ================= CERCLE ================= */
 
-function rotateCircle(){
-  circle.style.transform += " rotate(180deg)";
-}
+  const circle = document.getElementById("circle");
 
-/* NAV + ANIMATION */
+  let rotation = 0;
 
-function openApp(){
-  rotateCircle();
+  function rotateCircle() {
+    rotation += 180;
+    circle.style.transform = `rotate(${rotation}deg)`;
+  }
 
-  setTimeout(()=>{
-    window.location.href = "application.html";
-  }, 600);
-}
+  /* rendre accessible globalement */
+  window.openApp = function () {
+    rotateCircle();
 
-function openSorties(){
-  rotateCircle();
+    setTimeout(() => {
+      window.location.href = "application.html";
+    }, 600);
+  };
 
-  setTimeout(()=>{
-    alert("Page Sorties à venir");
-  }, 600);
-}
+  window.openSorties = function () {
+    rotateCircle();
+
+    setTimeout(() => {
+      alert("Page Sorties à venir");
+    }, 600);
+  };
+
+});
