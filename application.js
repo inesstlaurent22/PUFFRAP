@@ -1,18 +1,19 @@
-/* ================= CARTE DARK ================= */
+/* ================= MAP ================= */
 
 const map = L.map('map').setView([48.8566, 2.3522], 5);
 
-L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_dark/{z}/{x}/{y}{r}.png', {
+/* TILE GRATUIT */
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: ''
 }).addTo(map);
 
 /* ================= ARTISTES ================= */
 
 const artistes = [
-  { id:1, nom:"Punchologue", coords:[48.8566,2.3522], insta:"#"},
-  { id:2, nom:"Fumsecc", coords:[45.7640,4.8357], insta:"#"},
-  { id:3, nom:"Scott", coords:[43.2965,5.3698], insta:"#"},
-  { id:4, nom:"Mr Below", coords:[50.6292,3.0573], insta:"#"}
+  { id:1, nom:"Punchologue", coords:[48.8566,2.3522]},
+  { id:2, nom:"Fumsecc", coords:[45.7640,4.8357]},
+  { id:3, nom:"Scott", coords:[43.2965,5.3698]},
+  { id:4, nom:"Mr Below", coords:[50.6292,3.0573]}
 ];
 
 /* ================= FAVORIS ================= */
@@ -29,7 +30,6 @@ function toggleFavori(id){
   location.reload();
 }
 
-/* rendre la fonction accessible au HTML */
 window.toggleFavori = toggleFavori;
 
 /* ================= MARKERS ================= */
@@ -41,17 +41,17 @@ artistes.forEach(artiste => {
   const marker = L.marker(artiste.coords).addTo(map);
 
   marker.bindPopup(`
-    <div>
+    <div style="text-align:center">
       <h3>${artiste.nom}</h3>
-      <a href="${artiste.insta}" target="_blank">Instagram</a><br><br>
-      <span class="favorite" onclick="toggleFavori(${artiste.id})">
+      <br>
+      <span onclick="toggleFavori(${artiste.id})" style="font-size:22px;cursor:pointer">
         ${isFav ? "❤️" : "🤍"}
       </span>
     </div>
   `);
 });
 
-/* ================= GEOLOCALISATION ================= */
+/* ================= GEO ================= */
 
 function locateUser(){
   if(navigator.geolocation){
@@ -72,5 +72,4 @@ function locateUser(){
 
 document.getElementById("locateBtn").addEventListener("click", locateUser);
 
-/* AUTO */
 locateUser();
