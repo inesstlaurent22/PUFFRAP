@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Puff Map</title>
 
 <link rel="stylesheet" href="application.css">
@@ -14,18 +14,44 @@
 
 <body>
 
-  <!-- MENU INSCRIPTION -->
-<div class="signup-container">
+<!-- HEADER -->
+<div class="topbar">
 
+  <!-- BOUTON INSCRIPTION -->
   <button id="signupBtn">Inscription</button>
 
-  <div id="dropdown" class="dropdown hidden">
-    <button onclick="selectUser('client')">Client</button>
-    <button onclick="selectUser('artiste')">Artiste</button>
+  <!-- PROFIL (caché au départ) -->
+  <div id="profile" class="hidden">
+    <span id="profileName"></span>
+
+    <div id="profileDropdown" class="dropdown hidden">
+      <button>Mon compte</button>
+      <button>Mes réservations</button>
+      <button>Mes favoris</button>
+    </div>
   </div>
 
 </div>
 
+<!-- POPUP INSCRIPTION -->
+<div id="popup" class="popup hidden">
+
+  <div class="popup-content">
+
+    <h2>Inscription</h2>
+
+    <input id="nom" placeholder="Nom">
+    <input id="prenom" placeholder="Prénom">
+    <input id="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Mot de passe">
+
+    <button onclick="signup()">Créer un compte</button>
+
+  </div>
+
+</div>
+
+<!-- MAP -->
 <div id="map"></div>
 
 <button id="locateBtn">📍</button>
