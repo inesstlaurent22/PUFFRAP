@@ -51,6 +51,36 @@ artistes.forEach(artiste => {
   `);
 });
 
+/* ================= DROPDOWN ================= */
+
+const signupBtn = document.getElementById("signupBtn");
+const dropdown = document.getElementById("dropdown");
+
+signupBtn.addEventListener("click", () => {
+  dropdown.classList.toggle("hidden");
+});
+
+/* sélection */
+function selectUser(type){
+
+  if(type === "client"){
+    alert("Inscription client");
+  }
+
+  if(type === "artiste"){
+    alert("Inscription artiste");
+  }
+
+  dropdown.classList.add("hidden");
+}
+
+/* fermer si clic ailleurs */
+document.addEventListener("click", (e) => {
+  if(!document.querySelector(".signup-container").contains(e.target)){
+    dropdown.classList.add("hidden");
+  }
+});
+
 /* ================= GEO ================= */
 
 function locateUser(){
