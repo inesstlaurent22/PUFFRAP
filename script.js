@@ -1,5 +1,3 @@
-/* ================= INIT ================= */
-
 document.addEventListener("DOMContentLoaded", () => {
 
   /* ================= SLIDER ================= */
@@ -13,16 +11,21 @@ document.addEventListener("DOMContentLoaded", () => {
     let index = 0;
     const total = allSlides.length;
 
-    slides.addEventListener("touchstart", e => {
+    slides.addEventListener("touchstart", (e) => {
       startX = e.touches[0].clientX;
     });
 
-    slides.addEventListener("touchend", e => {
+    slides.addEventListener("touchend", (e) => {
       const endX = e.changedTouches[0].clientX;
       const diff = startX - endX;
 
-      if (diff > 50) index = Math.min(index + 1, total - 1);
-      if (diff < -50) index = Math.max(index - 1, 0);
+      if (diff > 50) {
+        index = Math.min(index + 1, total - 1);
+      }
+
+      if (diff < -50) {
+        index = Math.max(index - 1, 0);
+      }
 
       updateSlide();
     });
@@ -30,19 +33,20 @@ document.addEventListener("DOMContentLoaded", () => {
     function updateSlide() {
       slides.style.transform = `translateX(-${index * 100}%)`;
 
-      // Pause toutes les vidéos
+      // pause toutes les vidéos
       allSlides.forEach(slide => {
         if (slide.tagName === "VIDEO") {
           slide.pause();
         }
       });
 
-      // Lance la vidéo active
+      // play la vidéo active
       const active = allSlides[index];
       if (active.tagName === "VIDEO") {
-        active.play();
+        active.play().catch(() => {});
       }
     }
+
   }
 
 
@@ -53,11 +57,14 @@ document.addEventListener("DOMContentLoaded", () => {
   let rotation = 0;
 
   function rotateCircle() {
+    if (!circle) return;
+
     rotation += 180;
     circle.style.transform = `rotate(${rotation}deg)`;
   }
 
-  /* rendre accessible globalement */
+  /* ================= NAV ================= */
+
   window.openApp = function () {
     rotateCircle();
 
