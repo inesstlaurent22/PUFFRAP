@@ -5,13 +5,8 @@ html, body {
   padding: 0;
   height: 100%;
   overflow: hidden;
-  font-family: sans-serif;
   background: black;
-}
-
-* {
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
+  font-family: sans-serif;
 }
 
 /* ================= APP ================= */
@@ -19,8 +14,11 @@ html, body {
 .app {
   width: 100vw;
   height: 100vh;
+  max-width: 430px; /* taille mobile */
+  margin: 0 auto;
   position: relative;
   overflow: hidden;
+  background: black;
 }
 
 /* ================= SLIDER FULL SCREEN ================= */
@@ -28,7 +26,7 @@ html, body {
 .slider {
   position: relative;
   width: 100%;
-  height: 100vh;
+  height: 100%;
   overflow: hidden;
   touch-action: pan-y;
 }
@@ -38,28 +36,20 @@ html, body {
   display: flex;
   height: 100%;
   transition: transform 0.3s ease;
-  position: relative;
-  z-index: 2;
 }
 
-/* IMAGES + VIDEO */
+/* IMAGE / VIDEO */
 .slide {
   min-width: 100%;
   height: 100%;
   object-fit: cover;
-  user-select: none;
-  pointer-events: none;
 }
 
-video.slide {
-  object-fit: cover;
-}
-
-/* ================= MENU ================= */
+/* ================= MENU (SUR LE SLIDE) ================= */
 
 .menu {
   position: absolute;
-  top: 15%;
+  top: 20%;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -69,39 +59,36 @@ video.slide {
 }
 
 .menu button {
+  width: 70%;
+  max-width: 280px;
+  padding: 15px;
+  border-radius: 40px;
+  border: none;
   background: #ff5a00;
   color: white;
-  border: none;
-  padding: 15px 40px;
-  border-radius: 40px;
   font-weight: bold;
-  font-size: 18px;
+  font-size: 16px;
   box-shadow: 0 0 20px rgba(255,90,0,0.8);
-  transition: transform 0.2s;
-}
-
-.menu button:active {
-  transform: scale(0.95);
 }
 
 /* ================= FOOTER ================= */
 
 .footer {
   position: absolute;
-  bottom: 20px;
+  bottom: 15px;
   width: 100%;
   text-align: center;
   z-index: 3;
 }
 
 .footer img {
-  width: 40px;
-  margin: 10px;
+  width: 35px;
+  margin: 8px;
 }
 
 .footer p {
   color: white;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 /* ================= ORANGE BLUR ================= */
@@ -113,10 +100,10 @@ video.slide {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(255,90,0,0.7), transparent);
+  background: radial-gradient(circle, rgba(255,90,0,0.6), transparent);
   filter: blur(120px);
   z-index: 1;
-  animation: cloud 12s infinite alternate ease-in-out;
+  animation: cloud 10s infinite alternate ease-in-out;
 }
 
 @keyframes cloud {
