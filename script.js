@@ -1,30 +1,22 @@
-/* ================= INIT SÉCURISÉ ================= */
+/* ================= NAV ================= */
+
+function goToapplication(){
+  const app = document.querySelector(".app");
+
+  if(app){
+    app.style.transition = "transform 0.6s ease, opacity 0.6s ease";
+    app.style.transform = "scale(1.1)";
+    app.style.opacity = "0";
+  }
+
+  setTimeout(() => {
+    window.location.href = "application.html";
+  }, 500);
+}
+
+/* ================= SLIDER ================= */
 
 document.addEventListener("DOMContentLoaded", () => {
-
-  /* ================= FADE IN (FIX) ================= */
-
-  document.body.style.opacity = "1";
-
-
-  /* ================= NAV ================= */
-
-  window.goToapplication = function(){
-    const app = document.querySelector(".app");
-
-    if(app){
-      app.style.transition = "transform 0.6s ease, opacity 0.6s ease";
-      app.style.transform = "scale(1.1)";
-      app.style.opacity = "0";
-    }
-
-    setTimeout(() => {
-      window.location.href = "application.html";
-    }, 500);
-  };
-
-
-  /* ================= SLIDER ================= */
 
   const slides = document.querySelector(".slides");
   const slideElements = document.querySelectorAll(".slide");
@@ -50,8 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-
-  /* ================= CERCLE ROTATION ================= */
+  /* ================= CERCLE ================= */
 
   const circle = document.querySelector(".circle");
 
