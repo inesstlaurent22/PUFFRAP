@@ -1,37 +1,35 @@
 html, body {
   margin: 0;
+  padding: 0;
   height: 100%;
-  font-family: sans-serif;
+  overflow: hidden;
+}
+
+/* CONTAINER APP */
+body {
+  position: fixed;
+  width: 100%;
+  height: 100%;
 }
 
 /* MAP */
 #map {
+  position: absolute;
   width: 100%;
-  height: 100vh;
+  height: 100%;
 }
 
 /* BOUTON GEO */
 #locateBtn {
   position: absolute;
-  bottom: 20px;
+  bottom: 25px;
   right: 20px;
   background: #ff5a00;
   color: white;
   border: none;
-  padding: 15px;
+  padding: 16px;
   border-radius: 50%;
   font-size: 20px;
-  box-shadow: 0 0 15px rgba(255,90,0,0.8);
+  box-shadow: 0 0 20px rgba(255,90,0,0.8);
   z-index: 1000;
-}
-
-/* POPUP */
-.leaflet-popup-content {
-  text-align: center;
-}
-
-.favorite {
-  color: red;
-  font-size: 20px;
-  cursor: pointer;
 }
