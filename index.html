@@ -3,16 +3,13 @@
 <head>
   <meta charset="UTF-8">
 
-  <!-- VIEWPORT MOBILE APP -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
   <title>Puff News</title>
 
-  <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#ff5a00">
 
-  <!-- iOS APP MODE -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="images/icon-192.png">
@@ -22,36 +19,37 @@
 
 <body>
 
-<!-- APP CONTAINER -->
 <div class="app">
 
-  <!-- BACKGROUND -->
-  <div class="background"></div>
+  <!-- SLIDER FULL SCREEN -->
+  <div class="slider">
 
-  <!-- MENU -->
-  <div class="menu">
-    <button onclick="goToapplication()">APPLICATION</button>
-    <button>SORTIES</button>
+    <div class="orange-blur"></div>
+
+    <div class="slides">
+      <img src="images/Puffrap1.JPG" class="slide">
+
+      <!-- VIDEO -->
+      <video class="slide" autoplay muted loop playsinline>
+        <source src="images/Puffrap2.MP4" type="video/mp4">
+      </video>
+
+      <img src="images/Puffrap3.JPG" class="slide">
+    </div>
+
+    <!-- MENU PAR-DESSUS -->
+    <div class="menu">
+      <button onclick="goToapplication()">APPLICATION</button>
+      <button>SORTIES</button>
+    </div>
+
   </div>
 
-  <!-- SLIDER MUSIQUE -->
-<div class="slider">
-
-  <div class="orange-blur"></div>
-
-  <div class="slides">
-    <img src="images/Puffrap1.JPG" class="slide">
-    <img src="images/Puffrap2.MP4" class="slide">
-    <img src="images/Puffrap3.JPG" class="slide">
-  </div>
-
-</div>
-
-  <!-- FOOTER -->
+  <!-- FOOTER EN BAS -->
   <div class="footer">
-    <img src="images/insta.png" alt="instagram">
-    <img src="images/mail.png" alt="mail">
-    <img src="images/tiktok.png" alt="tiktok">
+    <img src="images/insta.png">
+    <img src="images/mail.png">
+    <img src="images/tiktok.png">
     <p>@puffnews</p>
   </div>
 
