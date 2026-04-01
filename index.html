@@ -1,49 +1,71 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Puff News</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+
+  <!-- VIEWPORT MOBILE APP -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <title>Puff News</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ff5a00">
+
+  <!-- iOS APP MODE -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="images/icon-192.png">
+
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<!-- BACKGROUND -->
-<div class="background"></div>
+<!-- APP CONTAINER -->
+<div class="app">
 
-<!-- MENU -->
-<div class="menu">
-  <button>APPLICATION</button>
-  <button>SORTIES</button>
-  <button>CONTACT</button>
-</div>
+  <!-- BACKGROUND -->
+  <div class="background"></div>
 
-<!-- SLIDER -->
-<div class="slider" id="slider">
-  <div class="slides">
-    <img src="images/Puffrap1.JPG" class="slide active">
-    <img src="images/Puffrap2.JPG" class="slide">
-    <img src="images/Puffrap3.JPG" class="slide">
+  <!-- MENU -->
+  <div class="menu">
+    <button>ACTUALITÉ</button>
+    <button>MUSIQUE</button>
+    <button>SORTIES</button>
+    <button>CONTACT</button>
   </div>
 
-  <!-- FLUID ORANGE -->
-  <div class="orange-blur"></div>
-</div>
+  <!-- SLIDER MUSIQUE -->
+  <div class="slider" id="slider">
 
-<!-- HERO IMAGE -->
-<div class="hero">
-  <img src="images/hero.jpg">
-</div>
+    <!-- ORANGE CLOUD EFFECT -->
+    <div class="orange-blur"></div>
 
-<!-- FOOTER -->
-<div class="footer">
-  <img src="images/insta.png">
-  <img src="images/mail.png">
-  <img src="images/tiktok.png">
-  <p>@puffnews</p>
+    <div class="slides">
+      <img src="images/music1.jpg" class="slide">
+      <img src="images/music2.jpg" class="slide">
+      <img src="images/music3.jpg" class="slide">
+    </div>
+
+  </div>
+
+  <!-- IMAGE PRINCIPALE -->
+  <div class="hero">
+    <img src="images/hero.jpg" alt="image principale">
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <img src="images/insta.png" alt="instagram">
+    <img src="images/mail.png" alt="mail">
+    <img src="images/tiktok.png" alt="tiktok">
+    <p>@puffnews</p>
+  </div>
+
 </div>
 
 <script src="script.js"></script>
+
 </body>
 </html>
