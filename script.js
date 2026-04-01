@@ -14,8 +14,10 @@ const totalSlides = slides.length;
 /* ================= POSITION ================= */
 
 function updateSlide() {
-  currentTranslate = -index * window.innerWidth * 0.9;
+  const sliderWidth = document.querySelector(".slider").offsetWidth;
+  currentTranslate = -index * sliderWidth;
   prevTranslate = currentTranslate;
+
   slidesContainer.style.transform = `translateX(${currentTranslate}px)`;
 }
 
