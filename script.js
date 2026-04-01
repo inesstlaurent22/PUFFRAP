@@ -65,6 +65,10 @@ function snap() {
   }, 300);
 }
 
+function goToMap(){
+  window.location.href = "map.html";
+}
+
 /* ================= INIT ================= */
 
 window.addEventListener("resize", snap);
