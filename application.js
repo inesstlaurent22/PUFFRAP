@@ -21,8 +21,7 @@ function locateUser(){
       map.removeLayer(window.userMarker);
     }
 
-    window.userMarker = L.marker([lat, lon]).addTo(map)
-      .bindPopup("📍 Vous êtes ici");
+    window.userMarker = L.marker([lat, lon]).addTo(map);
 
   });
 }
@@ -51,10 +50,19 @@ window.selectUser = function(type){
   dropdown.classList.add("hidden");
 
   if(type === "client"){
-    popup.classList.remove("hidden");
+    openPopup();
   }
 };
 
+/* ================= POPUP IOS ================= */
+
+function openPopup(){
+  popup.classList.add("active");
+}
+
+function closePopup(){
+  popup.classList.remove("active");
+}
 
 /* ================= SIGNUP ================= */
 
@@ -65,7 +73,8 @@ window.signup = function(){
     nom: document.getElementById("nom").value,
     prenom: document.getElementById("prenom").value,
     email: document.getElementById("email").value,
-    password: document.getElementById("password").value
+    password: document.getElementById("password").value,
+    favoris: [] // IMPORTANT
   };
 
   if(!user.username || !user.nom || !user.prenom || !user.email || !user.password){
@@ -79,17 +88,95 @@ window.signup = function(){
 };
 
 
+/* ================= FAVORIS CONNECTÉS ================= */
+
+function getUser(){
+  return JSON.parse(localStorage.getItem("user"));
+}
+
+function saveUser(user){
+  localStorage.setItem("user", JSON.stringify(user));
+}
+
+window.toggleFavori = function(id){
+
+  let user = getUser();
+
+  if(!user){
+    alert("Connecte-toi");
+    return;
+  }
+
+  if(user.favoris.includes(id)){
+    user.favoris = user.favoris.filter(f => f !== id);
+  } else {
+    user.favoris.push(id);
+  }
+
+  saveUser(user);
+  renderMarkers();
+};
+
+
+/* ================= ARTISTES ================= */
+
+const artistes = [
+  { id:1, nom:"Punchologue", coords:[48.8566,2.3522]},
+  { id:2, nom:"Fumsecc", coords:[45.7640,4.8357]},
+  { id:3, nom:"Scott", coords:[43.2965,5.3698]},
+  { id:4, nom:"Mr Below", coords:[50.6292,3.0573]}
+];
+
+
+/* ================= MARKERS ================= */
+
+let markers = [];
+
+function renderMarkers(){
+
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+
+  const user = getUser();
+  const favs = user?.favoris || [];
+
+  artistes.forEach(artiste => {
+
+    const isFav = favs.includes(artiste.id);
+
+    const marker = L.marker(artiste.coords).addTo(map);
+
+    marker.bindPopup(`
+      <div style="text-align:center">
+        <h3>${artiste.nom}</h3>
+        <br>
+        <span onclick="toggleFavori(${artiste.id})" style="font-size:22px">
+          ${isFav ? "❤️" : "🤍"}
+        </span>
+      </div>
+    `);
+
+    markers.push(marker);
+  });
+}
+
+renderMarkers();
+
+
 /* ================= UI UPDATE ================= */
 
 function updateUI(){
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = getUser();
 
   if(user){
     signupBtn.classList.add("hidden");
     profile.classList.remove("hidden");
+    profile.classList.add("show");
+
     profileName.textContent = user.prenom;
-    popup.classList.add("hidden");
+
+    closePopup();
   }
 }
 
