@@ -10,78 +10,38 @@ const slider = document.querySelector(".slider");
 const slidesContainer = document.querySelector(".slides");
 const slides = document.querySelectorAll(".slide");
 
-let isDragging = false;
 let startX = 0;
-let currentTranslate = 0;
-let prevTranslate = 0;
 let index = 0;
-
 const totalSlides = slides.length;
 
-/* ================= TOUCH ================= */
+/* ================= SWIPE ================= */
 
-slider.addEventListener("touchstart", startDrag);
-slider.addEventListener("touchmove", drag);
-slider.addEventListener("touchend", endDrag);
-
-/* ================= START ================= */
-
-function startDrag(e) {
-  isDragging = true;
+slider.addEventListener("touchstart", (e) => {
   startX = e.touches[0].clientX;
-}
+});
 
-/* ================= MOVE ================= */
-
-function drag(e) {
-  if (!isDragging) return;
-
-  const currentX = e.touches[0].clientX;
-  const diff = currentX - startX;
-
-  slidesContainer.style.transform =
-    `translateX(${prevTranslate + diff}px)`;
-}
-
-/* ================= END ================= */
-
-function endDrag(e) {
-  if (!isDragging) return;
-  isDragging = false;
-
+slider.addEventListener("touchend", (e) => {
   const endX = e.changedTouches[0].clientX;
-  const diff = endX - startX;
+  const diff = startX - endX;
 
-  if (diff < -50) index = Math.min(index + 1, totalSlides - 1);
-  if (diff > 50) index = Math.max(index - 1, 0);
+  if (diff > 50) {
+    // swipe gauche → suivant
+    index = Math.min(index + 1, totalSlides - 1);
+  }
 
-  snap();
+  if (diff < -50) {
+    // swipe droite → précédent
+    index = Math.max(index - 1, 0);
+  }
+
+  updateSlide();
+});
+
+/* ================= UPDATE ================= */
+
+function updateSlide() {
+  slidesContainer.style.transform = `translateX(-${index * 100}%)`;
 }
 
-/* ================= SNAP ================= */
-
-function snap() {
-  const width = slider.offsetWidth;
-  currentTranslate = -index * width;
-  prevTranslate = currentTranslate;
-
-  slidesContainer.style.transition = "transform 0.3s ease";
-  slidesContainer.style.transform = `translateX(${currentTranslate}px)`;
-
-  setTimeout(() => {
-    slidesContainer.style.transition = "none";
-  }, 300);
-}
-
-/* ================= INIT ================= */
-
-window.addEventListener("resize", snap);
-snap();
-
-/* ================= SERVICE WORKER ================= */
-
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js")
-    .then(() => console.log("SW actif"))
-    .catch(err => console.log(err));
-}
+/* INIT */
+updateSlide();
