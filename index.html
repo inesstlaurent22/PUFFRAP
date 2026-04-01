@@ -13,15 +13,26 @@
 <div class="app">
 
   <!-- SLIDER -->
-  <div class="slider">
-    <div class="green-blur"></div>
+ <div class="slider">
+  <div class="green-blur"></div>
 
-    <div class="slides">
-      <img src="images/Puffrap1.JPG" class="slide">
-      <img src="images/Puffrap3.JPG" class="slide">
-      <img src="images/Puffrap1.JPG" class="slide">
-    </div>
+  <div class="slides">
+    <img src="images/Puffrap1.JPG" class="slide">
+
+    <video class="slide" muted playsinline>
+      <source src="images/Puffrap2.MP4" type="video/mp4">
+    </video>
+
+    <img src="images/Puffrap3.JPG" class="slide">
   </div>
+</div>
+
+<div class="circle-menu">
+  <div class="circle" id="circle">
+    <div class="top-zone" onclick="openApp()">Application</div>
+    <div class="bottom-zone" onclick="openSorties()">Sorties</div>
+  </div>
+</div>
 
   <!-- CERCLE -->
   <div class="circle-menu">
