@@ -81,19 +81,19 @@ body {
   border-radius: 20px;
 }
 
-/* SLIDES */
 .slides {
   display: flex;
+  width: 100%;
   height: 100%;
   transition: transform 0.5s ease;
+  position: relative;
+  z-index: 2;
 }
 
 .slide {
-  width: 100%;
+  min-width: 100%;
   height: 100%;
   object-fit: cover;
-  flex-shrink: 0;
-  border-radius: 20px;
 }
 
 /* ================= EFFET NUAGE ORANGE ================= */
