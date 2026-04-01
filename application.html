@@ -14,46 +14,43 @@
 
 <body>
 
-<!-- HEADER -->
+<!-- MAP -->
+<div id="map"></div>
+
+<!-- TOP RIGHT MENU -->
 <div class="topbar">
 
-  <!-- BOUTON INSCRIPTION -->
   <button id="signupBtn">Inscription</button>
 
-  <!-- PROFIL (caché au départ) -->
+  <div id="dropdown" class="dropdown hidden">
+    <button onclick="selectUser('client')">Client</button>
+    <button>Artiste</button>
+  </div>
+
   <div id="profile" class="hidden">
     <span id="profileName"></span>
-
-    <div id="profileDropdown" class="dropdown hidden">
-      <button>Mon compte</button>
-      <button>Mes réservations</button>
-      <button>Mes favoris</button>
-    </div>
   </div>
 
 </div>
 
 <!-- POPUP INSCRIPTION -->
 <div id="popup" class="popup hidden">
-
   <div class="popup-content">
 
-    <h2>Inscription</h2>
+    <h2>Créer un compte</h2>
 
+    <input id="username" placeholder="Identifiant">
     <input id="nom" placeholder="Nom">
     <input id="prenom" placeholder="Prénom">
     <input id="email" placeholder="Email">
     <input id="password" type="password" placeholder="Mot de passe">
 
-    <button onclick="signup()">Créer un compte</button>
+    <button onclick="signup()">S’inscrire</button>
 
   </div>
-
 </div>
 
-<!-- MAP -->
-<div id="map"></div>
-
+<!-- GPS BUTTON -->
 <button id="locateBtn">📍</button>
 
 <script src="application.js"></script>
