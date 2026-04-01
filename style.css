@@ -79,21 +79,45 @@ body {
   height: 200px;
   overflow: hidden;
   border-radius: 20px;
+  touch-action: pan-y;
 }
 
-/* TRACK */
 .slides {
   display: flex;
   height: 100%;
   transition: transform 0.3s ease;
 }
 
-/* CHAQUE IMAGE */
 .slide {
-  min-width: 100%; /* CRUCIAL */
+  min-width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 20px;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ORANGE DERRIÈRE */
+.orange-blur {
+  position: absolute;
+  width: 150%;
+  height: 150%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255,90,0,0.8), transparent);
+  filter: blur(100px);
+  z-index: 0;
+  animation: cloud 10s infinite alternate ease-in-out;
+}
+
+@keyframes cloud {
+  0% { transform: translate(-55%, -50%) scale(1); }
+  100% { transform: translate(-45%, -55%) scale(1.2); }
+}
+
+.slides {
+  position: relative;
+  z-index: 2;
 }
 
 /* ================= EFFET NUAGE ORANGE ================= */
