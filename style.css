@@ -151,20 +151,6 @@ body {
   }
 }
 
-/* ================= HERO ================= */
-
-.hero {
-  position: absolute;
-  bottom: 110px;
-  width: 100%;
-}
-
-.hero img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
 /* ================= FOOTER ================= */
 
 .footer {
