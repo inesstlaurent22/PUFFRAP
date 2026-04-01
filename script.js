@@ -1,3 +1,11 @@
+/* ================= NAVIGATION ================= */
+
+function goToapplication() {
+  window.location.href = "application.html";
+}
+
+/* ================= SLIDER ================= */
+
 const slider = document.querySelector(".slider");
 const slidesContainer = document.querySelector(".slides");
 const slides = document.querySelectorAll(".slide");
@@ -65,11 +73,15 @@ function snap() {
   }, 300);
 }
 
-function goToMap(){
-  window.location.href = "map.html";
-}
-
 /* ================= INIT ================= */
 
 window.addEventListener("resize", snap);
 snap();
+
+/* ================= SERVICE WORKER ================= */
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js")
+    .then(() => console.log("SW actif"))
+    .catch(err => console.log(err));
+}
