@@ -48,24 +48,41 @@ const profileName = document.getElementById("profileName");
 const profileDropdown = document.getElementById("profileDropdown");
 
 
+/* ================= DROPDOWN ================= */
+
 signupBtn.onclick = () => {
   dropdown.classList.toggle("hidden");
   profileDropdown.classList.add("hidden");
 };
 
 loginBtn.onclick = () => {
+  loginPopup.classList.remove("hidden");
   loginPopup.classList.add("active");
   dropdown.classList.add("hidden");
 };
 
+profile.onclick = () => {
+  profileDropdown.classList.toggle("hidden");
+  dropdown.classList.add("hidden");
+};
+
+
+/* ================= POPUPS ================= */
+
 window.selectUser = function(type){
   dropdown.classList.add("hidden");
-  if(type === "client") popup.classList.add("active");
+  if(type === "client"){
+    popup.classList.remove("hidden");
+    popup.classList.add("active");
+  }
 };
 
 function closePopup(){
   popup.classList.remove("active");
   loginPopup.classList.remove("active");
+
+  popup.classList.add("hidden");
+  loginPopup.classList.add("hidden");
 }
 
 
@@ -152,9 +169,9 @@ function getRatings(id){
 }
 
 function addRating(id, rating){
-  let ratings = getRatings(id);
-  ratings.push(rating);
-  localStorage.setItem("ratings_"+id, JSON.stringify(ratings));
+  let r = getRatings(id);
+  r.push(rating);
+  localStorage.setItem("ratings_"+id, JSON.stringify(r));
   renderMarkers();
 }
 
@@ -187,7 +204,6 @@ function addComment(id){
   });
 
   localStorage.setItem("comments_"+id, JSON.stringify(comments));
-
   renderMarkers();
 }
 
@@ -282,14 +298,6 @@ function renderMarkers(){
 renderMarkers();
 
 
-/* ================= PROFIL ================= */
-
-profile.onclick = () => {
-  profileDropdown.classList.toggle("hidden");
-  dropdown.classList.add("hidden");
-};
-
-
 /* ================= LOGOUT ================= */
 
 window.logout = function(){
@@ -300,6 +308,7 @@ window.logout = function(){
   loginBtn.classList.remove("hidden");
 
   profile.classList.add("hidden");
+  profileDropdown.classList.add("hidden");
 };
 
 
@@ -321,5 +330,21 @@ function updateUI(){
 }
 
 updateUI();
+
+
+/* ================= CLOSE GLOBAL ================= */
+
+document.addEventListener("click", (e) => {
+
+  if(!e.target.closest(".topbar")){
+    dropdown.classList.add("hidden");
+    profileDropdown.classList.add("hidden");
+  }
+
+  if(!e.target.closest(".popup") && !e.target.closest("#signupBtn") && !e.target.closest("#loginBtn")){
+    closePopup();
+  }
+
+});
 
 });
