@@ -346,6 +346,51 @@ body {
   margin:10px 0;
 }
 
+/* ================= CTA PREMIUM ================= */
+
+.cta{
+  width:100%;
+  margin-top:12px;
+
+  padding:14px;
+
+  border:none;
+  border-radius:25px;
+
+  font-weight:bold;
+  font-size:14px;
+  color:white;
+
+  background:linear-gradient(135deg, #7ed957, #5fcf3a);
+
+  box-shadow:
+    0 8px 25px rgba(0,255,100,0.4),
+    inset 0 2px 6px rgba(255,255,255,0.2);
+
+  transition:all 0.25s ease;
+
+  cursor:pointer;
+}
+
+/* effet appui iOS */
+.cta:active{
+  transform:scale(0.96);
+
+  box-shadow:
+    0 4px 15px rgba(0,255,100,0.6),
+    inset 0 3px 8px rgba(0,0,0,0.2);
+}
+
+/* effet hover desktop */
+.cta:hover{
+  filter:brightness(1.1);
+}
+
+.cta{
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
 /* ================= SLIDER ================= */
 
 .service-slider{
