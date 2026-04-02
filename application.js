@@ -188,6 +188,7 @@ window.logout = function(){
   signOut(auth);
 };
 
+  
 /* ================= ARTISTES ================= */
 
 const artistes = [
@@ -196,6 +197,7 @@ const artistes = [
     nom:"Léo Martin",
     coords:[48.1173,-1.6778],
     image:"images/artiste1.jpg",
+    categories:["Rap","Freestyle"],
     services:["Mixage","Mastering","Freestyle"]
   },
   {
@@ -203,7 +205,16 @@ const artistes = [
     nom:"Sarah K",
     coords:[48.115,-1.68],
     image:"images/artiste2.jpg",
+    categories:["Chant","Pop"],
     services:["Chant","Cover","Studio"]
+  },
+  {
+    id:3,
+    nom:"DJ Nox",
+    coords:[48.118,-1.675],
+    image:"images/artiste3.jpg",
+    categories:["DJ","Electro"],
+    services:["DJ Set","Soirée","Mix"]
   }
 ];
 
@@ -214,30 +225,91 @@ function renderMarkers(){
 
   markerCluster.clearLayers();
 
+  const user = getUser();
+  const favs = user?.favoris || [];
+
   artistes.forEach(artiste => {
+
+    const isFav = favs.includes(artiste.id);
+    const avg = getAverage(artiste.id);
+    const comments = getComments(artiste.id);
 
     const icon = L.divIcon({
       className:"custom-marker",
-      html:`<div class="marker-img" style="background-image:url('${artiste.image}')"></div>`
+      html:`<div class="marker-img" style="background-image:url('${artiste.image}')"></div>`,
+      iconSize:[50,50]
     });
 
     const marker = L.marker(artiste.coords,{icon});
 
     marker.bindPopup(`
-      <div class="card-premium">
-        <h2>${artiste.nom}</h2>
 
-        <div class="service-slider">
-          <div class="service-track">
-            ${artiste.services.map(s=>`<div class="service-card">${s}</div>`).join("")}
-          </div>
-        </div>
+<div class="card-premium">
 
-        <button class="cta" onclick="openArtist(${artiste.id})">
-          Demander un rendez-vous
-        </button>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="avatar" style="background-image:url('${artiste.image}')"></div>
+
+    <div class="header-info">
+      <div class="stars">⭐⭐⭐⭐☆ <span>${avg}</span></div>
+
+      <div class="tags">
+        ${artiste.services.map(s=>`<span>${s}</span>`).join("")}
       </div>
-    `);
+    </div>
+  </div>
+
+  <h2>${artiste.nom}</h2>
+
+  <!-- SLIDER SERVICES -->
+  <div class="service-slider">
+    <div class="service-track">
+
+      <div class="service-card">🎵<br>50€</div>
+      <div class="service-card">🎚️<br>50€</div>
+      <div class="service-card">📱<br>50€</div>
+      <div class="service-card">🎤<br>50€</div>
+      <div class="service-card">📀<br>50€</div>
+
+    </div>
+  </div>
+
+  <!-- COMMENTS -->
+<!-- COMMENTS -->
+<div class="comments-box">
+
+  <h3>Commentaires</h3>
+
+  <div class="comments-list" id="comments-${artiste.id}">
+    
+    ${[
+      {name:"Lucas Martin", avatar:"https://randomuser.me/api/portraits/men/32.jpg", text:"Incroyable prestation 🔥"},
+      {name:"Sarah Dupont", avatar:"https://randomuser.me/api/portraits/women/44.jpg", text:"Très professionnelle"},
+      {name:"Mehdi K", avatar:"https://randomuser.me/api/portraits/men/22.jpg", text:"Qualité studio parfaite"},
+      {name:"Inès Laurent", avatar:"https://randomuser.me/api/portraits/women/65.jpg", text:"Super expérience !"},
+      {name:"Thomas R", avatar:"https://randomuser.me/api/portraits/men/12.jpg", text:"Je recommande à 100%"}
+    ].map(c=>`
+      <div class="comment">
+        <img src="${c.avatar}" class="mini-avatar">
+        <div>
+          <b>${c.name}</b><br>
+          ${c.text}
+        </div>
+      </div>
+    `).join("")}
+
+  </div>
+
+</div>
+
+  <!-- CTA -->
+  <button class="cta" onclick="openArtist(${artiste.id})">
+    Demander un rendez-vous
+  </button>
+
+</div>
+
+`);
 
     markerCluster.addLayer(marker);
   });
@@ -245,11 +317,11 @@ function renderMarkers(){
 
 renderMarkers();
 
-
-window.openArtist = function(id){
+  window.openArtist = function(id){
   window.location.href = "artiste.html?id=" + id;
 };
 
+  
   /* ================= CLOSE POPUP OUTSIDE ================= */
 
 window.addEventListener("click", (e) => {
