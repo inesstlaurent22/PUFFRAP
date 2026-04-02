@@ -374,7 +374,7 @@ body {
 }
 
 /* ================= COMMENTS ================= */
-
+/* BOX */
 .comments-box{
   background:#cfd8dc;
   border-radius:20px;
@@ -383,20 +383,20 @@ body {
   color:black;
 }
 
-/* fermé */
+/* LIST */
 .comments-list{
-  max-height:80px;
+  max-height:70px; /* 🔥 1 seul commentaire visible */
   overflow:hidden;
   transition:all 0.3s ease;
 }
 
-/* ouvert */
+/* OPEN */
 .comments-list.open{
-  max-height:220px; /* 🔥 plus grand */
+  max-height:220px;
   overflow-y:auto;
 }
 
-/* scroll smooth */
+/* SCROLL STYLE */
 .comments-list.open::-webkit-scrollbar{
   width:5px;
 }
@@ -406,16 +406,35 @@ body {
   border-radius:10px;
 }
 
-/* flèche */
+/* COMMENT */
+.comment{
+  display:flex;
+  gap:8px;
+  background:#7ed957;
+  border-radius:15px;
+  padding:8px;
+  margin-bottom:6px;
+  font-size:12px;
+}
+
+/* PHOTO */
+.mini-avatar{
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  object-fit:cover;
+}
+
+/* FLECHE */
 .expand-btn{
   text-align:center;
   cursor:pointer;
   margin-top:5px;
   font-size:18px;
-  transition:transform 0.3s;
+  transition:0.3s;
 }
 
-/* rotation flèche */
+/* rotation */
 .expand-btn.open{
   transform:rotate(180deg);
 }
