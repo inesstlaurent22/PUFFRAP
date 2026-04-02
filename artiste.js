@@ -1,69 +1,128 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+/* ================= CALENDAR ================= */
+
+const calendar = document.getElementById("calendar");
+
+if(calendar){
+
+  const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+  // HEADER
+  days.forEach(d => {
+    const el = document.createElement("div");
+    el.textContent = d;
+    el.style.fontWeight = "bold";
+    calendar.appendChild(el);
+  });
+
+  // DATES
+  for(let i = 1; i <= 31; i++){
+    const day = document.createElement("div");
+    day.classList.add("day");
+    day.textContent = i;
+
+    // week-end en rouge
+    if(i % 7 === 0 || i % 7 === 6){
+      day.classList.add("red");
+    }
+
+    calendar.appendChild(day);
+  }
+
+}
 const track = document.querySelector(".services-track");
 const cards = document.querySelectorAll(".service-card");
 
-if(!track) return;
-
 let isDown = false;
 let startX;
-let currentTranslate = 0;
-let prevTranslate = 0;
+let current = 0;
+let velocity = 0;
+let lastX = 0;
+let animation;
 
-/* ===== DRAG START ===== */
-track.addEventListener("mousedown", (e) => {
+/* ===== START ===== */
+track.addEventListener("mousedown", startDrag);
+track.addEventListener("touchstart", startDrag);
+
+function startDrag(e){
   isDown = true;
-  startX = e.clientX;
-});
+  cancelAnimationFrame(animation);
 
-/* ===== DRAG END ===== */
-window.addEventListener("mouseup", () => {
-  isDown = false;
-  prevTranslate = currentTranslate;
-});
+  startX = getX(e);
+  lastX = startX;
+}
 
-/* ===== DRAG MOVE ===== */
-window.addEventListener("mousemove", (e) => {
+/* ===== MOVE ===== */
+window.addEventListener("mousemove", moveDrag);
+window.addEventListener("touchmove", moveDrag);
+
+function moveDrag(e){
   if(!isDown) return;
 
-  const diff = e.clientX - startX;
-  currentTranslate = prevTranslate + diff;
+  const x = getX(e);
+  const diff = x - lastX;
 
-  /* LIMITES (empêche sortir du slider) */
-  const maxTranslate = 0;
-  const minTranslate = -(track.scrollWidth - window.innerWidth + 40);
+  velocity = diff; // vitesse
+  current += diff;
 
-  if(currentTranslate > maxTranslate) currentTranslate = maxTranslate;
-  if(currentTranslate < minTranslate) currentTranslate = minTranslate;
+  applyBounds();
 
-  track.style.transform = `translateX(${currentTranslate}px)`;
+  track.style.transform = `translateX(${current}px)`;
 
-  updateActiveCard();
-});
-
-/* ===== MOBILE ===== */
-track.addEventListener("touchstart", (e) => {
-  startX = e.touches[0].clientX;
-});
-
-track.addEventListener("touchmove", (e) => {
-  const diff = e.touches[0].clientX - startX;
-  currentTranslate = prevTranslate + diff;
-
-  const maxTranslate = 0;
-  const minTranslate = -(track.scrollWidth - window.innerWidth + 40);
-
-  if(currentTranslate > maxTranslate) currentTranslate = maxTranslate;
-  if(currentTranslate < minTranslate) currentTranslate = minTranslate;
-
-  track.style.transform = `translateX(${currentTranslate}px)`;
+  lastX = x;
 
   updateActiveCard();
-});
+}
 
-track.addEventListener("touchend", () => {
-  prevTranslate = currentTranslate;
-});
+/* ===== END ===== */
+window.addEventListener("mouseup", endDrag);
+window.addEventListener("touchend", endDrag);
+
+function endDrag(){
+  isDown = false;
+  inertia();
+}
+
+/* ===== INERTIA ===== */
+function inertia(){
+
+  velocity *= 0.95; // friction
+
+  current += velocity;
+
+  applyBounds();
+
+  track.style.transform = `translateX(${current}px)`;
+
+  updateActiveCard();
+
+  if(Math.abs(velocity) > 0.5){
+    animation = requestAnimationFrame(inertia);
+  }
+}
+
+/* ===== UTILS ===== */
+function getX(e){
+  return e.touches ? e.touches[0].clientX : e.clientX;
+}
+
+/* LIMITES */
+function applyBounds(){
+
+  const max = 0;
+  const min = -(track.scrollWidth - window.innerWidth + 40);
+
+  if(current > max){
+    current = max;
+    velocity = 0;
+  }
+
+  if(current < min){
+    current = min;
+    velocity = 0;
+  }
+}
 
 /* ===== ACTIVE CARD ===== */
 function updateActiveCard(){
@@ -77,7 +136,7 @@ function updateActiveCard(){
 
     const distance = Math.abs(center - cardCenter);
 
-    if(distance < 80){
+    if(distance < 90){
       card.classList.add("active");
     } else {
       card.classList.remove("active");
@@ -85,7 +144,3 @@ function updateActiveCard(){
 
   });
 }
-
-updateActiveCard();
-
-});
