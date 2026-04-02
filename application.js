@@ -35,7 +35,7 @@ window.signup = async function(){
   const username = document.getElementById("username").value.trim();
   const nom = document.getElementById("nom").value.trim();
   const prenom = document.getElementById("prenom").value.trim();
-  const email = document.getElementById("loginEmail").value.trim();
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
 
   if(!username || !nom || !prenom || !email || !password){
