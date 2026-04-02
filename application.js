@@ -100,6 +100,8 @@ if(locateBtn){
 
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+
 /* ================= UI ================= */
 
 const signupBtn = document.getElementById("signupBtn");
@@ -171,6 +173,7 @@ function closePopup(){
 
 }
 
+});
 
 /* ================= CLICK OUTSIDE ================= */
 
