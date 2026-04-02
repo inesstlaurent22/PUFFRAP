@@ -22,8 +22,6 @@ for(let i=1;i<=31;i++){
   calendar.appendChild(d);
 }
 
-/* ================= SLIDER DRAG + INERTIA ================= */
-
 /* ================= SLIDER DRAG FIX ================= */
 
 const slider = document.querySelector(".slider"); // ⚠️ important
