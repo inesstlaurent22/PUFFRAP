@@ -8,12 +8,16 @@ body {
   color: white;
 }
 
+.hidden {
+  display: none !important;
+}
+
 /* ================= MAP ================= */
 
 #map {
   position: fixed;
+  height: 100vh;
   width: 100%;
-  height: 100%;
   z-index: 0;
   pointer-events: auto;
 }
@@ -23,11 +27,8 @@ body {
 .topbar {
   position: absolute;
   top: 20px;
-  right: 20px;
-  z-index: 5000; /* 🔥 important */
-  display: flex;
-  gap: 10px;
-  align-items: center;
+  left: 20px;
+  z-index: 1000;
 }
 
 /* ================= BOUTONS ================= */
@@ -95,18 +96,14 @@ button {
 .popup {
   position: fixed;
   inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 7000;
-
-  opacity: 0;
-  pointer-events: none;
+  z-index: 2000;
+  display: none;
 }
 
 .popup.active {
-  opacity: 1;
-  pointer-events: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* ================= OVERLAY ================= */
@@ -123,21 +120,12 @@ button {
 
 .popup-content {
   position: relative;
-  z-index: 1;
-
+  z-index: 2001;
   background: #111;
-  border-radius: 20px;
-  padding: 25px;
+  padding: 20px;
+  border-radius: 12px;
   width: 90%;
-  max-width: 320px;
-
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-
-  transform: translateY(40px) scale(0.9);
-  opacity: 0;
-  transition: all 0.4s ease;
+  max-width: 400px;
 }
 
 .popup.active .popup-content {
@@ -166,13 +154,19 @@ button {
   font-weight: bold;
 }
 
+.popup-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+}
+
 /* ================= GPS ================= */
 
 #locateBtn {
   position: absolute;
   bottom: 25px;
   right: 20px;
-  z-index: 5000;
+  z-index: 1000;
   width: 60px;
   height: 60px;
   border-radius: 50%;
