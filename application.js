@@ -213,11 +213,15 @@ function addComment(id){
 
 /* ================= COMMENTS EXPAND ================= */
 
-window.toggleComments = function(id){
-  const el = document.getElementById("comments-"+id);
-  el.classList.toggle("open");
-};
+window.toggleComments = function(id, btn){
 
+  const el = document.getElementById("comments-"+id);
+
+  el.classList.toggle("open");
+  btn.classList.toggle("open");
+
+};
+  
 /* ================= SLIDER IOS SWIPE ================= */
 
 function initSliders(){
