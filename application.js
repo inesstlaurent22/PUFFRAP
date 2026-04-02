@@ -28,6 +28,13 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+
+/* ================= DOM READY ================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+/* ================= DOM ELEMENTS ================= */
+
 const username = document.getElementById("username");
 const nom = document.getElementById("nom");
 const prenom = document.getElementById("prenom");
@@ -35,14 +42,7 @@ const email = document.getElementById("email");
 const password = document.getElementById("password");
 
 const locateBtn = document.getElementById("locateBtn");
-if(locateBtn){
-  locateBtn.onclick = locateUser;
-}
 
-
-/* ================= DOM READY ================= */
-
-document.addEventListener("DOMContentLoaded", () => {
 
 /* ================= MAP ================= */
 
@@ -65,6 +65,8 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
 
 const markerCluster = L.markerClusterGroup();
 map.addLayer(markerCluster);
+
+
 /* ================= GEO ================= */
 
 function locateUser(){
@@ -88,9 +90,15 @@ function locateUser(){
   }
 }
 
-locateUser();
-document.getElementById("locateBtn").onclick = locateUser;
+/* ================= INIT GEO ================= */
 
+locateUser();
+
+if(locateBtn){
+  locateBtn.onclick = locateUser;
+}
+
+});
 
 /* ================= UI ================= */
 
@@ -108,29 +116,36 @@ const profileDropdown = document.getElementById("profileDropdown");
 
 /* ================= DROPDOWN ================= */
 
-signupBtn.onclick = () => {
-  dropdown.classList.toggle("hidden");
-  profileDropdown.classList.add("hidden");
-};
+if(signupBtn){
+  signupBtn.onclick = () => {
+    if(dropdown) dropdown.classList.toggle("hidden");
+    if(profileDropdown) profileDropdown.classList.add("hidden");
+  };
+}
 
-loginBtn.onclick = () => {
-  loginPopup.classList.remove("hidden");
-  loginPopup.classList.add("active");
-  dropdown.classList.add("hidden");
-};
+if(loginBtn){
+  loginBtn.onclick = () => {
+    if(loginPopup){
+      loginPopup.classList.remove("hidden");
+      loginPopup.classList.add("active");
+    }
+    if(dropdown) dropdown.classList.add("hidden");
+  };
+}
 
-profile.onclick = () => {
-  profileDropdown.classList.toggle("hidden");
-  dropdown.classList.add("hidden");
-};
+if(profile){
+  profile.onclick = () => {
+    if(profileDropdown) profileDropdown.classList.toggle("hidden");
+    if(dropdown) dropdown.classList.add("hidden");
+  };
+}
+
 
 /* ================= SELECT USER ================= */
 
 window.selectUser = function(type){
 
-  if(dropdown){
-    dropdown.classList.add("hidden");
-  }
+  if(dropdown) dropdown.classList.add("hidden");
 
   if(type === "client" && popup){
     popup.classList.remove("hidden");
@@ -156,16 +171,41 @@ function closePopup(){
 
 }
 
+
+/* ================= CLICK OUTSIDE ================= */
+
+document.addEventListener("click", (e) => {
+
+  // ferme dropdown si clic extérieur
+  if(!e.target.closest(".topbar")){
+    if(dropdown) dropdown.classList.add("hidden");
+    if(profileDropdown) profileDropdown.classList.add("hidden");
+  }
+
+  // ferme popup si clic en dehors
+  if(popup && popup.classList.contains("active") && !e.target.closest(".popup-content")){
+    closePopup();
+  }
+
+  if(loginPopup && loginPopup.classList.contains("active") && !e.target.closest(".popup-content")){
+    closePopup();
+  }
+
+});
+
+
 /* ================= FAVORIS ================= */
 
 window.toggleFavori = function(id){
 
-  let user = getUser();
+  const user = getUser();
 
   if(!user){
     alert("Connecte-toi");
     return;
   }
+
+  if(!user.favoris) user.favoris = [];
 
   if(user.favoris.includes(id)){
     user.favoris = user.favoris.filter(f => f !== id);
@@ -174,34 +214,57 @@ window.toggleFavori = function(id){
   }
 
   saveUser(user);
-  renderMarkers();
-};
 
+  if(typeof renderMarkers === "function"){
+    renderMarkers();
+  }
+
+};
 
 /* ================= NOTES ================= */
 
 function getRatings(id){
-  return JSON.parse(localStorage.getItem("ratings_"+id)) || [];
+  try{
+    return JSON.parse(localStorage.getItem("ratings_"+id)) || [];
+  } catch(e){
+    return [];
+  }
 }
 
 function addRating(id, rating){
+
+  if(typeof rating !== "number") return;
+
   let r = getRatings(id);
   r.push(rating);
+
   localStorage.setItem("ratings_"+id, JSON.stringify(r));
-  renderMarkers();
+
+  if(typeof renderMarkers === "function"){
+    renderMarkers();
+  }
 }
 
 function getAverage(id){
+
   const r = getRatings(id);
+
   if(!r.length) return "0.0";
-  return (r.reduce((a,b)=>a+b)/r.length).toFixed(1);
+
+  const sum = r.reduce((a,b)=>a+b, 0);
+
+  return (sum / r.length).toFixed(1);
 }
 
 
 /* ================= COMMENTAIRES ================= */
 
 function getComments(id){
-  return JSON.parse(localStorage.getItem("comments_"+id)) || [];
+  try{
+    return JSON.parse(localStorage.getItem("comments_"+id)) || [];
+  } catch(e){
+    return [];
+  }
 }
 
 function addComment(id){
@@ -209,19 +272,31 @@ function addComment(id){
   const user = getUser();
   const input = document.getElementById("comment-"+id);
 
-  if(!user) return alert("Connecte-toi");
-  if(!input.value) return;
+  if(!user){
+    alert("Connecte-toi");
+    return;
+  }
+
+  if(!input || !input.value.trim()){
+    return;
+  }
 
   let comments = getComments(id);
 
   comments.push({
-    pseudo: user.prenom,
-    text: input.value
+    pseudo: user.prenom || "Utilisateur",
+    text: input.value.trim()
   });
 
   localStorage.setItem("comments_"+id, JSON.stringify(comments));
-  renderMarkers();
+
+  input.value = ""; // reset champ
+
+  if(typeof renderMarkers === "function"){
+    renderMarkers();
+  }
 }
+
 
 /* ================= COMMENTS EXPAND ================= */
 
@@ -229,8 +304,14 @@ window.toggleComments = function(id, btn){
 
   const el = document.getElementById("comments-"+id);
 
+  if(!el) return;
+
   el.classList.toggle("open");
-  btn.classList.toggle("open");
+
+  // rotation flèche
+  if(btn){
+    btn.classList.toggle("open");
+  }
 
 };
   
@@ -238,13 +319,21 @@ window.toggleComments = function(id, btn){
 
 function initSliders(){
 
-  document.querySelectorAll(".service-slider").forEach(slider => {
+  const sliders = document.querySelectorAll(".service-slider");
+
+  if(!sliders.length) return;
+
+  sliders.forEach(slider => {
+
+    // évite de ré-attacher les events à chaque ouverture popup
+    if(slider.dataset.init === "true") return;
+    slider.dataset.init = "true";
 
     let isDown = false;
-    let startX;
-    let scrollLeft;
+    let startX = 0;
+    let scrollLeft = 0;
     let velocity = 0;
-    let momentumID;
+    let momentumID = null;
 
     /* ===== MOUSE ===== */
 
@@ -257,15 +346,23 @@ function initSliders(){
     });
 
     slider.addEventListener("mouseup", ()=>{
+      if(!isDown) return;
       isDown = false;
       slider.style.cursor = "grab";
       momentum();
     });
 
-    slider.addEventListener("mouseleave", ()=> isDown = false);
+    slider.addEventListener("mouseleave", ()=>{
+      if(isDown){
+        isDown = false;
+        momentum();
+      }
+    });
 
     slider.addEventListener("mousemove", (e)=>{
       if(!isDown) return;
+
+      e.preventDefault();
 
       const x = e.pageX;
       const walk = x - startX;
@@ -274,13 +371,13 @@ function initSliders(){
       slider.scrollLeft = scrollLeft - walk;
     });
 
-    /* ===== TOUCH ===== */
+    /* ===== TOUCH (MOBILE) ===== */
 
     slider.addEventListener("touchstart", (e)=>{
       startX = e.touches[0].pageX;
       scrollLeft = slider.scrollLeft;
       cancelAnimationFrame(momentumID);
-    });
+    }, { passive: true });
 
     slider.addEventListener("touchmove", (e)=>{
       const x = e.touches[0].pageX;
@@ -288,7 +385,7 @@ function initSliders(){
 
       velocity = walk;
       slider.scrollLeft = scrollLeft - walk;
-    });
+    }, { passive: true });
 
     slider.addEventListener("touchend", ()=>{
       momentum();
@@ -297,27 +394,34 @@ function initSliders(){
     /* ===== INERTIE IOS ===== */
 
     function momentum(){
+
       cancelAnimationFrame(momentumID);
 
       momentumID = requestAnimationFrame(function step(){
 
         slider.scrollLeft -= velocity;
-
-        velocity *= 0.95; // friction iOS
+        velocity *= 0.95;
 
         if(Math.abs(velocity) > 0.5){
           momentumID = requestAnimationFrame(step);
         }
       });
+
     }
 
   });
 
 }
 
+
+/* ================= INIT SLIDER SUR POPUP ================= */
+
+if(typeof map !== "undefined"){
   map.on("popupopen", () => {
-  initSliders();
-});
+    setTimeout(initSliders, 50); // laisse le DOM charger
+  });
+}
+
 
 /* ================= ARTISTES ================= */
 
@@ -348,18 +452,19 @@ const artistes = [
   }
 ];
 
-
 /* ================= MARKERS ================= */
 
 function renderMarkers(){
 
-  if(!markerCluster) return;
+  if(typeof markerCluster === "undefined" || !markerCluster) return;
 
   markerCluster.clearLayers();
 
   artistes.forEach(artiste => {
 
-    const avg = "4.8"; // valeur fixe (évite crash)
+    if(!artiste.coords || !artiste.image) return;
+
+    const avg = "4.8";
     const services = artiste.services || [];
 
     const icon = L.divIcon({
@@ -370,8 +475,9 @@ function renderMarkers(){
 
     const marker = L.marker(artiste.coords, { icon });
 
-    marker.bindPopup(`
+    /* ===== POPUP HTML ===== */
 
+    const popupHTML = `
 <div class="card-premium">
 
   <!-- HEADER -->
@@ -382,7 +488,7 @@ function renderMarkers(){
       <div class="stars">⭐⭐⭐⭐☆ <span>${avg}</span></div>
 
       <div class="tags">
-        ${services.map(s=>`<span>${s}</span>`).join("")}
+        ${services.map(s => `<span>${s}</span>`).join("")}
       </div>
     </div>
   </div>
@@ -413,7 +519,7 @@ function renderMarkers(){
         {name:"Mehdi K", avatar:"https://randomuser.me/api/portraits/men/22.jpg", text:"Qualité studio parfaite"},
         {name:"Inès Laurent", avatar:"https://randomuser.me/api/portraits/women/65.jpg", text:"Super expérience !"},
         {name:"Thomas R", avatar:"https://randomuser.me/api/portraits/men/12.jpg", text:"Je recommande à 100%"}
-      ].map(c=>`
+      ].map(c => `
         <div class="comment">
           <img src="${c.avatar}" class="mini-avatar">
           <div>
@@ -433,83 +539,127 @@ function renderMarkers(){
   </button>
 
 </div>
+`;
 
-`);
+    marker.bindPopup(popupHTML, {
+      maxWidth: 320,
+      closeButton: true
+    });
 
     markerCluster.addLayer(marker);
   });
+
 }
 
 
 /* ================= INIT ================= */
 
-renderMarkers();
+// ⚠️ IMPORTANT : attendre que la map soit prête
+if(typeof map !== "undefined"){
+  renderMarkers();
+}
 
 
 /* ================= NAV ================= */
 
 window.openArtist = function(id){
+  if(!id) return;
   window.location.href = "artiste.html?id=" + id;
 };
+
 
 /* ================= LOGOUT ================= */
 
 window.logout = function(){
 
-  localStorage.removeItem("user");
+  try{
+    localStorage.removeItem("user");
+  } catch(e){}
 
-  signupBtn.classList.remove("hidden");
-  loginBtn.classList.remove("hidden");
+  if(signupBtn) signupBtn.classList.remove("hidden");
+  if(loginBtn) loginBtn.classList.remove("hidden");
 
-  profile.classList.add("hidden");
-  profileDropdown.classList.add("hidden");
+  if(profile) profile.classList.add("hidden");
+  if(profileDropdown) profileDropdown.classList.add("hidden");
 };
 
-
-/* ================= UI ================= */
+/* ================= UI AUTH ================= */
 
 onAuthStateChanged(auth, async (user) => {
 
-  if(user){
-    const docSnap = await getDoc(doc(db, "users", user.uid));
+  try{
 
-    if(docSnap.exists()){
-      const data = docSnap.data();
+    if(user){
 
-      profile.classList.remove("hidden");
-      signupBtn.classList.add("hidden");
-      loginBtn.classList.add("hidden");
+      let data = null;
 
-      profileName.textContent = data.prenom;
+      try{
+        const docSnap = await getDoc(doc(db, "users", user.uid));
+        if(docSnap.exists()){
+          data = docSnap.data();
+        }
+      } catch(e){
+        console.log("Erreur Firestore :", e);
+      }
+
+      if(profile) profile.classList.remove("hidden");
+      if(signupBtn) signupBtn.classList.add("hidden");
+      if(loginBtn) loginBtn.classList.add("hidden");
+
+      if(profileName){
+        profileName.textContent = data?.prenom || "Utilisateur";
+      }
+
+    } else {
+
+      if(profile) profile.classList.add("hidden");
+      if(signupBtn) signupBtn.classList.remove("hidden");
+      if(loginBtn) loginBtn.classList.remove("hidden");
+
     }
-  } else {
-    profile.classList.add("hidden");
-    signupBtn.classList.remove("hidden");
-    loginBtn.classList.remove("hidden");
+
+  } catch(e){
+    console.log("Erreur auth :", e);
   }
 
 });
 
-  /* ================= CLOSE POPUP OUTSIDE ================= */
+
+/* ================= CLOSE POPUP OUTSIDE ================= */
 
 window.addEventListener("click", (e) => {
 
-  if (popup.classList.contains("active") && !e.target.closest(".popup-content")) {
+  // popup inscription
+  if(
+    popup &&
+    popup.classList.contains("active") &&
+    !e.target.closest(".popup-content") &&
+    !e.target.closest("#signupBtn")
+  ){
     closePopup();
   }
 
-  if (loginPopup.classList.contains("active") && !e.target.closest(".popup-content")) {
+  // popup login
+  if(
+    loginPopup &&
+    loginPopup.classList.contains("active") &&
+    !e.target.closest(".popup-content") &&
+    !e.target.closest("#loginBtn")
+  ){
     closePopup();
   }
 
 });
+
+
+/* ================= STOP PROPAGATION ================= */
 
 const popups = document.querySelectorAll(".popup-content");
 
 if(popups.length){
   popups.forEach(el => {
-    el.addEventListener("click", (e) => e.stopPropagation());
+    el.addEventListener("click", (e) => {
+      e.stopPropagation();
+    });
   });
 }
-
-});
