@@ -1,109 +1,91 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-/* ================= CALENDAR ================= */
-
-const calendar = document.getElementById("calendar");
-
-if(calendar){
-
-  const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-
-  // HEADER
-  days.forEach(d => {
-    const el = document.createElement("div");
-    el.textContent = d;
-    el.style.fontWeight = "bold";
-    calendar.appendChild(el);
-  });
-
-  // DATES
-  for(let i = 1; i <= 31; i++){
-    const day = document.createElement("div");
-    day.classList.add("day");
-    day.textContent = i;
-
-    // week-end en rouge
-    if(i % 7 === 0 || i % 7 === 6){
-      day.classList.add("red");
-    }
-
-    calendar.appendChild(day);
-  }
-
-}
-
-
-/* ================= SLIDER PREMIUM ================= */
-
-const slider = document.querySelector(".services-slider");
+const track = document.querySelector(".services-track");
 const cards = document.querySelectorAll(".service-card");
 
-if(slider){
+if(!track) return;
 
-  let isDown = false;
-  let startX;
-  let scrollLeft;
+let isDown = false;
+let startX;
+let currentTranslate = 0;
+let prevTranslate = 0;
 
-  /* ===== MOUSE ===== */
-  slider.addEventListener("mousedown", (e) => {
-    isDown = true;
-    startX = e.pageX - slider.offsetLeft;
-    scrollLeft = slider.scrollLeft;
-  });
+/* ===== DRAG START ===== */
+track.addEventListener("mousedown", (e) => {
+  isDown = true;
+  startX = e.clientX;
+});
 
-  slider.addEventListener("mouseleave", () => isDown = false);
-  slider.addEventListener("mouseup", () => isDown = false);
+/* ===== DRAG END ===== */
+window.addEventListener("mouseup", () => {
+  isDown = false;
+  prevTranslate = currentTranslate;
+});
 
-  slider.addEventListener("mousemove", (e) => {
-    if(!isDown) return;
-    e.preventDefault();
+/* ===== DRAG MOVE ===== */
+window.addEventListener("mousemove", (e) => {
+  if(!isDown) return;
 
-    const x = e.pageX - slider.offsetLeft;
-    const walk = (x - startX) * 1.5;
+  const diff = e.clientX - startX;
+  currentTranslate = prevTranslate + diff;
 
-    slider.scrollLeft = scrollLeft - walk;
-  });
+  /* LIMITES (empêche sortir du slider) */
+  const maxTranslate = 0;
+  const minTranslate = -(track.scrollWidth - window.innerWidth + 40);
 
-  /* ===== TOUCH (mobile) ===== */
-  let startTouchX = 0;
+  if(currentTranslate > maxTranslate) currentTranslate = maxTranslate;
+  if(currentTranslate < minTranslate) currentTranslate = minTranslate;
 
-  slider.addEventListener("touchstart", (e) => {
-    startTouchX = e.touches[0].clientX;
-    scrollLeft = slider.scrollLeft;
-  });
-
-  slider.addEventListener("touchmove", (e) => {
-    const x = e.touches[0].clientX;
-    const walk = (x - startTouchX) * 1.5;
-
-    slider.scrollLeft = scrollLeft - walk;
-  });
-
-  /* ===== CARTE ACTIVE (effet premium) ===== */
-  function updateActiveCard(){
-
-    const center = slider.scrollLeft + slider.offsetWidth / 2;
-
-    cards.forEach(card => {
-
-      const cardCenter = card.offsetLeft + card.offsetWidth / 2;
-      const distance = Math.abs(center - cardCenter);
-
-      if(distance < 100){
-        card.classList.add("active");
-      } else {
-        card.classList.remove("active");
-      }
-
-    });
-  }
-
-  slider.addEventListener("scroll", () => {
-    requestAnimationFrame(updateActiveCard);
-  });
+  track.style.transform = `translateX(${currentTranslate}px)`;
 
   updateActiveCard();
+});
 
+/* ===== MOBILE ===== */
+track.addEventListener("touchstart", (e) => {
+  startX = e.touches[0].clientX;
+});
+
+track.addEventListener("touchmove", (e) => {
+  const diff = e.touches[0].clientX - startX;
+  currentTranslate = prevTranslate + diff;
+
+  const maxTranslate = 0;
+  const minTranslate = -(track.scrollWidth - window.innerWidth + 40);
+
+  if(currentTranslate > maxTranslate) currentTranslate = maxTranslate;
+  if(currentTranslate < minTranslate) currentTranslate = minTranslate;
+
+  track.style.transform = `translateX(${currentTranslate}px)`;
+
+  updateActiveCard();
+});
+
+track.addEventListener("touchend", () => {
+  prevTranslate = currentTranslate;
+});
+
+/* ===== ACTIVE CARD ===== */
+function updateActiveCard(){
+
+  const center = window.innerWidth / 2;
+
+  cards.forEach(card => {
+
+    const rect = card.getBoundingClientRect();
+    const cardCenter = rect.left + rect.width / 2;
+
+    const distance = Math.abs(center - cardCenter);
+
+    if(distance < 80){
+      card.classList.add("active");
+    } else {
+      card.classList.remove("active");
+    }
+
+  });
 }
+
+updateActiveCard();
 
 });
