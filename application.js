@@ -269,4 +269,10 @@ window.addEventListener("click", (e) => {
 
 });
 
+  
+document.querySelectorAll(".popup-content").forEach(el => {
+  el.addEventListener("click", (e) => e.stopPropagation());
+});
+
+
 });
