@@ -194,6 +194,19 @@ body {
   display: none;
 }
 
+#profile {
+  position: relative;
+  cursor: pointer;
+}
+
+/* dropdown profil */
+#profileDropdown {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  min-width: 180px;
+}
+
 /* ================= ANIMATION ================= */
 
 @keyframes fadeIn {
