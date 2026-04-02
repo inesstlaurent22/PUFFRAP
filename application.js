@@ -116,18 +116,17 @@ function closePopup(){
 
 window.signup = async function(){
 
-  const email = emailInput.value.trim();
-  const password = passwordInput.value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
 
   const userData = {
-    username: username.value,
-    nom: nom.value,
-    prenom: prenom.value,
+    username: document.getElementById("username").value,
+    nom: document.getElementById("nom").value,
+    prenom: document.getElementById("prenom").value,
     email
   };
 
   try{
-
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
     await setDoc(doc(db, "users", userCredential.user.uid), userData);
@@ -145,20 +144,16 @@ window.signup = async function(){
 
 window.login = async function(){
 
-  const email = loginUsername.value.trim();
-  const password = loginPassword.value.trim();
+  const email = document.getElementById("loginUsername").value.trim();
+  const password = document.getElementById("loginPassword").value.trim();
 
   try{
-
     await signInWithEmailAndPassword(auth, email, password);
-
     closePopup();
-
   } catch(e){
     alert("Erreur : " + e.message);
   }
 };
-
 
 /* ================= AUTH STATE ================= */
 
@@ -257,5 +252,21 @@ renderMarkers();
 window.openArtist = function(id){
   window.location.href = "artiste.html?id=" + id;
 };
+
+  /* ================= CLOSE POPUP OUTSIDE ================= */
+
+window.addEventListener("click", (e) => {
+
+  // INSCRIPTION
+  if (popup.classList.contains("active") && !e.target.closest(".popup-content")) {
+    closePopup();
+  }
+
+  // LOGIN
+  if (loginPopup.classList.contains("active") && !e.target.closest(".popup-content")) {
+    closePopup();
+  }
+
+});
 
 });
