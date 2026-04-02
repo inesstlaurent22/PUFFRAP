@@ -34,18 +34,35 @@ document.getElementById("locateBtn").onclick = locateUser;
 /* ================= UI ================= */
 
 const signupBtn = document.getElementById("signupBtn");
+const loginBtn = document.getElementById("loginBtn");
+
 const dropdown = document.getElementById("dropdown");
 const popup = document.getElementById("popup");
+const loginPopup = document.getElementById("loginPopup");
 
 const profile = document.getElementById("profile");
 const profileName = document.getElementById("profileName");
+const profileDropdown = document.getElementById("profileDropdown");
 
-/* dropdown */
+
+/* ================= DROPDOWN INSCRIPTION ================= */
+
 signupBtn.onclick = () => {
   dropdown.classList.toggle("hidden");
+  profileDropdown.classList.add("hidden");
 };
 
-/* choix user */
+
+/* ================= LOGIN POPUP ================= */
+
+loginBtn.onclick = () => {
+  loginPopup.classList.add("active");
+  dropdown.classList.add("hidden");
+};
+
+
+/* ================= SELECT USER ================= */
+
 window.selectUser = function(type){
   dropdown.classList.add("hidden");
 
@@ -54,7 +71,8 @@ window.selectUser = function(type){
   }
 };
 
-/* ================= POPUP IOS ================= */
+
+/* ================= POPUP ================= */
 
 function openPopup(){
   popup.classList.add("active");
@@ -62,33 +80,57 @@ function openPopup(){
 
 function closePopup(){
   popup.classList.remove("active");
+  loginPopup.classList.remove("active");
 }
+
 
 /* ================= SIGNUP ================= */
 
 window.signup = function(){
 
   const user = {
-    username: document.getElementById("username").value,
-    nom: document.getElementById("nom").value,
-    prenom: document.getElementById("prenom").value,
-    email: document.getElementById("email").value,
-    password: document.getElementById("password").value,
-    favoris: [] // IMPORTANT
+    username: document.getElementById("username").value.trim(),
+    nom: document.getElementById("nom").value.trim(),
+    prenom: document.getElementById("prenom").value.trim(),
+    email: document.getElementById("email").value.trim(),
+    password: document.getElementById("password").value.trim(),
+    favoris: []
   };
 
   if(!user.username || !user.nom || !user.prenom || !user.email || !user.password){
-    alert("Remplis tout");
+    alert("Remplis tous les champs");
     return;
   }
 
   localStorage.setItem("user", JSON.stringify(user));
-
   updateUI();
 };
 
 
-/* ================= FAVORIS CONNECTÉS ================= */
+/* ================= LOGIN ================= */
+
+window.login = function(){
+
+  const username = document.getElementById("loginUsername").value.trim();
+  const password = document.getElementById("loginPassword").value.trim();
+
+  const user = getUser();
+
+  if(!user){
+    alert("Aucun compte trouvé");
+    return;
+  }
+
+  if(user.username === username && user.password === password){
+    updateUI();
+    closePopup();
+  } else {
+    alert("Identifiants incorrects");
+  }
+};
+
+
+/* ================= USER HELPERS ================= */
 
 function getUser(){
   return JSON.parse(localStorage.getItem("user"));
@@ -97,6 +139,9 @@ function getUser(){
 function saveUser(user){
   localStorage.setItem("user", JSON.stringify(user));
 }
+
+
+/* ================= FAVORIS ================= */
 
 window.toggleFavori = function(id){
 
@@ -150,7 +195,7 @@ function renderMarkers(){
       <div style="text-align:center">
         <h3>${artiste.nom}</h3>
         <br>
-        <span onclick="toggleFavori(${artiste.id})" style="font-size:22px">
+        <span onclick="toggleFavori(${artiste.id})" style="font-size:22px;cursor:pointer">
           ${isFav ? "❤️" : "🤍"}
         </span>
       </div>
@@ -162,26 +207,20 @@ function renderMarkers(){
 
 renderMarkers();
 
-/* ================= DROPDOWN PROFIL ================= */
+
+/* ================= PROFIL ================= */
 
 profile.onclick = () => {
-  document.getElementById("profileDropdown").classList.toggle("hidden");
+  profileDropdown.classList.toggle("hidden");
+  dropdown.classList.add("hidden");
 };
 
 
 /* ================= ACTIONS ================= */
 
-function openAccount(){
-  alert("Page Mon compte à venir");
-}
-
-function openReservations(){
-  alert("Réservations à venir");
-}
-
-function openFavoris(){
-  alert("Favoris à venir");
-}
+window.openAccount = () => alert("Mon compte à venir");
+window.openReservations = () => alert("Réservations à venir");
+window.openFavoris = () => alert("Favoris à venir");
 
 
 /* ================= LOGOUT ================= */
@@ -190,17 +229,15 @@ window.logout = function(){
 
   localStorage.removeItem("user");
 
-  // reset UI
   signupBtn.classList.remove("hidden");
+  loginBtn.classList.remove("hidden");
+
   profile.classList.add("hidden");
 
-  // petit effet fluide
-  document.body.style.opacity = "0.5";
+  profileDropdown.classList.add("hidden");
 
-  setTimeout(() => {
-    document.body.style.opacity = "1";
-  }, 200);
 };
+
 
 /* ================= UI UPDATE ================= */
 
@@ -210,6 +247,8 @@ function updateUI(){
 
   if(user){
     signupBtn.classList.add("hidden");
+    loginBtn.classList.add("hidden");
+
     profile.classList.remove("hidden");
     profile.classList.add("show");
 
@@ -220,5 +259,17 @@ function updateUI(){
 }
 
 updateUI();
+
+
+/* ================= CLOSE CLICK OUTSIDE ================= */
+
+document.addEventListener("click", (e) => {
+
+  if(!e.target.closest(".topbar")){
+    dropdown.classList.add("hidden");
+    profileDropdown.classList.add("hidden");
+  }
+
+});
 
 });
