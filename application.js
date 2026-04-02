@@ -113,25 +113,37 @@ profile.onclick = () => {
   dropdown.classList.add("hidden");
 };
 
-
-/* ================= POPUPS ================= */
+/* ================= SELECT USER ================= */
 
 window.selectUser = function(type){
-  dropdown.classList.add("hidden");
-  if(type === "client"){
+
+  if(dropdown){
+    dropdown.classList.add("hidden");
+  }
+
+  if(type === "client" && popup){
     popup.classList.remove("hidden");
     popup.classList.add("active");
   }
+
 };
 
+
+/* ================= CLOSE POPUP ================= */
+
 function closePopup(){
-  popup.classList.remove("active");
-  loginPopup.classList.remove("active");
 
-  popup.classList.add("hidden");
-  loginPopup.classList.add("hidden");
+  if(popup){
+    popup.classList.remove("active");
+    popup.classList.add("hidden");
+  }
+
+  if(loginPopup){
+    loginPopup.classList.remove("active");
+    loginPopup.classList.add("hidden");
+  }
+
 }
-
 
 /* ================= USER ================= */
 
@@ -384,16 +396,14 @@ const artistes = [
 
 function renderMarkers(){
 
-  markerCluster.clearLayers();
+  if(!markerCluster) return;
 
-  const user = getUser();
-  const favs = user?.favoris || [];
+  markerCluster.clearLayers();
 
   artistes.forEach(artiste => {
 
-    const isFav = favs.includes(artiste.id);
-    const avg = getAverage(artiste.id);
-    const comments = getComments(artiste.id);
+    const avg = "4.8"; // valeur fixe (évite crash)
+    const services = artiste.services || [];
 
     const icon = L.divIcon({
       className:"custom-marker",
@@ -401,7 +411,7 @@ function renderMarkers(){
       iconSize:[50,50]
     });
 
-    const marker = L.marker(artiste.coords,{icon});
+    const marker = L.marker(artiste.coords, { icon });
 
     marker.bindPopup(`
 
@@ -415,53 +425,50 @@ function renderMarkers(){
       <div class="stars">⭐⭐⭐⭐☆ <span>${avg}</span></div>
 
       <div class="tags">
-        ${artiste.services.map(s=>`<span>${s}</span>`).join("")}
+        ${services.map(s=>`<span>${s}</span>`).join("")}
       </div>
     </div>
   </div>
 
   <h2>${artiste.nom}</h2>
 
-  <!-- SLIDER SERVICES -->
+  <!-- SLIDER -->
   <div class="service-slider">
     <div class="service-track">
-
       <div class="service-card">🎵<br>50€</div>
       <div class="service-card">🎚️<br>50€</div>
       <div class="service-card">📱<br>50€</div>
       <div class="service-card">🎤<br>50€</div>
       <div class="service-card">📀<br>50€</div>
-
     </div>
   </div>
 
   <!-- COMMENTS -->
-<!-- COMMENTS -->
-<div class="comments-box">
+  <div class="comments-box">
 
-  <h3>Commentaires</h3>
+    <h3>Commentaires</h3>
 
-  <div class="comments-list" id="comments-${artiste.id}">
-    
-    ${[
-      {name:"Lucas Martin", avatar:"https://randomuser.me/api/portraits/men/32.jpg", text:"Incroyable prestation 🔥"},
-      {name:"Sarah Dupont", avatar:"https://randomuser.me/api/portraits/women/44.jpg", text:"Très professionnelle"},
-      {name:"Mehdi K", avatar:"https://randomuser.me/api/portraits/men/22.jpg", text:"Qualité studio parfaite"},
-      {name:"Inès Laurent", avatar:"https://randomuser.me/api/portraits/women/65.jpg", text:"Super expérience !"},
-      {name:"Thomas R", avatar:"https://randomuser.me/api/portraits/men/12.jpg", text:"Je recommande à 100%"}
-    ].map(c=>`
-      <div class="comment">
-        <img src="${c.avatar}" class="mini-avatar">
-        <div>
-          <b>${c.name}</b><br>
-          ${c.text}
+    <div class="comments-list">
+
+      ${[
+        {name:"Lucas Martin", avatar:"https://randomuser.me/api/portraits/men/32.jpg", text:"Incroyable prestation 🔥"},
+        {name:"Sarah Dupont", avatar:"https://randomuser.me/api/portraits/women/44.jpg", text:"Très professionnelle"},
+        {name:"Mehdi K", avatar:"https://randomuser.me/api/portraits/men/22.jpg", text:"Qualité studio parfaite"},
+        {name:"Inès Laurent", avatar:"https://randomuser.me/api/portraits/women/65.jpg", text:"Super expérience !"},
+        {name:"Thomas R", avatar:"https://randomuser.me/api/portraits/men/12.jpg", text:"Je recommande à 100%"}
+      ].map(c=>`
+        <div class="comment">
+          <img src="${c.avatar}" class="mini-avatar">
+          <div>
+            <b>${c.name}</b><br>
+            ${c.text}
+          </div>
         </div>
-      </div>
-    `).join("")}
+      `).join("")}
+
+    </div>
 
   </div>
-
-</div>
 
   <!-- CTA -->
   <button class="cta" onclick="openArtist(${artiste.id})">
@@ -476,12 +483,17 @@ function renderMarkers(){
   });
 }
 
+
+/* ================= INIT ================= */
+
 renderMarkers();
 
-  window.openArtist = function(id){
+
+/* ================= NAV ================= */
+
+window.openArtist = function(id){
   window.location.href = "artiste.html?id=" + id;
 };
-
 
 /* ================= LOGOUT ================= */
 
