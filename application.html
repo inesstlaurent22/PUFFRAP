@@ -61,10 +61,47 @@
 
     <h2>Créer un compte</h2>
 
-    <input id="username" placeholder="Identifiant">
-    <input id="nom" placeholder="Nom">
-    <input id="prenom" placeholder="Prénom">
-    <input id="email" placeholder="Email">
+    <input id="username" type="text" placeholder="Identifiant">
+    <input id="nom" type="text" placeholder="Nom">
+    <input id="prenom" type="text" placeholder="Prénom">
+    <input id="email" type="email" placeholder="Email">
     <input id="password" type="password" placeholder="Mot de passe">
 
-   
+    <button type="button" onclick="signup()">S’inscrire</button>
+
+  </div>
+</div>
+
+
+<!-- ================= POPUP CONNEXION ================= -->
+<div id="loginPopup" class="popup hidden">
+  <div class="popup-content">
+
+    <h2>Connexion</h2>
+
+    <input id="loginUsername" type="email" placeholder="Email">
+    <input id="loginPassword" type="password" placeholder="Mot de passe">
+
+    <button type="button" onclick="login()">Se connecter</button>
+
+  </div>
+</div>
+
+
+<!-- ================= GPS BUTTON ================= -->
+<button id="locateBtn" type="button">📍</button>
+
+
+<!-- ================= SCRIPTS ================= -->
+
+<!-- LEAFLET -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<!-- CLUSTER -->
+<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+
+<!-- APP -->
+<script src="application.js"></script>
+
+</body>
+</html>
