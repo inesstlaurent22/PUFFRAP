@@ -220,19 +220,13 @@ const artistes = [
 
 
 /* ================= MARKERS ================= */
-
 function renderMarkers(){
 
   markerCluster.clearLayers();
 
-  const user = getUser();
-  const favs = user?.favoris || [];
-
   artistes.forEach(artiste => {
 
-    const isFav = favs.includes(artiste.id);
-    const avg = getAverage(artiste.id);
-    const comments = getComments(artiste.id);
+    const avg = "4.8";
 
     const icon = L.divIcon({
       className:"custom-marker",
@@ -246,7 +240,6 @@ function renderMarkers(){
 
 <div class="card-premium">
 
-  <!-- HEADER -->
   <div class="header">
     <div class="avatar" style="background-image:url('${artiste.image}')"></div>
 
@@ -261,48 +254,39 @@ function renderMarkers(){
 
   <h2>${artiste.nom}</h2>
 
-  <!-- SLIDER SERVICES -->
   <div class="service-slider">
     <div class="service-track">
-
       <div class="service-card">🎵<br>50€</div>
       <div class="service-card">🎚️<br>50€</div>
       <div class="service-card">📱<br>50€</div>
       <div class="service-card">🎤<br>50€</div>
       <div class="service-card">📀<br>50€</div>
+    </div>
+  </div>
+
+  <div class="comments-box">
+    <h3>Commentaires</h3>
+
+    <div class="comments-list">
+
+      ${[
+        {name:"Lucas", text:"Incroyable 🔥"},
+        {name:"Sarah", text:"Très pro"},
+        {name:"Mehdi", text:"Top qualité"},
+        {name:"Inès", text:"Super expérience"},
+        {name:"Thomas", text:"Je recommande"}
+      ].map(c=>`
+        <div class="comment">
+          <div>
+            <b>${c.name}</b><br>
+            ${c.text}
+          </div>
+        </div>
+      `).join("")}
 
     </div>
   </div>
 
-  <!-- COMMENTS -->
-<!-- COMMENTS -->
-<div class="comments-box">
-
-  <h3>Commentaires</h3>
-
-  <div class="comments-list" id="comments-${artiste.id}">
-    
-    ${[
-      {name:"Lucas Martin", avatar:"https://randomuser.me/api/portraits/men/32.jpg", text:"Incroyable prestation 🔥"},
-      {name:"Sarah Dupont", avatar:"https://randomuser.me/api/portraits/women/44.jpg", text:"Très professionnelle"},
-      {name:"Mehdi K", avatar:"https://randomuser.me/api/portraits/men/22.jpg", text:"Qualité studio parfaite"},
-      {name:"Inès Laurent", avatar:"https://randomuser.me/api/portraits/women/65.jpg", text:"Super expérience !"},
-      {name:"Thomas R", avatar:"https://randomuser.me/api/portraits/men/12.jpg", text:"Je recommande à 100%"}
-    ].map(c=>`
-      <div class="comment">
-        <img src="${c.avatar}" class="mini-avatar">
-        <div>
-          <b>${c.name}</b><br>
-          ${c.text}
-        </div>
-      </div>
-    `).join("")}
-
-  </div>
-
-</div>
-
-  <!-- CTA -->
   <button class="cta" onclick="openArtist(${artiste.id})">
     Demander un rendez-vous
   </button>
@@ -314,12 +298,6 @@ function renderMarkers(){
     markerCluster.addLayer(marker);
   });
 }
-
-renderMarkers();
-
-  window.openArtist = function(id){
-  window.location.href = "artiste.html?id=" + id;
-};
 
   
   /* ================= CLOSE POPUP OUTSIDE ================= */
