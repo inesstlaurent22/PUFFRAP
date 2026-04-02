@@ -349,7 +349,13 @@ body {
 /* ================= SLIDER ================= */
 
 .service-slider{
-  overflow:hidden;
+  overflow-x: scroll;
+  scroll-behavior: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.service-slider::-webkit-scrollbar{
+  display:none;
 }
 
 .service-track{
