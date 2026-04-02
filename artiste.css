@@ -54,10 +54,11 @@ body {
 }
 
 /* CONTAINER */
-/* CONTAINER */
 .services-slider {
   overflow: hidden; /* bloque scroll natif */
   margin-top: 30px;
+  width: 100%;
+  padding: 0 10px;
 }
 
 /* TRACK */
@@ -70,7 +71,7 @@ body {
 
 /* CARD (TAILLE FIXE comme avant) */
 .service-card {
-  width: 140px;
+  width: 120px;
   height: 140px;
   flex-shrink: 0;
 
