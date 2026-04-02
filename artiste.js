@@ -1,146 +1,93 @@
-document.addEventListener("DOMContentLoaded", () => {
-
 /* ================= CALENDAR ================= */
 
 const calendar = document.getElementById("calendar");
 
-if(calendar){
+const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
-  const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+days.forEach(d=>{
+  const el = document.createElement("div");
+  el.innerText = d;
+  el.style.fontWeight = "bold";
+  calendar.appendChild(el);
+});
 
-  // HEADER
-  days.forEach(d => {
-    const el = document.createElement("div");
-    el.textContent = d;
-    el.style.fontWeight = "bold";
-    calendar.appendChild(el);
-  });
+for(let i=1;i<=31;i++){
+  const d = document.createElement("div");
+  d.innerText = i;
 
-  // DATES
-  for(let i = 1; i <= 31; i++){
-    const day = document.createElement("div");
-    day.classList.add("day");
-    day.textContent = i;
-
-    // week-end en rouge
-    if(i % 7 === 0 || i % 7 === 6){
-      day.classList.add("red");
-    }
-
-    calendar.appendChild(day);
+  if(i%7===0 || i%7===6){
+    d.style.color = "red";
   }
 
+  calendar.appendChild(d);
 }
-const track = document.querySelector(".services-track");
-const cards = document.querySelectorAll(".service-card");
+
+/* ================= SLIDER DRAG + INERTIA ================= */
+
+const slider = document.querySelector(".slider-track");
 
 let isDown = false;
 let startX;
-let current = 0;
+let scrollLeft;
 let velocity = 0;
-let lastX = 0;
-let animation;
+let momentum;
 
-/* ===== START ===== */
-track.addEventListener("mousedown", startDrag);
-track.addEventListener("touchstart", startDrag);
-
-function startDrag(e){
+/* mouse */
+slider.addEventListener("mousedown",(e)=>{
   isDown = true;
-  cancelAnimationFrame(animation);
+  slider.style.cursor = "grabbing";
+  startX = e.pageX;
+  scrollLeft = slider.scrollLeft;
+});
 
-  startX = getX(e);
-  lastX = startX;
-}
+slider.addEventListener("mouseleave",()=>isDown=false);
+slider.addEventListener("mouseup",()=>{
+  isDown = false;
+  slider.style.cursor = "grab";
 
-/* ===== MOVE ===== */
-window.addEventListener("mousemove", moveDrag);
-window.addEventListener("touchmove", moveDrag);
+  momentumScroll();
+});
 
-function moveDrag(e){
+slider.addEventListener("mousemove",(e)=>{
   if(!isDown) return;
 
-  const x = getX(e);
-  const diff = x - lastX;
+  const x = e.pageX;
+  const walk = (x - startX);
 
-  velocity = diff; // vitesse
-  current += diff;
+  velocity = walk;
+  slider.scrollLeft = scrollLeft - walk;
+});
 
-  applyBounds();
+/* touch mobile */
+slider.addEventListener("touchstart",(e)=>{
+  startX = e.touches[0].pageX;
+  scrollLeft = slider.scrollLeft;
+});
 
-  track.style.transform = `translateX(${current}px)`;
+slider.addEventListener("touchmove",(e)=>{
+  const x = e.touches[0].pageX;
+  const walk = (x - startX);
 
-  lastX = x;
+  velocity = walk;
+  slider.scrollLeft = scrollLeft - walk;
+});
 
-  updateActiveCard();
-}
+slider.addEventListener("touchend",()=>{
+  momentumScroll();
+});
 
-/* ===== END ===== */
-window.addEventListener("mouseup", endDrag);
-window.addEventListener("touchend", endDrag);
+/* inertie iOS */
+function momentumScroll(){
 
-function endDrag(){
-  isDown = false;
-  inertia();
-}
+  cancelAnimationFrame(momentum);
 
-/* ===== INERTIA ===== */
-function inertia(){
+  momentum = requestAnimationFrame(function step(){
+    slider.scrollLeft -= velocity;
 
-  velocity *= 0.95; // friction
+    velocity *= 0.95;
 
-  current += velocity;
-
-  applyBounds();
-
-  track.style.transform = `translateX(${current}px)`;
-
-  updateActiveCard();
-
-  if(Math.abs(velocity) > 0.5){
-    animation = requestAnimationFrame(inertia);
-  }
-}
-
-/* ===== UTILS ===== */
-function getX(e){
-  return e.touches ? e.touches[0].clientX : e.clientX;
-}
-
-/* LIMITES */
-function applyBounds(){
-
-  const max = 0;
-  const min = -(track.scrollWidth - window.innerWidth + 40);
-
-  if(current > max){
-    current = max;
-    velocity = 0;
-  }
-
-  if(current < min){
-    current = min;
-    velocity = 0;
-  }
-}
-
-/* ===== ACTIVE CARD ===== */
-function updateActiveCard(){
-
-  const center = window.innerWidth / 2;
-
-  cards.forEach(card => {
-
-    const rect = card.getBoundingClientRect();
-    const cardCenter = rect.left + rect.width / 2;
-
-    const distance = Math.abs(center - cardCenter);
-
-    if(distance < 90){
-      card.classList.add("active");
-    } else {
-      card.classList.remove("active");
+    if(Math.abs(velocity) > 0.5){
+      momentum = requestAnimationFrame(step);
     }
-
   });
 }
