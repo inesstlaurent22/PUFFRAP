@@ -1,153 +1,93 @@
-/* ================= RESET ================= */
-
-html, body {
+/* RESET */
+body {
   margin: 0;
-  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   background: black;
-  font-family: sans-serif;
   color: white;
   overflow-x: hidden;
 }
 
-/* APP FORMAT MOBILE */
-.app {
-  max-width: 430px;
-  margin: auto;
-}
+/* ================= BACKGROUND ANIMÉ ================= */
 
-/* ================= SLIDER ================= */
-
-.slider {
-  position: relative;
-  width: 100%;
-  height: 260px;
-  overflow: hidden;
-  border-radius: 20px;
-  margin-top: 20px;
-}
-
-/* FLUO VERT DERRIÈRE */
-.green-blur {
-  position: absolute;
+.background {
+  position: fixed;
   width: 200%;
   height: 200%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(0,255,100,0.5), transparent);
+  top: -50%;
+  left: -50%;
+
+  background: radial-gradient(circle, rgba(0,255,120,0.3), transparent 60%);
+
   filter: blur(120px);
   z-index: 0;
-  animation: moveBlur 10s infinite alternate ease-in-out;
+
+  animation: moveClouds 12s ease-in-out infinite alternate;
 }
 
-/* TRACK */
-.slides {
-  display: flex;
-  height: 100%;
-  transition: transform 0.4s ease;
+@keyframes moveClouds {
+  0% {
+    transform: translate(-20%, -20%) scale(1);
+  }
+  100% {
+    transform: translate(20%, 20%) scale(1.3);
+  }
+}
+
+/* ================= CONTAINER ================= */
+
+.container {
   position: relative;
   z-index: 2;
+  text-align: center;
+  padding: 30px 20px;
 }
 
-/* SLIDES (IMPORTANT) */
-.slide {
-  min-width: 100%; /* CLÉ DU SLIDER */
-  height: 100%;
-  object-fit: cover;
+/* IMAGE */
+.hero {
+  width: 90%;
+  max-width: 350px;
+  border-radius: 10px;
+  margin-bottom: 30px;
 }
 
-/* VIDEO */
-video.slide {
-  object-fit: cover;
-}
+/* ================= BUTTONS ================= */
 
-/* ANIMATION BLUR */
-@keyframes moveBlur {
-  0% { transform: translate(-60%, -50%) scale(1); }
-  100% { transform: translate(-40%, -55%) scale(1.2); }
-}
-
-/* ================= CERCLE ================= */
-
-.circle-menu {
+.buttons {
   display: flex;
-  justify-content: center;
-  margin: 40px 0;
+  flex-direction: column;
+  gap: 20px;
+  margin: 30px 0;
 }
 
-.circle {
-  width: 230px;
-  height: 230px;
-  border-radius: 50%;
-  background: linear-gradient(145deg, #7ed957, #5fcf3a);
-  position: relative;
-
-  box-shadow:
-    0 20px 40px rgba(0,255,100,0.3),
-    inset 0 5px 15px rgba(255,255,255,0.2);
-
-  transform-style: preserve-3d;
-  transition: transform 0.8s cubic-bezier(.2,.8,.2,1);
-}
-
-/* TROU CENTRE */
-.circle::after {
-  content: "";
-  width: 110px;
-  height: 110px;
-  background: black;
-  border-radius: 50%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-/* SÉPARATION */
-.circle::before {
-  content: "";
-  width: 100%;
-  height: 6px;
-  background: black;
-  position: absolute;
-  top: 50%;
-}
-
-/* ZONES TEXTE */
-.top-zone, .bottom-zone {
-  position: absolute;
-  width: 100%;
-  text-align: center;
+.buttons button {
+  background: linear-gradient(135deg, #7ed957, #5fcf3a);
+  border: none;
+  padding: 18px;
+  border-radius: 30px;
+  color: white;
   font-weight: bold;
-  font-size: 22px;
-  cursor: pointer;
-  user-select: none;
+  font-size: 16px;
+
+  box-shadow: 0 10px 30px rgba(0,255,100,0.4);
+
+  transition: all 0.3s ease;
 }
 
-/* POSITION */
-.top-zone { top: 40px; }
-.bottom-zone { bottom: 40px; }
-
-/* EFFET TOUCH */
-.top-zone:active,
-.bottom-zone:active {
+.buttons button:active {
   transform: scale(0.95);
+  box-shadow: 0 15px 40px rgba(0,255,100,0.8);
 }
 
-/* ================= TEXTE ================= */
+/* ================= TEXT ================= */
 
-.content {
-  padding: 20px;
-  text-align: center;
-}
-
-.content h1 {
+h1 {
+  margin-top: 20px;
   font-size: 28px;
-  margin-bottom: 10px;
 }
 
-.content p {
-  font-size: 17px;
+p {
+  margin-top: 15px;
   color: #ccc;
   line-height: 1.6;
+  font-size: 16px;
 }
