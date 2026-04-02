@@ -81,29 +81,45 @@ body{
 /* ================= SLIDER ================= */
 
 .slider{
-  overflow:hidden;
-  margin:20px 0;
+  overflow-x: auto;              /* 🔥 scroll actif */
+  overflow-y: hidden;
+  display: flex;
+
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch; /* 🔥 iOS smooth */
+
+  cursor: grab;
+  scroll-snap-type: x mandatory;
 }
 
+/* masquer scrollbar */
+.slider::-webkit-scrollbar{
+  display: none;
+}
+
+/* TRACK */
 .slider-track{
-  display:flex;
-  gap:12px;
-  cursor:grab;
+  display: flex;
+  gap: 12px;
+  padding: 10px;
 }
 
-/* 🔥 3 blocs visibles */
-.card{
-  min-width:30%;
-  height:160px;
+/* BLOCS */
+.service-card{
+  min-width: 110px;   /* 🔥 taille fixe */
+  height: 110px;
 
-  background:#cfd8dc;
-  border-radius:20px;
+  flex-shrink: 0;     /* 🔥 évite écrasement */
 
-  color:black;
-  text-align:center;
-  padding:15px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(10px);
 
-  flex-shrink:0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  scroll-snap-align: start;
 }
 
 /* ================= CALENDAR ================= */
