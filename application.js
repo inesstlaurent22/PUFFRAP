@@ -17,8 +17,8 @@ import {
 
 /* ================= FIREBASE ================= */
 
-const firebaseConfig = {
-  apiKey: "AIza...",
+onst firebaseConfig = {
+  apiKey: "AIzaSyAHb_jyRobERs677A4ZlGTzOVRCLZaaF3s",
   authDomain: "puffrap.firebaseapp.com",
   projectId: "puffrap",
   storageBucket: "puffrap.firebasestorage.app",
