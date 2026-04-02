@@ -54,23 +54,54 @@ body {
 }
 
 /* SERVICES */
-.services {
+/* CONTAINER */
+.services-slider {
+  overflow-x: auto;
+  margin-top: 30px;
+  padding-bottom: 10px;
+
+  /* scroll fluide iOS */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* HIDE SCROLLBAR */
+.services-slider::-webkit-scrollbar {
+  display: none;
+}
+
+/* TRACK */
+.services-track {
   display: flex;
   gap: 15px;
-  margin-top: 30px;
+  padding: 5px;
 }
 
-.service {
-  flex: 1;
+/* CARD */
+.service-card {
+  min-width: 140px;
+  height: 140px;
+
   background: #cfd8dc;
   color: black;
+
   border-radius: 20px;
-  padding: 15px;
-  text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 18px;
+  font-weight: bold;
+
+  flex-shrink: 0;
+
+  transition: transform 0.2s ease;
 }
 
-.service p {
-  font-weight: bold;
+/* effet press iOS */
+.service-card:active {
+  transform: scale(0.95);
 }
 
 /* CALENDAR */
