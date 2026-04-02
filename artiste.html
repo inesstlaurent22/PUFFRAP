@@ -6,44 +6,71 @@
 <title>Artiste</title>
 
 <link rel="stylesheet" href="artiste.css">
-
 </head>
 
 <body>
 
-<div class="page">
+<div class="container">
 
-  <!-- HERO -->
-  <div class="hero">
-    <img id="artistImg">
-    <div class="overlay"></div>
-    <h1 id="artistName"></h1>
-  </div>
+  <!-- HEADER -->
+  <div class="header">
 
-  <!-- INFOS -->
-  <div class="content">
+    <div class="avatar"></div>
 
-    <div class="rating">
-      ⭐ <span id="rating"></span>
+    <div class="header-info">
+      <h1 id="name">Username</h1>
+
+      <div class="rating">
+        ⭐⭐⭐⭐☆ <span id="note">4.8</span>
+      </div>
+
+      <div class="tags">
+        <span>DJ</span>
+        <span>Chant</span>
+        <span>Mixage</span>
+        <span>Manager</span>
+      </div>
     </div>
 
-    <div id="services" class="services"></div>
+  </div>
 
-    <p class="desc">
-      Artiste professionnel disponible pour vos projets musicaux.
-    </p>
+  <!-- SERVICES -->
+  <div class="services">
 
-    <!-- RESERVATION -->
-    <div class="booking">
-      <input type="date" id="date">
-      <button onclick="book()">Réserver</button>
+    <div class="service">
+      🎵
+      <p>Portfolio</p>
+      <small>Musique 1 💿</small>
+      <small>Musique 2 💿</small>
     </div>
 
-    <!-- COMMENTAIRES -->
-    <h3>Avis</h3>
-    <div id="comments" class="comments"></div>
+    <div class="service">
+      🎚️
+      <p>Portfolio</p>
+      <small>Son 1 🎛️</small>
+      <small>Son 2 🎛️</small>
+    </div>
+
+    <div class="service">
+      💬
+      <p>Portfolio</p>
+      <small>Projet 1 📱</small>
+      <small>Projet 2 📱</small>
+    </div>
 
   </div>
+
+  <!-- CALENDAR -->
+  <div class="calendar-box">
+
+    <h2>Calendar</h2>
+
+    <div class="calendar" id="calendar"></div>
+
+  </div>
+
+  <!-- CTA -->
+  <button class="cta">Demander un rendez-vous</button>
 
 </div>
 
