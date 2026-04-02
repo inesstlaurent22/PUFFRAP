@@ -24,7 +24,10 @@ for(let i=1;i<=31;i++){
 
 /* ================= SLIDER DRAG + INERTIA ================= */
 
-const slider = document.querySelector(".slider-track");
+/* ================= SLIDER DRAG FIX ================= */
+
+const slider = document.querySelector(".slider"); // ⚠️ important
+const track = document.querySelector(".slider-track");
 
 let isDown = false;
 let startX;
@@ -32,24 +35,25 @@ let scrollLeft;
 let velocity = 0;
 let momentum;
 
-/* mouse */
-slider.addEventListener("mousedown",(e)=>{
+/* MOUSE */
+
+slider.addEventListener("mousedown", (e) => {
   isDown = true;
-  slider.style.cursor = "grabbing";
   startX = e.pageX;
   scrollLeft = slider.scrollLeft;
+  slider.style.cursor = "grabbing";
 });
 
-slider.addEventListener("mouseleave",()=>isDown=false);
-slider.addEventListener("mouseup",()=>{
+slider.addEventListener("mouseleave", () => isDown = false);
+
+slider.addEventListener("mouseup", () => {
   isDown = false;
   slider.style.cursor = "grab";
-
   momentumScroll();
 });
 
-slider.addEventListener("mousemove",(e)=>{
-  if(!isDown) return;
+slider.addEventListener("mousemove", (e) => {
+  if (!isDown) return;
 
   const x = e.pageX;
   const walk = (x - startX);
@@ -58,13 +62,14 @@ slider.addEventListener("mousemove",(e)=>{
   slider.scrollLeft = scrollLeft - walk;
 });
 
-/* touch mobile */
-slider.addEventListener("touchstart",(e)=>{
+/* TOUCH (mobile) */
+
+slider.addEventListener("touchstart", (e) => {
   startX = e.touches[0].pageX;
   scrollLeft = slider.scrollLeft;
 });
 
-slider.addEventListener("touchmove",(e)=>{
+slider.addEventListener("touchmove", (e) => {
   const x = e.touches[0].pageX;
   const walk = (x - startX);
 
@@ -72,21 +77,20 @@ slider.addEventListener("touchmove",(e)=>{
   slider.scrollLeft = scrollLeft - walk;
 });
 
-slider.addEventListener("touchend",()=>{
+slider.addEventListener("touchend", () => {
   momentumScroll();
 });
 
-/* inertie iOS */
-function momentumScroll(){
+/* INERTIE */
 
+function momentumScroll() {
   cancelAnimationFrame(momentum);
 
-  momentum = requestAnimationFrame(function step(){
+  momentum = requestAnimationFrame(function step() {
     slider.scrollLeft -= velocity;
-
     velocity *= 0.95;
 
-    if(Math.abs(velocity) > 0.5){
+    if (Math.abs(velocity) > 0.5) {
       momentum = requestAnimationFrame(step);
     }
   });
