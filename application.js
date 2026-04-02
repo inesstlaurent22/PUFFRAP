@@ -211,6 +211,37 @@ function addComment(id){
   renderMarkers();
 }
 
+/* ================= COMMENTS EXPAND ================= */
+
+window.toggleComments = function(id){
+  const el = document.getElementById("comments-"+id);
+  el.classList.toggle("open");
+};
+
+/* ================= SLIDER DRAG ================= */
+
+document.addEventListener("mousedown", e => {
+  if(!e.target.closest(".service-track")) return;
+
+  const slider = e.target.closest(".service-slider");
+  const track = slider.querySelector(".service-track");
+
+  let startX = e.pageX;
+  let scrollLeft = slider.scrollLeft;
+
+  function move(ev){
+    const walk = ev.pageX - startX;
+    slider.scrollLeft = scrollLeft - walk;
+  }
+
+  function stop(){
+    document.removeEventListener("mousemove", move);
+    document.removeEventListener("mouseup", stop);
+  }
+
+  document.addEventListener("mousemove", move);
+  document.addEventListener("mouseup", stop);
+});
 
 /* ================= ARTISTES ================= */
 
