@@ -295,6 +295,47 @@ body {
   margin-top: 5px;
 }
 
+/* NOTE + MOYENNE */
+.rating {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.avg {
+  font-weight: bold;
+}
+
+/* SERVICES */
+.services {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+.services span {
+  background: rgba(0,150,255,0.2);
+  color: #0af;
+  padding: 4px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+/* BOUTON RESERVATION */
+.book-btn {
+  margin-top: 10px;
+  background: linear-gradient(135deg, #00c6ff, #0072ff);
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 15px;
+  width: 100%;
+}
+
 /* ================= UTIL ================= */
 
 .hidden {
