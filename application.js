@@ -28,6 +28,17 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+const username = document.getElementById("username");
+const nom = document.getElementById("nom");
+const prenom = document.getElementById("prenom");
+const email = document.getElementById("email");
+const password = document.getElementById("password");
+
+const locateBtn = document.getElementById("locateBtn");
+if(locateBtn){
+  locateBtn.onclick = locateUser;
+}
+
 
 /* ================= DOM READY ================= */
 
@@ -144,60 +155,6 @@ function closePopup(){
   }
 
 }
-
-/* ================= USER ================= */
-
-function getUser(){
-  return JSON.parse(localStorage.getItem("user"));
-}
-
-function saveUser(user){
-  localStorage.setItem("user", JSON.stringify(user));
-}
-
-
-/* ================= SIGNUP ================= */
-
-window.signup = function(){
-
-  const user = {
-    username: username.value.trim(),
-    nom: nom.value.trim(),
-    prenom: prenom.value.trim(),
-    email: email.value.trim(),
-    password: password.value.trim(),
-    favoris: []
-  };
-
-  if(!user.username || !user.nom || !user.prenom || !user.email || !user.password){
-    alert("Remplis tous les champs");
-    return;
-  }
-
-  saveUser(user);
-  updateUI();
-};
-
-
-/* ================= LOGIN ================= */
-
-window.login = function(){
-
-  const user = getUser();
-
-  if(!user){
-    alert("Aucun compte trouvé");
-    return;
-  }
-
-  if(user.username === loginUsername.value && user.password === loginPassword.value){
-    updateUI();
-    closePopup();
-  } else {
-    alert("Identifiants incorrects");
-  }
-};
-
 
 /* ================= FAVORIS ================= */
 
@@ -511,22 +468,27 @@ window.logout = function(){
 
 /* ================= UI ================= */
 
-function updateUI(){
-
-  const user = getUser();
+onAuthStateChanged(auth, async (user) => {
 
   if(user){
-    signupBtn.classList.add("hidden");
-    loginBtn.classList.add("hidden");
+    const docSnap = await getDoc(doc(db, "users", user.uid));
 
-    profile.classList.remove("hidden");
-    profileName.textContent = user.prenom;
+    if(docSnap.exists()){
+      const data = docSnap.data();
 
-    closePopup();
+      profile.classList.remove("hidden");
+      signupBtn.classList.add("hidden");
+      loginBtn.classList.add("hidden");
+
+      profileName.textContent = data.prenom;
+    }
+  } else {
+    profile.classList.add("hidden");
+    signupBtn.classList.remove("hidden");
+    loginBtn.classList.remove("hidden");
   }
-}
 
-updateUI();
+});
 
   /* ================= CLOSE POPUP OUTSIDE ================= */
 
@@ -548,25 +510,6 @@ if(popups.length){
   popups.forEach(el => {
     el.addEventListener("click", (e) => e.stopPropagation());
   });
-}
-
-if(signupBtn){
-  signupBtn.onclick = () => {
-    dropdown.classList.toggle("hidden");
-  };
-}
-
-if(loginBtn){
-  loginBtn.onclick = () => {
-    loginPopup.classList.remove("hidden");
-    loginPopup.classList.add("active");
-  };
-}
-
-if(profile){
-  profile.onclick = () => {
-    profileDropdown.classList.toggle("hidden");
-  };
 }
 
 });
