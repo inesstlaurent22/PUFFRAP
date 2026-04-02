@@ -8,6 +8,7 @@ body {
   color: white;
 }
 
+/* ✅ UNE SEULE DÉFINITION */
 .hidden {
   display: none !important;
 }
@@ -16,10 +17,10 @@ body {
 
 #map {
   position: fixed;
-  height: 100vh;
+  inset: 0;
   width: 100%;
+  height: 100vh;
   z-index: 0;
-  pointer-events: auto;
 }
 
 /* ================= TOPBAR ================= */
@@ -29,12 +30,16 @@ body {
   top: 20px;
   left: 20px;
   z-index: 1000;
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
 /* ================= BOUTONS ================= */
 
 button {
   cursor: pointer;
+  border: none;
 }
 
 #signupBtn,
@@ -48,7 +53,7 @@ button {
   border-radius: 30px;
   font-weight: bold;
   box-shadow: 0 0 20px rgba(0,255,100,0.4);
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 #loginBtn {
@@ -65,9 +70,9 @@ button {
 
 .dropdown {
   position: absolute;
-  top: 50px;
-  right: 0;
-  background: rgba(0,0,0,0.9);
+  top: 55px;
+  left: 0;
+  background: rgba(0,0,0,0.95);
   backdrop-filter: blur(15px);
   border-radius: 15px;
   padding: 8px;
@@ -75,12 +80,11 @@ button {
   flex-direction: column;
   gap: 5px;
   min-width: 160px;
-  z-index: 6000;
+  z-index: 3000;
 }
 
 .dropdown button {
   background: none;
-  border: none;
   color: white;
   padding: 10px;
   text-align: left;
@@ -100,6 +104,7 @@ button {
   display: none;
 }
 
+/* ✅ ACTIVATION PROPRE */
 .popup.active {
   display: flex;
   justify-content: center;
@@ -111,9 +116,8 @@ button {
 .popup-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.65);
   backdrop-filter: blur(8px);
-  z-index: 0;
 }
 
 /* ================= CONTENU POPUP ================= */
@@ -122,18 +126,28 @@ button {
   position: relative;
   z-index: 2001;
   background: #111;
-  padding: 20px;
-  border-radius: 12px;
+  padding: 25px;
+  border-radius: 16px;
   width: 90%;
   max-width: 400px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  /* ✅ animation propre */
+  transform: translateY(20px) scale(0.95);
+  opacity: 0;
+  transition: all 0.25s ease;
 }
 
+/* ✅ animation entrée */
 .popup.active .popup-content {
   transform: translateY(0) scale(1);
   opacity: 1;
 }
 
-/* INPUTS */
+/* ================= INPUTS ================= */
 
 .popup input {
   padding: 12px;
@@ -141,23 +155,17 @@ button {
   border: none;
   background: #222;
   color: white;
+  outline: none;
 }
 
-/* BOUTONS POPUP */
+/* ================= BOUTONS POPUP ================= */
 
 .popup button {
   padding: 12px;
   border-radius: 20px;
-  border: none;
   background: linear-gradient(135deg, #0a84ff, #5ac8fa);
   color: white;
   font-weight: bold;
-}
-
-.popup-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
 }
 
 /* ================= GPS ================= */
@@ -170,7 +178,6 @@ button {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  border: none;
   background: rgba(0,0,0,0.6);
   backdrop-filter: blur(12px);
   color: white;
@@ -244,12 +251,10 @@ button {
   width: 100%;
   margin-top: 12px;
   padding: 14px;
-  border: none;
   border-radius: 25px;
   font-weight: bold;
   color: white;
   background: linear-gradient(135deg, #7ed957, #5fcf3a);
-  cursor: pointer;
 }
 
 .cta:active {
@@ -305,10 +310,4 @@ button {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-}
-
-/* ================= UTIL ================= */
-
-.hidden {
-  display: none !important;
 }
