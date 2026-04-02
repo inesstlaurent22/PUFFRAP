@@ -1,3 +1,5 @@
+/* ================= IMPORTS ================= */
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
   getAuth, 
@@ -32,11 +34,11 @@ const db = getFirestore(app);
 
 window.signup = async function(){
 
-  const username = document.getElementById("username").value.trim();
-  const nom = document.getElementById("nom").value.trim();
-  const prenom = document.getElementById("prenom").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
+  const username = document.getElementById("username")?.value.trim();
+  const nom = document.getElementById("nom")?.value.trim();
+  const prenom = document.getElementById("prenom")?.value.trim();
+  const email = document.getElementById("email")?.value.trim();
+  const password = document.getElementById("password")?.value.trim();
 
   if(!username || !nom || !prenom || !email || !password){
     alert("Remplis tous les champs");
@@ -68,8 +70,8 @@ window.signup = async function(){
 
 window.login = async function(){
 
-  const email = document.getElementById("loginEmail").value.trim();
-  const password = document.getElementById("loginPassword").value.trim();
+  const email = document.getElementById("loginEmail")?.value.trim();
+  const password = document.getElementById("loginPassword")?.value.trim();
 
   try{
     await signInWithEmailAndPassword(auth, email, password);
@@ -131,8 +133,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ===== BUTTONS ===== */
 
-  document.getElementById("signupSubmit")?.addEventListener("click", signup);
-  document.getElementById("loginSubmit")?.addEventListener("click", login);
+  document.getElementById("signupSubmit")?.addEventListener("click", window.signup);
+  document.getElementById("loginSubmit")?.addEventListener("click", window.login);
 
   /* ===== UI ===== */
 
@@ -144,110 +146,78 @@ document.addEventListener("DOMContentLoaded", () => {
   const profile = document.getElementById("profile");
   const profileDropdown = document.getElementById("profileDropdown");
 
-  signupBtn?.onclick = (e) => {
-  e.stopPropagation();
-
-  popup?.classList.remove("hidden");
-  popup?.classList.add("active");
-
-  dropdown?.classList.add("hidden");
-  profileDropdown?.classList.add("hidden");
-};
-
-  loginBtn?.onclick = (e) => {
+  signupBtn?.addEventListener("click", (e) => {
     e.stopPropagation();
+
+    popup?.classList.remove("hidden");
+    popup?.classList.add("active");
+
+    dropdown?.classList.add("hidden");
+    profileDropdown?.classList.add("hidden");
+  });
+
+  loginBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+
     loginPopup?.classList.remove("hidden");
     loginPopup?.classList.add("active");
-    dropdown?.classList.add("hidden");
-  };
 
-  profile?.onclick = (e) => {
+    dropdown?.classList.add("hidden");
+  });
+
+  profile?.addEventListener("click", (e) => {
     e.stopPropagation();
+
     profileDropdown?.classList.toggle("hidden");
     dropdown?.classList.add("hidden");
-  };
+  });
 
   /* ===== STOP CLICK DANS POPUP ===== */
 
   document.querySelectorAll(".popup-content").forEach(el => {
-    el.onclick = (e) => e.stopPropagation();
+    el.addEventListener("click", (e) => e.stopPropagation());
   });
 
-  /* ===== MAP ===== */
+  /* ================= MAP ================= */
 
   const mapElement = document.getElementById("map");
 
   if(mapElement){
 
-  window.map = L.map(mapElement).setView([48.1173, -1.6778], 12);
+    const map = L.map(mapElement).setView([48.1173, -1.6778], 12);
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap & Carto',
-    subdomains: 'abcd',
-    maxZoom: 20
-  }).addTo(map);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap & Carto',
+      subdomains: 'abcd',
+      maxZoom: 20
+    }).addTo(map);
 
-  window.markerCluster = L.markerClusterGroup();
-  map.addLayer(markerCluster);
+    const markerCluster = L.markerClusterGroup();
+    map.addLayer(markerCluster);
 
-  function locateUser(){
-    if(navigator.geolocation){
-      navigator.geolocation.getCurrentPosition(pos => {
+    function locateUser(){
+      if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(pos => {
 
-        const lat = pos.coords.latitude;
-        const lon = pos.coords.longitude;
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
 
-        map.setView([lat, lon], 13);
+          map.setView([lat, lon], 13);
 
-        if(window.userMarker){
-          map.removeLayer(window.userMarker);
-        }
+          if(window.userMarker){
+            map.removeLayer(window.userMarker);
+          }
 
-        window.userMarker = L.marker([lat, lon]).addTo(map);
+          window.userMarker = L.marker([lat, lon]).addTo(map);
 
-      });
+        });
+      }
     }
+
+    locateUser();
+
+    document.getElementById("locateBtn")?.addEventListener("click", locateUser);
   }
-
-  locateUser();
-
-  document.getElementById("locateBtn")?.addEventListener("click", locateUser);
-
-}
-
-  window.map = L.map(mapElement).setView([48.1173, -1.6778], 12);
-
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap & Carto',
-    subdomains: 'abcd',
-    maxZoom: 20
-  }).addTo(map);
-
-  window.markerCluster = L.markerClusterGroup();
-  map.addLayer(markerCluster);
-
-  function locateUser(){
-    if(navigator.geolocation){
-      navigator.geolocation.getCurrentPosition(pos => {
-
-        const lat = pos.coords.latitude;
-        const lon = pos.coords.longitude;
-
-        map.setView([lat, lon], 13);
-
-        if(window.userMarker){
-          map.removeLayer(window.userMarker);
-        }
-
-        window.userMarker = L.marker([lat, lon]).addTo(map);
-
-      });
-    }
-  }
-
-  locateUser();
-
-  document.getElementById("locateBtn")?.addEventListener("click", locateUser);
 
 });
 
@@ -263,7 +233,6 @@ window.closePopup = function(){
 
   loginPopup?.classList.remove("active");
   loginPopup?.classList.add("hidden");
-
 };
 
 /* ================= SELECT USER ================= */
@@ -279,7 +248,6 @@ window.selectUser = function(type){
     popup?.classList.remove("hidden");
     popup?.classList.add("active");
   }
-
 };
 
 /* ================= CLICK GLOBAL ================= */
@@ -297,16 +265,14 @@ window.addEventListener("click", (e) => {
   }
 
   if(
-    popup &&
-    popup.classList.contains("active") &&
+    popup?.classList.contains("active") &&
     !e.target.closest(".popup-content")
   ){
     closePopup();
   }
 
   if(
-    loginPopup &&
-    loginPopup.classList.contains("active") &&
+    loginPopup?.classList.contains("active") &&
     !e.target.closest(".popup-content")
   ){
     closePopup();
