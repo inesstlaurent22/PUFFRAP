@@ -15,23 +15,7 @@ body {
   width: 100%;
   height: 100%;
   z-index: 0;
-}
-
-/* ================= LEAFLET POPUP ================= */
-
-.leaflet-popup-content-wrapper {
-  background: #000 !important;
-  border-radius: 25px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-}
-
-.leaflet-popup-tip {
-  background: #000 !important;
-}
-
-.leaflet-popup-content {
-  margin: 10px;
-  color: white !important;
+  pointer-events: auto;
 }
 
 /* ================= TOPBAR ================= */
@@ -40,13 +24,17 @@ body {
   position: absolute;
   top: 20px;
   right: 20px;
-  z-index: 2000;
+  z-index: 5000; /* 🔥 important */
   display: flex;
   gap: 10px;
   align-items: center;
 }
 
 /* ================= BOUTONS ================= */
+
+button {
+  cursor: pointer;
+}
 
 #signupBtn,
 #loginBtn,
@@ -86,8 +74,7 @@ body {
   flex-direction: column;
   gap: 5px;
   min-width: 160px;
-  animation: fadeIn 0.25s ease;
-  z-index: 2500;
+  z-index: 6000;
 }
 
 .dropdown button {
@@ -108,12 +95,11 @@ body {
 .popup {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.7);
-  backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 3000;
+  z-index: 7000;
+
   opacity: 0;
   pointer-events: none;
 }
@@ -123,15 +109,32 @@ body {
   pointer-events: auto;
 }
 
+/* ================= OVERLAY ================= */
+
+.popup-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px);
+  z-index: 0;
+}
+
+/* ================= CONTENU POPUP ================= */
+
 .popup-content {
+  position: relative;
+  z-index: 1;
+
   background: #111;
   border-radius: 20px;
   padding: 25px;
   width: 90%;
   max-width: 320px;
+
   display: flex;
   flex-direction: column;
   gap: 12px;
+
   transform: translateY(40px) scale(0.9);
   opacity: 0;
   transition: all 0.4s ease;
@@ -142,6 +145,8 @@ body {
   opacity: 1;
 }
 
+/* INPUTS */
+
 .popup input {
   padding: 12px;
   border-radius: 12px;
@@ -149,6 +154,8 @@ body {
   background: #222;
   color: white;
 }
+
+/* BOUTONS POPUP */
 
 .popup button {
   padding: 12px;
@@ -165,7 +172,7 @@ body {
   position: absolute;
   bottom: 25px;
   right: 20px;
-  z-index: 2000;
+  z-index: 5000;
   width: 60px;
   height: 60px;
   border-radius: 50%;
@@ -192,306 +199,122 @@ body {
   box-shadow: 0 0 15px rgba(0,255,100,0.9);
 }
 
-/* ================= CARD PREMIUM ================= */
+/* ================= CARD ================= */
 
 .card-premium {
-  width: 240px;
+  width: 260px;
   background: #000;
   color: white;
 }
 
-/* FORCER TEXTE BLANC */
 .card-premium * {
   color: white;
 }
 
-/* TOP */
-.card-premium .top {
+.header {
   display: flex;
   gap: 10px;
   align-items: center;
 }
 
-/* AVATAR */
 .avatar {
-  width: 70px;
-  height: 70px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   background-size: cover;
-  background-position: center;
-  box-shadow: 0 0 20px rgba(0,255,100,0.5);
 }
 
-/* STARS */
 .stars {
   font-size: 14px;
-  margin-bottom: 5px;
 }
 
-/* TAGS */
 .tags span {
   display: block;
-  background: #0f0;
-  color: black !important;
-  padding: 6px;
-  border-radius: 15px;
-  margin-bottom: 5px;
-  text-align: center;
+  background: #7ed957;
+  border-radius: 20px;
+  padding: 5px;
+  margin-top: 5px;
   font-size: 12px;
+  text-align: center;
+  color: black;
 }
 
-/* NOM */
 .card-premium h2 {
   text-align: center;
   margin: 10px 0;
 }
 
-/* SERVICES */
-.services-box {
+/* ================= CTA ================= */
+
+.cta {
+  width: 100%;
+  margin-top: 12px;
+  padding: 14px;
+  border: none;
+  border-radius: 25px;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(135deg, #7ed957, #5fcf3a);
+  cursor: pointer;
+}
+
+.cta:active {
+  transform: scale(0.96);
+}
+
+/* ================= SLIDER ================= */
+
+.service-slider {
+  overflow-x: scroll;
+  -webkit-overflow-scrolling: touch;
+}
+
+.service-slider::-webkit-scrollbar {
+  display: none;
+}
+
+.service-track {
   display: flex;
-  gap: 5px;
+  gap: 10px;
 }
 
-.service {
-  flex: 1;
-  background: #111;
-  border-radius: 15px;
+.service-card {
+  min-width: 30%;
+  background: #cfd8dc;
+  border-radius: 20px;
+  padding: 15px;
   text-align: center;
-  padding: 10px;
-  font-size: 12px;
+  color: black;
 }
 
-/* COMMENTS */
+/* ================= COMMENTS ================= */
+
 .comments-box {
-  background: #111;
-  border-radius: 15px;
+  background: #cfd8dc;
+  border-radius: 20px;
   padding: 10px;
   margin-top: 10px;
+  color: black;
 }
 
 .comment {
   display: flex;
   gap: 8px;
-  background: #1a1a1a;
+  background: #7ed957;
   border-radius: 15px;
   padding: 8px;
+  margin-bottom: 6px;
   font-size: 12px;
 }
 
 .mini-avatar {
-  width: 25px;
-  height: 25px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: white;
-}
-
-/* ACTIONS */
-.actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 10px;
-}
-
-.actions button {
-  background: linear-gradient(135deg, #0a84ff, #5ac8fa);
-  border: none;
-  padding: 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  color: white;
-}
-
-/* CARD */
-.card-premium{
-  width:260px;
-  color:white;
-}
-
-/* HEADER */
-.header{
-  display:flex;
-  gap:10px;
-  align-items:center;
-}
-
-.avatar{
-  width:80px;
-  height:80px;
-  border-radius:50%;
-  background-size:cover;
-}
-
-.header-info{
-  flex:1;
-}
-
-.stars{
-  font-size:14px;
-}
-
-.tags span{
-  display:block;
-  background:#7ed957;
-  border-radius:20px;
-  padding:5px;
-  margin-top:5px;
-  font-size:12px;
-  text-align:center;
-}
-
-/* TITLE */
-.card-premium h2{
-  text-align:center;
-  margin:10px 0;
-}
-
-/* ================= CTA PREMIUM ================= */
-
-.cta{
-  width:100%;
-  margin-top:12px;
-
-  padding:14px;
-
-  border:none;
-  border-radius:25px;
-
-  font-weight:bold;
-  font-size:14px;
-  color:white;
-
-  background:linear-gradient(135deg, #7ed957, #5fcf3a);
-
-  box-shadow:
-    0 8px 25px rgba(0,255,100,0.4),
-    inset 0 2px 6px rgba(255,255,255,0.2);
-
-  transition:all 0.25s ease;
-
-  cursor:pointer;
-}
-
-/* effet appui iOS */
-.cta:active{
-  transform:scale(0.96);
-
-  box-shadow:
-    0 4px 15px rgba(0,255,100,0.6),
-    inset 0 3px 8px rgba(0,0,0,0.2);
-}
-
-/* effet hover desktop */
-.cta:hover{
-  filter:brightness(1.1);
-}
-
-.cta{
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
-/* ================= SLIDER ================= */
-
-.service-slider{
-  overflow-x: scroll;
-  scroll-behavior: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.service-slider::-webkit-scrollbar{
-  display:none;
-}
-
-.service-track{
-  display:flex;
-  gap:10px;
-  cursor:grab;
-}
-
-.service-card{
-  min-width:30%;
-  background:#cfd8dc;
-  border-radius:20px;
-  padding:15px;
-  text-align:center;
-  color:black;
-}
-
-/* ================= COMMENTS ================= */
-
-/* BOX */
-.comments-box{
-  background:#cfd8dc;
-  border-radius:20px;
-  padding:10px;
-  margin-top:10px;
-  color:black;
-}
-
-/* LIST */
-.comments-list{
-  max-height:70px;            /* hauteur fermée */
-  overflow-y:auto;            /* 🔥 scroll toujours actif */
-  transition:all 0.3s ease;
-}
-
-/* OUVERT */
-.comments-list.open{
-  max-height:220px;           /* agrandi */
-}
-
-/* SCROLL STYLE */
-.comments-list::-webkit-scrollbar{
-  width:4px;
-}
-
-.comments-list::-webkit-scrollbar-thumb{
-  background:#7ed957;
-  border-radius:10px;
-}
-
-/* COMMENT */
-.comment{
-  display:flex;
-  gap:8px;
-  background:#7ed957;
-  border-radius:15px;
-  padding:8px;
-  margin-bottom:6px;
-  font-size:12px;
-}
-
-/* AVATAR */
-.mini-avatar{
-  width:30px;
-  height:30px;
-  border-radius:50%;
-  object-fit:cover;
-}
-
-/* FLECHE */
-.expand-btn{
-  text-align:center;
-  cursor:pointer;
-  margin-top:5px;
-  font-size:18px;
-  transition:0.3s;
-}
-
-.expand-btn.open{
-  transform:rotate(180deg);
 }
 
 /* ================= UTIL ================= */
 
 .hidden {
   display: none !important;
-}
-
-/* ================= ANIMATION ================= */
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
 }
