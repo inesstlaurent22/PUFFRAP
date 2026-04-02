@@ -99,7 +99,7 @@ body {
   background: rgba(255,255,255,0.1);
 }
 
-/* ================= POPUP ================= */
+/* ================= POPUP (FIX IMPORTANT) ================= */
 
 .popup {
   position: fixed;
@@ -107,7 +107,9 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.7);
+
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
 
   display: flex;
   justify-content: center;
@@ -117,13 +119,16 @@ body {
 
   opacity: 0;
   pointer-events: none;
-  transition: all 0.3s ease;
+
+  transition: opacity 0.3s ease;
 }
 
 .popup.active {
   opacity: 1;
   pointer-events: auto;
 }
+
+/* ================= CONTENU POPUP ================= */
 
 .popup-content {
   background: rgba(255,255,255,0.95);
@@ -138,14 +143,14 @@ body {
   flex-direction: column;
   gap: 12px;
 
-  transform: scale(0.8);
+  transform: translateY(40px) scale(0.9);
   opacity: 0;
 
-  transition: all 0.35s cubic-bezier(.2,.8,.2,1);
+  transition: all 0.4s cubic-bezier(.2,.8,.2,1);
 }
 
 .popup.active .popup-content {
-  transform: scale(1);
+  transform: translateY(0) scale(1);
   opacity: 1;
 }
 
@@ -201,7 +206,7 @@ body {
   background-position: center;
 
   border: 3px solid white;
-  box-shadow: 0 0 10px rgba(0,255,100,0.7);
+  box-shadow: 0 0 12px rgba(0,255,100,0.8);
 }
 
 /* ================= CARD ARTISTE ================= */
@@ -209,7 +214,6 @@ body {
 .card {
   width: 220px;
   text-align: center;
-  font-family: sans-serif;
 }
 
 .card-img {
@@ -218,10 +222,6 @@ body {
   object-fit: cover;
   border-radius: 15px;
   margin-bottom: 10px;
-}
-
-.card h3 {
-  margin: 5px 0;
 }
 
 /* ================= NOTE ================= */
