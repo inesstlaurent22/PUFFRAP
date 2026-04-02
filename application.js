@@ -21,7 +21,7 @@ onst firebaseConfig = {
   apiKey: "AIzaSyAHb_jyRobERs677A4ZlGTzOVRCLZaaF3s",
   authDomain: "puffrap.firebaseapp.com",
   projectId: "puffrap",
-  storageBucket: "puffrap.firebasestorage.app",
+  storageBucket: "puffrap.appspot.com",
   messagingSenderId: "555120601762",
   appId: "1:555120601762:web:796a6681b5841c7bdb85fb"
 };
