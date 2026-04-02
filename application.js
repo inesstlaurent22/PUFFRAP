@@ -321,10 +321,31 @@ window.addEventListener("click", (e) => {
 
 });
 
-  
-document.querySelectorAll(".popup-content").forEach(el => {
-  el.addEventListener("click", (e) => e.stopPropagation());
-});
+const popups = document.querySelectorAll(".popup-content");
 
+if(popups.length){
+  popups.forEach(el => {
+    el.addEventListener("click", (e) => e.stopPropagation());
+  });
+}
+
+if(signupBtn){
+  signupBtn.onclick = () => {
+    dropdown.classList.toggle("hidden");
+  };
+}
+
+if(loginBtn){
+  loginBtn.onclick = () => {
+    loginPopup.classList.remove("hidden");
+    loginPopup.classList.add("active");
+  };
+}
+
+if(profile){
+  profile.onclick = () => {
+    profileDropdown.classList.toggle("hidden");
+  };
+}
 
 });
