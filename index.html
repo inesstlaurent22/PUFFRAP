@@ -1,55 +1,40 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Puffrap</title>
 
 <link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
 
-<div class="app">
+<div class="background"></div>
 
-  <!-- SLIDER -->
-  <div class="slider">
-    <div class="green-blur"></div>
+<div class="container">
 
-    <div class="slides">
+  <!-- IMAGE -->
+  <img src="images/Puffrap1.JPG" class="hero">
 
-      <img src="images/Puffrap1.JPG" class="slide" alt="slide 1">
-
-      <!-- VIDEO CORRIGÉE -->
-      <video class="slide" muted playsinline preload="auto">
-        <source src="images/Puffrap2.MP4" type="video/mp4">
-      </video>
-
-      <img src="images/Puffrap3.JPG" class="slide" alt="slide 3">
-
-    </div>
+  <!-- BUTTONS -->
+  <div class="buttons">
+    <button onclick="goToApp()">APPLICATION</button>
+    <button onclick="goToMagazine()">MAGAZINE</button>
   </div>
 
-  <!-- CERCLE -->
-  <div class="circle-menu">
-    <div class="circle" id="circle">
-      <div class="top-zone" onclick="openApp()">Application</div>
-      <div class="bottom-zone" onclick="openSorties()">Sorties</div>
-    </div>
-  </div>
+  <!-- TEXT -->
+  <h1>PUFFRAP</h1>
 
-  <!-- TEXTE -->
-  <div class="content">
-    <h1>PUFFRAP</h1>
-    <p>
-      PUFFRAP est une application qui permet de localiser les différents
-      acteurs du secteur de la musique en quelques clics
-    </p>
-  </div>
+  <p>
+    PUFFRAP est une application qui permet de localiser les différents
+    acteurs du secteur de la musique en quelques clics
+  </p>
 
 </div>
 
-<!-- IMPORTANT : script à la fin -->
 <script src="script.js"></script>
 
 </body>
