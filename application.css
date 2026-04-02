@@ -302,6 +302,126 @@ body {
   color: white;
 }
 
+/* CARD */
+.card-premium{
+  width:260px;
+  color:white;
+}
+
+/* HEADER */
+.header{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.avatar{
+  width:80px;
+  height:80px;
+  border-radius:50%;
+  background-size:cover;
+}
+
+.header-info{
+  flex:1;
+}
+
+.stars{
+  font-size:14px;
+}
+
+.tags span{
+  display:block;
+  background:#7ed957;
+  border-radius:20px;
+  padding:5px;
+  margin-top:5px;
+  font-size:12px;
+  text-align:center;
+}
+
+/* TITLE */
+.card-premium h2{
+  text-align:center;
+  margin:10px 0;
+}
+
+/* ================= SLIDER ================= */
+
+.service-slider{
+  overflow:hidden;
+}
+
+.service-track{
+  display:flex;
+  gap:10px;
+  cursor:grab;
+}
+
+.service-card{
+  min-width:30%;
+  background:#cfd8dc;
+  border-radius:20px;
+  padding:15px;
+  text-align:center;
+  color:black;
+}
+
+/* ================= COMMENTS ================= */
+
+.comments-box{
+  background:#cfd8dc;
+  border-radius:20px;
+  padding:10px;
+  margin-top:10px;
+  color:black;
+}
+
+.comments-list{
+  max-height:80px;
+  overflow:hidden;
+  transition:0.3s;
+}
+
+.comments-list.open{
+  max-height:200px;
+  overflow-y:auto;
+}
+
+.comment{
+  display:flex;
+  gap:5px;
+  background:#7ed957;
+  border-radius:15px;
+  padding:5px;
+  margin-bottom:5px;
+}
+
+.mini-avatar{
+  width:25px;
+  height:25px;
+  border-radius:50%;
+  background:white;
+}
+
+/* FLECHE */
+.expand-btn{
+  text-align:center;
+  cursor:pointer;
+  margin-top:5px;
+}
+
+/* CTA */
+.cta{
+  width:100%;
+  margin-top:10px;
+  background:#7ed957;
+  border:none;
+  padding:10px;
+  border-radius:20px;
+  color:white;
+}
+
 /* ================= UTIL ================= */
 
 .hidden {
