@@ -4,7 +4,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const map = L.map('map').setView([48.1173, -1.6778], 12);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap & Carto',
+  subdomains: 'abcd',
+  maxZoom: 20
+}).addTo(map);
 
 /* CLUSTER */
 const markerCluster = L.markerClusterGroup();
