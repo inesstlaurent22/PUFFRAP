@@ -383,50 +383,43 @@ body {
   color:black;
 }
 
+/* fermé */
 .comments-list{
   max-height:80px;
   overflow:hidden;
-  transition:0.3s;
+  transition:all 0.3s ease;
 }
 
+/* ouvert */
 .comments-list.open{
-  max-height:200px;
+  max-height:220px; /* 🔥 plus grand */
   overflow-y:auto;
 }
 
-.comment{
-  display:flex;
-  gap:5px;
+/* scroll smooth */
+.comments-list.open::-webkit-scrollbar{
+  width:5px;
+}
+
+.comments-list.open::-webkit-scrollbar-thumb{
   background:#7ed957;
-  border-radius:15px;
-  padding:5px;
-  margin-bottom:5px;
+  border-radius:10px;
 }
 
-.mini-avatar{
-  width:25px;
-  height:25px;
-  border-radius:50%;
-  background:white;
-}
-
-/* FLECHE */
+/* flèche */
 .expand-btn{
   text-align:center;
   cursor:pointer;
   margin-top:5px;
+  font-size:18px;
+  transition:transform 0.3s;
 }
 
-/* CTA */
-.cta{
-  width:100%;
-  margin-top:10px;
-  background:#7ed957;
-  border:none;
-  padding:10px;
-  border-radius:20px;
-  color:white;
+/* rotation flèche */
+.expand-btn.open{
+  transform:rotate(180deg);
 }
+
 
 /* ================= UTIL ================= */
 
