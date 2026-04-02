@@ -166,30 +166,27 @@ onAuthStateChanged(auth, async (user) => {
     if(docSnap.exists()){
       const data = docSnap.data();
 
+      profile.classList.remove("hidden");
       signupBtn.classList.add("hidden");
       loginBtn.classList.add("hidden");
 
-      profile.classList.remove("hidden");
       profileName.textContent = data.prenom;
     }
 
   } else {
 
+    profile.classList.add("hidden");
     signupBtn.classList.remove("hidden");
     loginBtn.classList.remove("hidden");
-
-    profile.classList.add("hidden");
   }
 
 });
-
 
 /* ================= LOGOUT ================= */
 
 window.logout = function(){
   signOut(auth);
 };
-
 
 /* ================= ARTISTES ================= */
 
