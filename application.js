@@ -212,6 +212,7 @@ function addComment(id){
 }
 
 /* ================= COMMENTS EXPAND ================= */
+
 window.toggleComments = function(id, btn){
 
   const el = document.getElementById("comments-"+id);
