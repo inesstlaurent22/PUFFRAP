@@ -302,6 +302,8 @@ function renderMarkers(){
   });
 }
 
+  renderMarkers();
+
   
   /* ================= CLOSE POPUP OUTSIDE ================= */
 
