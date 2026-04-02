@@ -218,29 +218,89 @@ window.toggleComments = function(id){
   el.classList.toggle("open");
 };
 
-/* ================= SLIDER DRAG ================= */
+/* ================= SLIDER IOS SWIPE ================= */
 
-document.addEventListener("mousedown", e => {
-  if(!e.target.closest(".service-track")) return;
+function initSliders(){
 
-  const slider = e.target.closest(".service-slider");
-  const track = slider.querySelector(".service-track");
+  document.querySelectorAll(".service-slider").forEach(slider => {
 
-  let startX = e.pageX;
-  let scrollLeft = slider.scrollLeft;
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+    let velocity = 0;
+    let momentumID;
 
-  function move(ev){
-    const walk = ev.pageX - startX;
-    slider.scrollLeft = scrollLeft - walk;
-  }
+    /* ===== MOUSE ===== */
 
-  function stop(){
-    document.removeEventListener("mousemove", move);
-    document.removeEventListener("mouseup", stop);
-  }
+    slider.addEventListener("mousedown", (e)=>{
+      isDown = true;
+      startX = e.pageX;
+      scrollLeft = slider.scrollLeft;
+      slider.style.cursor = "grabbing";
+      cancelAnimationFrame(momentumID);
+    });
 
-  document.addEventListener("mousemove", move);
-  document.addEventListener("mouseup", stop);
+    slider.addEventListener("mouseup", ()=>{
+      isDown = false;
+      slider.style.cursor = "grab";
+      momentum();
+    });
+
+    slider.addEventListener("mouseleave", ()=> isDown = false);
+
+    slider.addEventListener("mousemove", (e)=>{
+      if(!isDown) return;
+
+      const x = e.pageX;
+      const walk = x - startX;
+
+      velocity = walk;
+      slider.scrollLeft = scrollLeft - walk;
+    });
+
+    /* ===== TOUCH ===== */
+
+    slider.addEventListener("touchstart", (e)=>{
+      startX = e.touches[0].pageX;
+      scrollLeft = slider.scrollLeft;
+      cancelAnimationFrame(momentumID);
+    });
+
+    slider.addEventListener("touchmove", (e)=>{
+      const x = e.touches[0].pageX;
+      const walk = x - startX;
+
+      velocity = walk;
+      slider.scrollLeft = scrollLeft - walk;
+    });
+
+    slider.addEventListener("touchend", ()=>{
+      momentum();
+    });
+
+    /* ===== INERTIE IOS ===== */
+
+    function momentum(){
+      cancelAnimationFrame(momentumID);
+
+      momentumID = requestAnimationFrame(function step(){
+
+        slider.scrollLeft -= velocity;
+
+        velocity *= 0.95; // friction iOS
+
+        if(Math.abs(velocity) > 0.5){
+          momentumID = requestAnimationFrame(step);
+        }
+      });
+    }
+
+  });
+
+}
+
+  map.on("popupopen", () => {
+  initSliders();
 });
 
 /* ================= ARTISTES ================= */
