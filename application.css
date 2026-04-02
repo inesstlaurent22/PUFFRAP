@@ -429,25 +429,24 @@ body {
   color:black;
 }
 
-/* LIST (FERMÉ) */
+/* LIST */
 .comments-list{
-  max-height:70px; /* 1 seul visible */
-  overflow:hidden;
+  max-height:70px;            /* hauteur fermée */
+  overflow-y:auto;            /* 🔥 scroll toujours actif */
   transition:all 0.3s ease;
 }
 
-/* LIST (OUVERT) */
+/* OUVERT */
 .comments-list.open{
-  max-height:200px; /* 🔥 important pour scroll */
-  overflow-y:auto;  /* 🔥 active le scroll */
+  max-height:220px;           /* agrandi */
 }
 
-/* SCROLL visible */
-.comments-list.open::-webkit-scrollbar{
+/* SCROLL STYLE */
+.comments-list::-webkit-scrollbar{
   width:4px;
 }
 
-.comments-list.open::-webkit-scrollbar-thumb{
+.comments-list::-webkit-scrollbar-thumb{
   background:#7ed957;
   border-radius:10px;
 }
