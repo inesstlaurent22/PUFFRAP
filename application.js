@@ -162,6 +162,45 @@ function renderMarkers(){
 
 renderMarkers();
 
+/* ================= DROPDOWN PROFIL ================= */
+
+profile.onclick = () => {
+  document.getElementById("profileDropdown").classList.toggle("hidden");
+};
+
+
+/* ================= ACTIONS ================= */
+
+function openAccount(){
+  alert("Page Mon compte à venir");
+}
+
+function openReservations(){
+  alert("Réservations à venir");
+}
+
+function openFavoris(){
+  alert("Favoris à venir");
+}
+
+
+/* ================= LOGOUT ================= */
+
+window.logout = function(){
+
+  localStorage.removeItem("user");
+
+  // reset UI
+  signupBtn.classList.remove("hidden");
+  profile.classList.add("hidden");
+
+  // petit effet fluide
+  document.body.style.opacity = "0.5";
+
+  setTimeout(() => {
+    document.body.style.opacity = "1";
+  }, 200);
+};
 
 /* ================= UI UPDATE ================= */
 
