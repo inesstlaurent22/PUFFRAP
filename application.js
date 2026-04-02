@@ -44,6 +44,7 @@ window.signup = async function(){
   }
 
   try{
+
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
     await setDoc(doc(db, "users", userCredential.user.uid), {
@@ -54,7 +55,8 @@ window.signup = async function(){
       createdAt: Date.now()
     });
 
-    alert("Compte créé avec succès");
+    closePopup();
+    alert("Bienvenue " + prenom);
 
   } catch(e){
     console.error(e);
@@ -71,6 +73,7 @@ window.login = async function(){
 
   try{
     await signInWithEmailAndPassword(auth, email, password);
+    closePopup();
   } catch(e){
     alert(e.message);
   }
@@ -141,28 +144,29 @@ document.addEventListener("DOMContentLoaded", () => {
   const profile = document.getElementById("profile");
   const profileDropdown = document.getElementById("profileDropdown");
 
-  signupBtn?.addEventListener("click", () => {
+  signupBtn?.onclick = (e) => {
+    e.stopPropagation();
     dropdown?.classList.toggle("hidden");
     profileDropdown?.classList.add("hidden");
-  });
+  };
 
-  loginBtn?.addEventListener("click", () => {
+  loginBtn?.onclick = (e) => {
+    e.stopPropagation();
     loginPopup?.classList.remove("hidden");
     loginPopup?.classList.add("active");
     dropdown?.classList.add("hidden");
-  });
+  };
 
-  profile?.addEventListener("click", () => {
+  profile?.onclick = (e) => {
+    e.stopPropagation();
     profileDropdown?.classList.toggle("hidden");
     dropdown?.classList.add("hidden");
-  });
+  };
 
-  /* ===== EMPÊCHE FERMETURE SI CLICK DANS POPUP ===== */
+  /* ===== STOP CLICK DANS POPUP ===== */
 
   document.querySelectorAll(".popup-content").forEach(el => {
-    el.addEventListener("click", (e) => {
-      e.stopPropagation();
-    });
+    el.onclick = (e) => e.stopPropagation();
   });
 
   /* ===== MAP ===== */
@@ -247,28 +251,23 @@ window.addEventListener("click", (e) => {
   const popup = document.getElementById("popup");
   const loginPopup = document.getElementById("loginPopup");
 
-  // dropdown
   if(!e.target.closest(".topbar")){
     dropdown?.classList.add("hidden");
     profileDropdown?.classList.add("hidden");
   }
 
-  // popup inscription
   if(
     popup &&
     popup.classList.contains("active") &&
-    !e.target.closest(".popup-content") &&
-    !e.target.closest("#signupBtn")
+    !e.target.closest(".popup-content")
   ){
     closePopup();
   }
 
-  // popup login
   if(
     loginPopup &&
     loginPopup.classList.contains("active") &&
-    !e.target.closest(".popup-content") &&
-    !e.target.closest("#loginBtn")
+    !e.target.closest(".popup-content")
   ){
     closePopup();
   }
