@@ -23,6 +23,9 @@
   <!-- INSCRIPTION -->
   <button id="signupBtn" type="button">Inscription</button>
 
+  <!-- CONNEXION -->
+  <button id="loginBtn" type="button">Connexion</button>
+
   <!-- DROPDOWN INSCRIPTION -->
   <div id="dropdown" class="dropdown hidden">
     <button type="button" onclick="selectUser('client')">Client</button>
@@ -59,6 +62,20 @@
     <input id="password" type="password" placeholder="Mot de passe">
 
     <button type="button" onclick="signup()">S’inscrire</button>
+
+  </div>
+</div>
+
+<!-- POPUP CONNEXION -->
+<div id="loginPopup" class="popup hidden">
+  <div class="popup-content">
+
+    <h2>Connexion</h2>
+
+    <input id="loginUsername" placeholder="Identifiant">
+    <input id="loginPassword" type="password" placeholder="Mot de passe">
+
+    <button type="button" onclick="login()">Se connecter</button>
 
   </div>
 </div>
