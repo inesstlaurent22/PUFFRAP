@@ -23,7 +23,6 @@ body {
   top: 20px;
   right: 20px;
   z-index: 2000;
-
   display: flex;
   gap: 10px;
   align-items: center;
@@ -41,7 +40,6 @@ body {
   padding: 10px 18px;
   border-radius: 30px;
   font-weight: bold;
-
   box-shadow: 0 0 20px rgba(0,255,100,0.4);
   transition: all 0.3s ease;
 }
@@ -56,31 +54,20 @@ body {
   transform: scale(0.95);
 }
 
-/* ================= PROFIL ================= */
-
-#profile {
-  position: relative;
-  cursor: pointer;
-}
-
 /* ================= DROPDOWN ================= */
 
 .dropdown {
   position: absolute;
   top: 50px;
   right: 0;
-
   background: rgba(0,0,0,0.85);
   backdrop-filter: blur(15px);
   border-radius: 15px;
   padding: 8px;
-
   display: flex;
   flex-direction: column;
   gap: 5px;
-
   min-width: 160px;
-
   animation: fadeIn 0.25s ease;
   z-index: 2500;
 }
@@ -92,34 +79,25 @@ body {
   padding: 10px;
   text-align: left;
   border-radius: 10px;
-  transition: background 0.2s;
 }
 
 .dropdown button:hover {
   background: rgba(255,255,255,0.1);
 }
 
-/* ================= POPUP (FIX IMPORTANT) ================= */
+/* ================= POPUP ================= */
 
 .popup {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-
+  inset: 0;
   background: rgba(0,0,0,0.6);
   backdrop-filter: blur(8px);
-
   display: flex;
   justify-content: center;
   align-items: center;
-
   z-index: 3000;
-
   opacity: 0;
   pointer-events: none;
-
   transition: opacity 0.3s ease;
 }
 
@@ -128,44 +106,23 @@ body {
   pointer-events: auto;
 }
 
-/* ================= CONTENU POPUP ================= */
-
 .popup-content {
   background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(10px);
-
   border-radius: 20px;
   padding: 25px;
   width: 90%;
   max-width: 320px;
-
   display: flex;
   flex-direction: column;
   gap: 12px;
-
   transform: translateY(40px) scale(0.9);
   opacity: 0;
-
-  transition: all 0.4s cubic-bezier(.2,.8,.2,1);
+  transition: all 0.4s ease;
 }
 
 .popup.active .popup-content {
   transform: translateY(0) scale(1);
   opacity: 1;
-}
-
-.popup input {
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid #ddd;
-}
-
-.popup button {
-  padding: 12px;
-  border-radius: 20px;
-  border: none;
-  background: linear-gradient(135deg, #7ed957, #5fcf3a);
-  font-weight: bold;
 }
 
 /* ================= GPS ================= */
@@ -175,165 +132,131 @@ body {
   bottom: 25px;
   right: 20px;
   z-index: 2000;
-
   width: 60px;
   height: 60px;
   border-radius: 50%;
   border: none;
-
   background: rgba(0,0,0,0.6);
   backdrop-filter: blur(12px);
-
   color: white;
   font-size: 22px;
-
   box-shadow: 0 0 25px rgba(0,255,100,0.6);
-  transition: all 0.3s ease;
 }
 
 #locateBtn:active {
   transform: scale(0.9);
-  box-shadow: 0 0 35px rgba(0,255,100,1);
 }
 
-/* ================= MARKER PHOTO ================= */
+/* ================= MARKER ================= */
 
 .marker-img {
   width: 50px;
   height: 50px;
   border-radius: 50%;
   background-size: cover;
-  background-position: center;
-
   border: 3px solid white;
   box-shadow: 0 0 12px rgba(0,255,100,0.8);
 }
 
-/* ================= CARD ARTISTE ================= */
+/* ================= CARD PREMIUM ================= */
 
-.card {
-  width: 220px;
-  text-align: center;
+.card-premium {
+  width: 240px;
+  font-family: sans-serif;
 }
 
-.card-img {
-  width: 100%;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 15px;
-  margin-bottom: 10px;
+/* TOP */
+.card-premium .top {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
-/* ================= NOTE ================= */
+/* AVATAR */
+.avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background-size: cover;
+}
 
-.rating {
-  font-size: 16px;
+/* STARS */
+.stars {
+  font-size: 14px;
   margin-bottom: 5px;
 }
 
-.stars span {
-  cursor: pointer;
-  font-size: 18px;
-}
-
-/* ================= CATEGORIES ================= */
-
-.categories {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  justify-content: center;
-  margin: 10px 0;
-}
-
-.categories span {
-  background: rgba(0,255,100,0.2);
-  color: #0f0;
-  padding: 4px 8px;
-  border-radius: 10px;
-  font-size: 12px;
-}
-
-/* ================= COMMENTAIRES ================= */
-
-.comments {
-  max-height: 80px;
-  overflow-y: auto;
-  text-align: left;
-  margin-bottom: 8px;
-}
-
-.comments div {
-  font-size: 12px;
-  margin-bottom: 4px;
-}
-
-/* ================= INPUT COMMENT ================= */
-
-.card input {
-  width: 100%;
-  padding: 6px;
-  margin-bottom: 6px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-.card button {
-  width: 100%;
-  padding: 6px;
-  border: none;
-  border-radius: 10px;
+/* TAGS */
+.tags span {
+  display: block;
   background: #7ed957;
-  font-weight: bold;
+  color: white;
+  padding: 6px;
+  border-radius: 15px;
+  margin-bottom: 5px;
+  text-align: center;
+  font-size: 12px;
 }
 
-/* ================= FAVORI ================= */
-
-.card div[onclick*="toggleFavori"] {
-  font-size: 20px;
-  cursor: pointer;
-  margin-top: 5px;
-}
-
-/* NOTE + MOYENNE */
-.rating {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.avg {
-  font-weight: bold;
+/* NOM */
+.card-premium h2 {
+  text-align: center;
+  margin: 10px 0;
 }
 
 /* SERVICES */
-.services {
+.services-box {
   display: flex;
-  flex-wrap: wrap;
   gap: 5px;
-  justify-content: center;
-  margin: 10px 0;
 }
 
-.services span {
-  background: rgba(0,150,255,0.2);
-  color: #0af;
-  padding: 4px 8px;
-  border-radius: 10px;
+.service {
+  flex: 1;
+  background: #ccd5db;
+  border-radius: 15px;
+  text-align: center;
+  padding: 10px;
   font-size: 12px;
 }
 
-/* BOUTON RESERVATION */
-.book-btn {
+/* COMMENTS */
+.comments-box {
+  background: #ccd5db;
+  border-radius: 15px;
+  padding: 10px;
   margin-top: 10px;
-  background: linear-gradient(135deg, #00c6ff, #0072ff);
-  color: white;
+}
+
+.comment {
+  display: flex;
+  gap: 8px;
+  background: #7ed957;
+  border-radius: 15px;
+  padding: 8px;
+  font-size: 12px;
+}
+
+.mini-avatar {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: white;
+}
+
+/* ACTIONS */
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.actions button {
+  background: #7ed957;
   border: none;
   padding: 10px;
-  border-radius: 15px;
-  width: 100%;
+  border-radius: 20px;
+  font-size: 12px;
 }
 
 /* ================= UTIL ================= */
