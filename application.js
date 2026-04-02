@@ -2,9 +2,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* ================= MAP ================= */
 
-const map = L.map('map').setView([48.8566, 2.3522], 5);
+const map = L.map('map').setView([48.1173, -1.6778], 12);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+/* CLUSTER */
+const markerCluster = L.markerClusterGroup();
+map.addLayer(markerCluster);
 
 
 /* ================= GEO ================= */
@@ -27,7 +31,6 @@ function locateUser(){
 }
 
 locateUser();
-
 document.getElementById("locateBtn").onclick = locateUser;
 
 
@@ -45,38 +48,20 @@ const profileName = document.getElementById("profileName");
 const profileDropdown = document.getElementById("profileDropdown");
 
 
-/* ================= DROPDOWN INSCRIPTION ================= */
-
 signupBtn.onclick = () => {
   dropdown.classList.toggle("hidden");
   profileDropdown.classList.add("hidden");
 };
-
-
-/* ================= LOGIN POPUP ================= */
 
 loginBtn.onclick = () => {
   loginPopup.classList.add("active");
   dropdown.classList.add("hidden");
 };
 
-
-/* ================= SELECT USER ================= */
-
 window.selectUser = function(type){
   dropdown.classList.add("hidden");
-
-  if(type === "client"){
-    openPopup();
-  }
+  if(type === "client") popup.classList.add("active");
 };
-
-
-/* ================= POPUP ================= */
-
-function openPopup(){
-  popup.classList.add("active");
-}
 
 function closePopup(){
   popup.classList.remove("active");
@@ -84,53 +69,7 @@ function closePopup(){
 }
 
 
-/* ================= SIGNUP ================= */
-
-window.signup = function(){
-
-  const user = {
-    username: document.getElementById("username").value.trim(),
-    nom: document.getElementById("nom").value.trim(),
-    prenom: document.getElementById("prenom").value.trim(),
-    email: document.getElementById("email").value.trim(),
-    password: document.getElementById("password").value.trim(),
-    favoris: []
-  };
-
-  if(!user.username || !user.nom || !user.prenom || !user.email || !user.password){
-    alert("Remplis tous les champs");
-    return;
-  }
-
-  localStorage.setItem("user", JSON.stringify(user));
-  updateUI();
-};
-
-
-/* ================= LOGIN ================= */
-
-window.login = function(){
-
-  const username = document.getElementById("loginUsername").value.trim();
-  const password = document.getElementById("loginPassword").value.trim();
-
-  const user = getUser();
-
-  if(!user){
-    alert("Aucun compte trouvé");
-    return;
-  }
-
-  if(user.username === username && user.password === password){
-    updateUI();
-    closePopup();
-  } else {
-    alert("Identifiants incorrects");
-  }
-};
-
-
-/* ================= USER HELPERS ================= */
+/* ================= USER ================= */
 
 function getUser(){
   return JSON.parse(localStorage.getItem("user"));
@@ -139,6 +78,49 @@ function getUser(){
 function saveUser(user){
   localStorage.setItem("user", JSON.stringify(user));
 }
+
+
+/* ================= SIGNUP ================= */
+
+window.signup = function(){
+
+  const user = {
+    username: username.value.trim(),
+    nom: nom.value.trim(),
+    prenom: prenom.value.trim(),
+    email: email.value.trim(),
+    password: password.value.trim(),
+    favoris: []
+  };
+
+  if(!user.username || !user.nom || !user.prenom || !user.email || !user.password){
+    alert("Remplis tous les champs");
+    return;
+  }
+
+  saveUser(user);
+  updateUI();
+};
+
+
+/* ================= LOGIN ================= */
+
+window.login = function(){
+
+  const user = getUser();
+
+  if(!user){
+    alert("Aucun compte trouvé");
+    return;
+  }
+
+  if(user.username === loginUsername.value && user.password === loginPassword.value){
+    updateUI();
+    closePopup();
+  } else {
+    alert("Identifiants incorrects");
+  }
+};
 
 
 /* ================= FAVORIS ================= */
@@ -163,24 +145,85 @@ window.toggleFavori = function(id){
 };
 
 
+/* ================= NOTES ================= */
+
+function getRatings(id){
+  return JSON.parse(localStorage.getItem("ratings_"+id)) || [];
+}
+
+function addRating(id, rating){
+  let ratings = getRatings(id);
+  ratings.push(rating);
+  localStorage.setItem("ratings_"+id, JSON.stringify(ratings));
+  renderMarkers();
+}
+
+function getAverage(id){
+  const r = getRatings(id);
+  if(!r.length) return "⭐ 0";
+  return "⭐ " + (r.reduce((a,b)=>a+b)/r.length).toFixed(1);
+}
+
+
+/* ================= COMMENTAIRES ================= */
+
+function getComments(id){
+  return JSON.parse(localStorage.getItem("comments_"+id)) || [];
+}
+
+function addComment(id){
+
+  const user = getUser();
+  const input = document.getElementById("comment-"+id);
+
+  if(!user) return alert("Connecte-toi");
+  if(!input.value) return;
+
+  let comments = getComments(id);
+
+  comments.push({
+    pseudo: user.prenom,
+    text: input.value
+  });
+
+  localStorage.setItem("comments_"+id, JSON.stringify(comments));
+
+  renderMarkers();
+}
+
+
 /* ================= ARTISTES ================= */
 
 const artistes = [
-  { id:1, nom:"Punchologue", coords:[48.8566,2.3522]},
-  { id:2, nom:"Fumsecc", coords:[45.7640,4.8357]},
-  { id:3, nom:"Scott", coords:[43.2965,5.3698]},
-  { id:4, nom:"Mr Below", coords:[50.6292,3.0573]}
+  {
+    id:1,
+    nom:"Léo Martin",
+    coords:[48.1173,-1.6778],
+    image:"images/artiste1.jpg",
+    categories:["Rap","Freestyle"]
+  },
+  {
+    id:2,
+    nom:"Sarah K",
+    coords:[48.115,-1.68],
+    image:"images/artiste2.jpg",
+    categories:["Chant","Pop"]
+  },
+  {
+    id:3,
+    nom:"DJ Nox",
+    coords:[48.118,-1.675],
+    image:"images/artiste3.jpg",
+    categories:["DJ","Electro"]
+  }
 ];
 
 
 /* ================= MARKERS ================= */
 
-let markers = [];
-
 function renderMarkers(){
 
-  markers.forEach(m => map.removeLayer(m));
-  markers = [];
+  markerCluster.clearLayers();
 
   const user = getUser();
   const favs = user?.favoris || [];
@@ -188,20 +231,51 @@ function renderMarkers(){
   artistes.forEach(artiste => {
 
     const isFav = favs.includes(artiste.id);
+    const avg = getAverage(artiste.id);
+    const comments = getComments(artiste.id);
 
-    const marker = L.marker(artiste.coords).addTo(map);
+    const icon = L.divIcon({
+      className:"custom-marker",
+      html:`<div class="marker-img" style="background-image:url('${artiste.image}')"></div>`,
+      iconSize:[50,50]
+    });
+
+    const marker = L.marker(artiste.coords,{icon});
 
     marker.bindPopup(`
-      <div style="text-align:center">
+      <div class="card">
+
+        <img src="${artiste.image}" class="card-img">
+
         <h3>${artiste.nom}</h3>
-        <br>
-        <span onclick="toggleFavori(${artiste.id})" style="font-size:22px;cursor:pointer">
+
+        <div class="rating">${avg}</div>
+
+        <div class="stars">
+          ${[1,2,3,4,5].map(n=>`<span onclick="addRating(${artiste.id},${n})">⭐</span>`).join("")}
+        </div>
+
+        <div class="categories">
+          ${artiste.categories.map(c=>`<span>${c}</span>`).join("")}
+        </div>
+
+        <input type="date">
+
+        <div class="comments">
+          ${comments.map(c=>`<div><b>${c.pseudo}</b>: ${c.text}</div>`).join("")}
+        </div>
+
+        <input id="comment-${artiste.id}" placeholder="Commentaire">
+        <button onclick="addComment(${artiste.id})">Envoyer</button>
+
+        <div onclick="toggleFavori(${artiste.id})">
           ${isFav ? "❤️" : "🤍"}
-        </span>
+        </div>
+
       </div>
     `);
 
-    markers.push(marker);
+    markerCluster.addLayer(marker);
   });
 }
 
@@ -216,13 +290,6 @@ profile.onclick = () => {
 };
 
 
-/* ================= ACTIONS ================= */
-
-window.openAccount = () => alert("Mon compte à venir");
-window.openReservations = () => alert("Réservations à venir");
-window.openFavoris = () => alert("Favoris à venir");
-
-
 /* ================= LOGOUT ================= */
 
 window.logout = function(){
@@ -233,13 +300,10 @@ window.logout = function(){
   loginBtn.classList.remove("hidden");
 
   profile.classList.add("hidden");
-
-  profileDropdown.classList.add("hidden");
-
 };
 
 
-/* ================= UI UPDATE ================= */
+/* ================= UI ================= */
 
 function updateUI(){
 
@@ -250,8 +314,6 @@ function updateUI(){
     loginBtn.classList.add("hidden");
 
     profile.classList.remove("hidden");
-    profile.classList.add("show");
-
     profileName.textContent = user.prenom;
 
     closePopup();
@@ -259,17 +321,5 @@ function updateUI(){
 }
 
 updateUI();
-
-
-/* ================= CLOSE CLICK OUTSIDE ================= */
-
-document.addEventListener("click", (e) => {
-
-  if(!e.target.closest(".topbar")){
-    dropdown.classList.add("hidden");
-    profileDropdown.classList.add("hidden");
-  }
-
-});
 
 });
