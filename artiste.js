@@ -22,6 +22,10 @@ for(let i=1;i<=31;i++){
   calendar.appendChild(d);
 }
 
+document.querySelector(".back").addEventListener("click", () => {
+  history.back();
+});
+
 /* ================= MAP ARTISTE ================= */
 
 // coordonnées artiste (ex: Rennes)
