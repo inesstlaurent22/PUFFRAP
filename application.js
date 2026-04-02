@@ -49,7 +49,20 @@ map.addLayer(markerCluster);
 /* ================= GEO ================= */
 
 function locateUser(){
+  if(navigator.geolocation){
   navigator.geolocation.getCurrentPosition(pos => {
+    const lat = pos.coords.latitude;
+    const lon = pos.coords.longitude;
+
+    map.setView([lat, lon], 13);
+
+    if(window.userMarker){
+      map.removeLayer(window.userMarker);
+    }
+
+    window.userMarker = L.marker([lat, lon]).addTo(map);
+  });
+}
 
     const lat = pos.coords.latitude;
     const lon = pos.coords.longitude;
