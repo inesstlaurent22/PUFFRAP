@@ -253,20 +253,22 @@ window.addEventListener("click", (e) => {
     profileDropdown?.classList.add("hidden");
   }
 
-  // fermeture popup inscription
+  // popup inscription
   if(
     popup &&
     popup.classList.contains("active") &&
-    !e.target.closest(".popup-content")
+    !e.target.closest(".popup-content") &&
+    !e.target.closest("#signupBtn")
   ){
     closePopup();
   }
 
-  // fermeture popup login
+  // popup login
   if(
     loginPopup &&
     loginPopup.classList.contains("active") &&
-    !e.target.closest(".popup-content")
+    !e.target.closest(".popup-content") &&
+    !e.target.closest("#loginBtn")
   ){
     closePopup();
   }
