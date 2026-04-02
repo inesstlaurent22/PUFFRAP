@@ -22,6 +22,32 @@ for(let i=1;i<=31;i++){
   calendar.appendChild(d);
 }
 
+/* ================= MAP ARTISTE ================= */
+
+// coordonnées artiste (ex: Rennes)
+const artistCoords = [48.1173, -1.6778];
+
+const map = L.map('artistMap', {
+  zoomControl: false,
+  attributionControl: false
+}).setView(artistCoords, 13);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+// marker custom (plus stylé)
+const icon = L.divIcon({
+  className: "custom-marker",
+  html: `<div style="
+    width:20px;
+    height:20px;
+    background:#7ed957;
+    border-radius:50%;
+    box-shadow:0 0 20px #7ed957;
+  "></div>`
+});
+
+L.marker(artistCoords, {icon}).addTo(map);
+
 /* ================= SLIDER DRAG FIX ================= */
 
 const slider = document.querySelector(".slider"); // ⚠️ important
