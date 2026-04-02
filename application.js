@@ -521,35 +521,6 @@ if(typeof map !== "undefined"){
 }
 
 
-/* ================= ARTISTES ================= */
-
-const artistes = [
-  {
-    id:1,
-    nom:"Léo Martin",
-    coords:[48.1173,-1.6778],
-    image:"images/artiste1.jpg",
-    categories:["Rap","Freestyle"],
-    services:["Mixage","Mastering","Freestyle"]
-  },
-  {
-    id:2,
-    nom:"Sarah K",
-    coords:[48.115,-1.68],
-    image:"images/artiste2.jpg",
-    categories:["Chant","Pop"],
-    services:["Chant","Cover","Studio"]
-  },
-  {
-    id:3,
-    nom:"DJ Nox",
-    coords:[48.118,-1.675],
-    image:"images/artiste3.jpg",
-    categories:["DJ","Electro"],
-    services:["DJ Set","Soirée","Mix"]
-  }
-];
-
 /* ================= MARKERS ================= */
 
 function renderMarkers(){
