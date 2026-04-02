@@ -157,6 +157,14 @@ document.addEventListener("DOMContentLoaded", () => {
     dropdown?.classList.add("hidden");
   });
 
+  /* ===== EMPÊCHE FERMETURE SI CLICK DANS POPUP ===== */
+
+  document.querySelectorAll(".popup-content").forEach(el => {
+    el.addEventListener("click", (e) => {
+      e.stopPropagation();
+    });
+  });
+
   /* ===== MAP ===== */
 
   const mapElement = document.getElementById("map");
@@ -230,16 +238,37 @@ window.selectUser = function(type){
 
 };
 
-/* ================= CLICK OUTSIDE ================= */
+/* ================= CLICK GLOBAL ================= */
 
-document.addEventListener("click", (e) => {
+window.addEventListener("click", (e) => {
 
   const dropdown = document.getElementById("dropdown");
   const profileDropdown = document.getElementById("profileDropdown");
+  const popup = document.getElementById("popup");
+  const loginPopup = document.getElementById("loginPopup");
 
+  // dropdown
   if(!e.target.closest(".topbar")){
     dropdown?.classList.add("hidden");
     profileDropdown?.classList.add("hidden");
+  }
+
+  // fermeture popup inscription
+  if(
+    popup &&
+    popup.classList.contains("active") &&
+    !e.target.closest(".popup-content")
+  ){
+    closePopup();
+  }
+
+  // fermeture popup login
+  if(
+    loginPopup &&
+    loginPopup.classList.contains("active") &&
+    !e.target.closest(".popup-content")
+  ){
+    closePopup();
   }
 
 });
