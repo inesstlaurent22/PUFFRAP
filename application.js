@@ -35,7 +35,7 @@ window.signup = async function(){
   const username = document.getElementById("username").value.trim();
   const nom = document.getElementById("nom").value.trim();
   const prenom = document.getElementById("prenom").value.trim();
-  const email = document.getElementById("email").value.trim();
+  const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("password").value.trim();
 
   if(!username || !nom || !prenom || !email || !password){
@@ -119,10 +119,6 @@ onAuthStateChanged(auth, async (user) => {
 
 });
 
-window.logout = function(){
-  signOut(auth);
-};
-
 
 /* ================= DOM READY ================= */
 
@@ -137,6 +133,17 @@ const email = document.getElementById("email");
 const password = document.getElementById("password");
 
 const locateBtn = document.getElementById("locateBtn");
+
+const signupSubmit = document.getElementById("signupSubmit");
+const loginSubmit = document.getElementById("loginSubmit");
+
+if(signupSubmit){
+  signupSubmit.addEventListener("click", signup);
+}
+
+if(loginSubmit){
+  loginSubmit.addEventListener("click", login);
+}
 
 
 /* ================= MAP ================= */
@@ -274,19 +281,12 @@ function closePopup(){
 
 document.addEventListener("click", (e) => {
 
-  // ferme dropdown si clic extérieur
+  const dropdown = document.getElementById("dropdown");
+  const profileDropdown = document.getElementById("profileDropdown");
+
   if(!e.target.closest(".topbar")){
-    if(dropdown) dropdown.classList.add("hidden");
-    if(profileDropdown) profileDropdown.classList.add("hidden");
-  }
-
-  // ferme popup si clic en dehors
-  if(popup && popup.classList.contains("active") && !e.target.closest(".popup-content")){
-    closePopup();
-  }
-
-  if(loginPopup && loginPopup.classList.contains("active") && !e.target.closest(".popup-content")){
-    closePopup();
+    dropdown?.classList.add("hidden");
+    profileDropdown?.classList.add("hidden");
   }
 
 });
@@ -651,47 +651,6 @@ window.logout = function(){
   if(profile) profile.classList.add("hidden");
   if(profileDropdown) profileDropdown.classList.add("hidden");
 };
-
-/* ================= UI AUTH ================= */
-
-onAuthStateChanged(auth, async (user) => {
-
-  try{
-
-    if(user){
-
-      let data = null;
-
-      try{
-        const docSnap = await getDoc(doc(db, "users", user.uid));
-        if(docSnap.exists()){
-          data = docSnap.data();
-        }
-      } catch(e){
-        console.log("Erreur Firestore :", e);
-      }
-
-      if(profile) profile.classList.remove("hidden");
-      if(signupBtn) signupBtn.classList.add("hidden");
-      if(loginBtn) loginBtn.classList.add("hidden");
-
-      if(profileName){
-        profileName.textContent = data?.prenom || "Utilisateur";
-      }
-
-    } else {
-
-      if(profile) profile.classList.add("hidden");
-      if(signupBtn) signupBtn.classList.remove("hidden");
-      if(loginBtn) loginBtn.classList.remove("hidden");
-
-    }
-
-  } catch(e){
-    console.log("Erreur auth :", e);
-  }
-
-});
 
 
 /* ================= CLOSE POPUP OUTSIDE ================= */
