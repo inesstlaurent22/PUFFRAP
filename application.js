@@ -418,11 +418,6 @@ function renderMarkers(){
 
   </div>
 
-  <!-- FLECHE -->
-  <div class="expand-btn" onclick="toggleComments(${artiste.id}, this)">
-    ⬇️
-  </div>
-
 </div>
 
   <!-- CTA -->
