@@ -35,7 +35,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* ================= MAP ================= */
 
-const map = L.map('map').setView([48.1173, -1.6778], 12);
+const mapElement = document.getElementById("map");
+
+if(!mapElement){
+  console.error("Map introuvable");
+  return;
+}
+
+const map = L.map(mapElement).setView([48.1173, -1.6778], 12);
 
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
   attribution: '&copy; OpenStreetMap & Carto',
@@ -43,28 +50,31 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
   maxZoom: 20
 }).addTo(map);
 
-/* CLUSTER */
+/* ================= CLUSTER ================= */
+
 const markerCluster = L.markerClusterGroup();
 map.addLayer(markerCluster);
-
-
 /* ================= GEO ================= */
 
 function locateUser(){
-  navigator.geolocation.getCurrentPosition(pos => {
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos => {
 
-    const lat = pos.coords.latitude;
-    const lon = pos.coords.longitude;
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
 
-    map.setView([lat, lon], 13);
+      map.setView([lat, lon], 13);
 
-    if(window.userMarker){
-      map.removeLayer(window.userMarker);
-    }
+      if(window.userMarker){
+        map.removeLayer(window.userMarker);
+      }
 
-    window.userMarker = L.marker([lat, lon]).addTo(map);
+      window.userMarker = L.marker([lat, lon]).addTo(map);
 
-  });
+    }, () => {
+      console.log("Géolocalisation refusée");
+    });
+  }
 }
 
 locateUser();
