@@ -532,12 +532,10 @@ updateUI();
 
 window.addEventListener("click", (e) => {
 
-  // INSCRIPTION
   if (popup.classList.contains("active") && !e.target.closest(".popup-content")) {
     closePopup();
   }
 
-  // LOGIN
   if (loginPopup.classList.contains("active") && !e.target.closest(".popup-content")) {
     closePopup();
   }
