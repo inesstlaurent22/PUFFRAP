@@ -16,6 +16,30 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"/>
 
+<style>
+/* 🔥 IMPORTANT POUR ÉVITER LES BLOCS INVISIBLES */
+.topbar {
+  position: relative;
+  z-index: 1000;
+}
+
+.popup {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+}
+
+.popup-overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.popup-content {
+  position: relative;
+  z-index: 2001;
+}
+</style>
+
 </head>
 
 <body>
@@ -43,7 +67,6 @@
   <div id="profile" class="hidden">
     <span id="profileName"></span>
 
-    <!-- DROPDOWN PROFIL -->
     <div id="profileDropdown" class="dropdown hidden">
       <button type="button" onclick="openAccount()">Mon compte</button>
       <button type="button" onclick="openReservations()">Mes réservations</button>
@@ -57,11 +80,13 @@
 
 <!-- ================= POPUP INSCRIPTION ================= -->
 <div id="popup" class="popup hidden">
-  <div class="popup-overlay" onclick="closePopup()"></div>
+
+  <!-- ⚠️ overlay SANS onclick (géré en JS) -->
+  <div class="popup-overlay"></div>
 
   <div class="popup-content">
 
-    <button class="close-btn" onclick="closePopup()">✕</button>
+    <!-- ❌ bouton supprimé volontairement -->
 
     <h2>Créer un compte</h2>
 
@@ -79,11 +104,13 @@
 
 <!-- ================= POPUP CONNEXION ================= -->
 <div id="loginPopup" class="popup hidden">
-  <div class="popup-overlay" onclick="closePopup()"></div>
+
+  <!-- ⚠️ overlay SANS onclick -->
+  <div class="popup-overlay"></div>
 
   <div class="popup-content">
 
-    <button class="close-btn" onclick="closePopup()">✕</button>
+    <!-- ❌ bouton supprimé -->
 
     <h2>Connexion</h2>
 
@@ -102,22 +129,17 @@
 
 <!-- ================= SCRIPTS ================= -->
 
-<!-- LEAFLET -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<!-- CLUSTER -->
 <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 
-<!-- APP -->
 <script type="module" src="application.js"></script>
 
 
-<!-- ================= FIX FUNCTIONS ================= -->
+<!-- ================= SAFE FUNCTIONS ================= -->
 <script>
-  // évite erreurs JS si fonctions non définies
-  window.openAccount = () => alert("Mon compte");
-  window.openReservations = () => alert("Mes réservations");
-  window.openFavoris = () => alert("Mes favoris");
+window.openAccount = () => alert("Mon compte");
+window.openReservations = () => alert("Mes réservations");
+window.openFavoris = () => alert("Mes favoris");
 </script>
 
 </body>
