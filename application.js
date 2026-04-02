@@ -361,6 +361,7 @@ function renderMarkers(){
     const marker = L.marker(artiste.coords,{icon});
 
     marker.bindPopup(`
+
 <div class="card-premium">
 
   <!-- HEADER -->
@@ -397,19 +398,32 @@ function renderMarkers(){
     <h3>Commentaires</h3>
 
     <div class="comments-list" id="comments-${artiste.id}">
-      ${comments.map(c=>`
-        <div class="comment">
-          <div class="mini-avatar"></div>
-          <div>
-            <b>${c.pseudo}</b><br>
-            ${c.text}
+      ${
+        (comments.length ? comments : [
+          {
+            pseudo:"Lucas",
+            text:"Très bon artiste 🔥",
+            avatar:"https://randomuser.me/api/portraits/men/32.jpg"
+          },
+          {
+            pseudo:"Sarah",
+            text:"Super expérience",
+            avatar:"https://randomuser.me/api/portraits/women/44.jpg"
+          }
+        ]).map(c=>`
+          <div class="comment">
+            <img src="${c.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg'}" class="mini-avatar">
+            <div>
+              <b>${c.pseudo}</b><br>
+              ${c.text}
+            </div>
           </div>
-        </div>
-      `).join("")}
+        `).join("")
+      }
     </div>
 
     <!-- FLECHE -->
-    <div class="expand-btn" onclick="toggleComments(${artiste.id})">
+    <div class="expand-btn" onclick="toggleComments(${artiste.id}, this)">
       ⬇️
     </div>
 
@@ -421,6 +435,7 @@ function renderMarkers(){
   </button>
 
 </div>
+
 `);
 
     markerCluster.addLayer(marker);
