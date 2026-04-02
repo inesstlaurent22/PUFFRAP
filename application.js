@@ -268,75 +268,62 @@ function renderMarkers(){
     marker.bindPopup(`
 <div class="card-premium">
 
-  <!-- TOP -->
-  <div class="top">
-
+  <!-- HEADER -->
+  <div class="header">
     <div class="avatar" style="background-image:url('${artiste.image}')"></div>
 
-    <div class="infos">
-
-      <div class="stars">
-        ${"⭐".repeat(Math.round(avg))} <span>${avg}</span>
-      </div>
+    <div class="header-info">
+      <div class="stars">⭐⭐⭐⭐☆ <span>${avg}</span></div>
 
       <div class="tags">
         ${artiste.services.map(s=>`<span>${s}</span>`).join("")}
       </div>
-
     </div>
-
   </div>
 
-  <!-- NOM -->
   <h2>${artiste.nom}</h2>
 
-  <!-- SERVICES PRIX -->
-  <div class="services-box">
+  <!-- SLIDER SERVICES -->
+  <div class="service-slider">
+    <div class="service-track">
 
-    <div class="service">
-      🎵
-      <p>À partir de 50€</p>
+      <div class="service-card">🎵<br>50€</div>
+      <div class="service-card">🎚️<br>50€</div>
+      <div class="service-card">📱<br>50€</div>
+      <div class="service-card">🎤<br>50€</div>
+      <div class="service-card">📀<br>50€</div>
+
     </div>
-
-    <div class="service">
-      🎚️
-      <p>À partir de 50€</p>
-    </div>
-
-    <div class="service">
-      💬
-      <p>À partir de 50€</p>
-    </div>
-
   </div>
 
-  <!-- COMMENTAIRES -->
+  <!-- COMMENTS -->
   <div class="comments-box">
 
-    <h4>Commentaires</h4>
+    <h3>Commentaires</h3>
 
-    <div class="comment">
-      <div class="mini-avatar"></div>
-      <div>
-        <b>${comments[0]?.pseudo || "Utilisateur"}</b><br>
-        ${comments[0]?.text || "Aucun commentaire"}
-      </div>
+    <div class="comments-list" id="comments-${artiste.id}">
+      ${comments.map(c=>`
+        <div class="comment">
+          <div class="mini-avatar"></div>
+          <div>
+            <b>${c.pseudo}</b><br>
+            ${c.text}
+          </div>
+        </div>
+      `).join("")}
+    </div>
+
+    <!-- FLECHE -->
+    <div class="expand-btn" onclick="toggleComments(${artiste.id})">
+      ⬇️
     </div>
 
   </div>
 
-  <!-- ACTIONS -->
-  <div class="actions">
-
-    <div onclick="toggleFavori(${artiste.id})">
-      ${isFav ? "❤️" : "🤍"}
-    </div>
-
-    <button onclick="openArtist(${artiste.id})">
-      Demander un rendez-vous
-    </button>
-
-  </div>
+  <!-- CTA -->
+  <button class="cta" onclick="openArtist(${artiste.id})">
+    Demander un rendez-vous
+  </button>
 
 </div>
 `);
