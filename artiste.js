@@ -52,19 +52,17 @@ const icon = L.divIcon({
 
 L.marker(artistCoords, {icon}).addTo(map);
 
-/* ================= SLIDER DRAG FIX ================= */
+/* ================= SLIDER DRAG PREMIUM ================= */
 
-const slider = document.querySelector(".slider"); // ⚠️ important
-const track = document.querySelector(".slider-track");
+const slider = document.querySelector(".slider");
 
 let isDown = false;
 let startX;
 let scrollLeft;
 let velocity = 0;
-let momentum;
+let raf;
 
-/* MOUSE */
-
+/* MOUSE DOWN */
 slider.addEventListener("mousedown", (e) => {
   isDown = true;
   startX = e.pageX;
@@ -72,54 +70,55 @@ slider.addEventListener("mousedown", (e) => {
   slider.style.cursor = "grabbing";
 });
 
-slider.addEventListener("mouseleave", () => isDown = false);
-
+/* MOUSE UP */
 slider.addEventListener("mouseup", () => {
   isDown = false;
   slider.style.cursor = "grab";
-  momentumScroll();
+  startMomentum();
 });
 
+slider.addEventListener("mouseleave", () => isDown = false);
+
+/* DRAG */
 slider.addEventListener("mousemove", (e) => {
   if (!isDown) return;
 
-  const x = e.pageX;
-  const walk = (x - startX);
+  const dx = e.pageX - startX;
 
-  velocity = walk;
-  slider.scrollLeft = scrollLeft - walk;
+  velocity = dx; /* garde vitesse */
+  slider.scrollLeft = scrollLeft - dx;
 });
 
-/* TOUCH (mobile) */
-
+/* TOUCH */
 slider.addEventListener("touchstart", (e) => {
   startX = e.touches[0].pageX;
   scrollLeft = slider.scrollLeft;
 });
 
 slider.addEventListener("touchmove", (e) => {
-  const x = e.touches[0].pageX;
-  const walk = (x - startX);
+  const dx = e.touches[0].pageX - startX;
 
-  velocity = walk;
-  slider.scrollLeft = scrollLeft - walk;
+  velocity = dx;
+  slider.scrollLeft = scrollLeft - dx;
 });
 
 slider.addEventListener("touchend", () => {
-  momentumScroll();
+  startMomentum();
 });
 
-/* INERTIE */
+/* ================= INERTIE STYLE iOS ================= */
 
-function momentumScroll() {
-  cancelAnimationFrame(momentum);
+function startMomentum(){
+  cancelAnimationFrame(raf);
 
-  momentum = requestAnimationFrame(function step() {
+  function momentum(){
     slider.scrollLeft -= velocity;
-    velocity *= 0.95;
+    velocity *= 0.92; /* 🔥 douceur */
 
-    if (Math.abs(velocity) > 0.5) {
-      momentum = requestAnimationFrame(step);
+    if(Math.abs(velocity) > 0.3){
+      raf = requestAnimationFrame(momentum);
     }
-  });
+  }
+
+  momentum();
 }
