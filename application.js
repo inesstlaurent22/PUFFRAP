@@ -262,49 +262,79 @@ function renderMarkers(){
     const marker = L.marker(artiste.coords,{icon});
 
     marker.bindPopup(`
-  <div class="card">
+<div class="card-premium">
 
-    <img src="${artiste.image}" class="card-img">
+  <!-- TOP -->
+  <div class="top">
 
-    <h3>${artiste.nom}</h3>
+    <div class="avatar" style="background-image:url('${artiste.image}')"></div>
 
-    <!-- ⭐ NOTE -->
-    <div class="rating">
+    <div class="infos">
+
       <div class="stars">
-        ${[1,2,3,4,5].map(n=>`
-          <span onclick="addRating(${artiste.id},${n})">⭐</span>
-        `).join("")}
+        ${"⭐".repeat(Math.round(avg))} <span>${avg}</span>
       </div>
-      <span class="avg">${avg}</span>
+
+      <div class="tags">
+        ${artiste.services.map(s=>`<span>${s}</span>`).join("")}
+      </div>
+
     </div>
 
-    <!-- 🎧 SERVICES -->
-    <div class="services">
-      ${artiste.services.map(s=>`<span>${s}</span>`).join("")}
+  </div>
+
+  <!-- NOM -->
+  <h2>${artiste.nom}</h2>
+
+  <!-- SERVICES PRIX -->
+  <div class="services-box">
+
+    <div class="service">
+      🎵
+      <p>À partir de 50€</p>
     </div>
 
-    <!-- 📅 DATE -->
-    <input type="date">
-
-    <!-- 💬 COMMENTAIRES -->
-    <div class="comments">
-      ${comments.map(c=>`<div><b>${c.pseudo}</b>: ${c.text}</div>`).join("")}
+    <div class="service">
+      🎚️
+      <p>À partir de 50€</p>
     </div>
 
-    <input id="comment-${artiste.id}" placeholder="Commentaire">
-    <button onclick="addComment(${artiste.id})">Envoyer</button>
+    <div class="service">
+      💬
+      <p>À partir de 50€</p>
+    </div>
 
-    <!-- ❤️ FAVORI -->
+  </div>
+
+  <!-- COMMENTAIRES -->
+  <div class="comments-box">
+
+    <h4>Commentaires</h4>
+
+    <div class="comment">
+      <div class="mini-avatar"></div>
+      <div>
+        <b>${comments[0]?.pseudo || "Utilisateur"}</b><br>
+        ${comments[0]?.text || "Aucun commentaire"}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="actions">
+
     <div onclick="toggleFavori(${artiste.id})">
       ${isFav ? "❤️" : "🤍"}
     </div>
 
-    <!-- 🔘 RESERVATION -->
-    <button onclick="openArtist(${artiste.id})" class="book-btn">
-      Réserver
+    <button onclick="openArtist(${artiste.id})">
+      Demander un rendez-vous
     </button>
 
   </div>
+
+</div>
 `);
 
     markerCluster.addLayer(marker);
