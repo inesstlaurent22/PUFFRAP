@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artiste</title>
+
+<link rel="stylesheet" href="artiste.css">
+
+</head>
+
+<body>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <img id="artistImg">
+    <div class="overlay"></div>
+    <h1 id="artistName"></h1>
+  </div>
+
+  <!-- INFOS -->
+  <div class="content">
+
+    <div class="rating">
+      ⭐ <span id="rating"></span>
+    </div>
+
+    <div id="services" class="services"></div>
+
+    <p class="desc">
+      Artiste professionnel disponible pour vos projets musicaux.
+    </p>
+
+    <!-- RESERVATION -->
+    <div class="booking">
+      <input type="date" id="date">
+      <button onclick="book()">Réserver</button>
+    </div>
+
+    <!-- COMMENTAIRES -->
+    <h3>Avis</h3>
+    <div id="comments" class="comments"></div>
+
+  </div>
+
+</div>
+
+<script src="artiste.js"></script>
+
+</body>
+</html>
