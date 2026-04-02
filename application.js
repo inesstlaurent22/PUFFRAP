@@ -228,72 +228,75 @@ function renderMarkers(){
 
     const avg = "4.8";
 
+    // sécurité services
+    const servicesHTML = (artiste.services || [])
+      .map(s => `<span>${s}</span>`)
+      .join("");
+
+    const commentsHTML = [
+      {name:"Lucas", text:"Incroyable 🔥"},
+      {name:"Sarah", text:"Très pro"},
+      {name:"Mehdi", text:"Top qualité"},
+      {name:"Inès", text:"Super expérience"},
+      {name:"Thomas", text:"Je recommande"}
+    ].map(c => `
+      <div class="comment">
+        <div>
+          <b>${c.name}</b><br>
+          ${c.text}
+        </div>
+      </div>
+    `).join("");
+
     const icon = L.divIcon({
-      className:"custom-marker",
-      html:`<div class="marker-img" style="background-image:url('${artiste.image}')"></div>`,
-      iconSize:[50,50]
+      className: "custom-marker",
+      html: `<div class="marker-img" style="background-image:url('${artiste.image}')"></div>`,
+      iconSize: [50,50]
     });
 
-    const marker = L.marker(artiste.coords,{icon});
+    const marker = L.marker(artiste.coords, { icon });
 
     marker.bindPopup(`
+      <div class="card-premium">
 
-<div class="card-premium">
+        <div class="header">
+          <div class="avatar" style="background-image:url('${artiste.image}')"></div>
 
-  <div class="header">
-    <div class="avatar" style="background-image:url('${artiste.image}')"></div>
+          <div class="header-info">
+            <div class="stars">⭐⭐⭐⭐☆ <span>${avg}</span></div>
 
-    <div class="header-info">
-      <div class="stars">⭐⭐⭐⭐☆ <span>${avg}</span></div>
-
-      <div class="tags">
-        ${artiste.services.map(s=>`<span>${s}</span>`).join("")}
-      </div>
-    </div>
-  </div>
-
-  <h2>${artiste.nom}</h2>
-
-  <div class="service-slider">
-    <div class="service-track">
-      <div class="service-card">🎵<br>50€</div>
-      <div class="service-card">🎚️<br>50€</div>
-      <div class="service-card">📱<br>50€</div>
-      <div class="service-card">🎤<br>50€</div>
-      <div class="service-card">📀<br>50€</div>
-    </div>
-  </div>
-
-  <div class="comments-box">
-    <h3>Commentaires</h3>
-
-    <div class="comments-list">
-
-      ${[
-        {name:"Lucas", text:"Incroyable 🔥"},
-        {name:"Sarah", text:"Très pro"},
-        {name:"Mehdi", text:"Top qualité"},
-        {name:"Inès", text:"Super expérience"},
-        {name:"Thomas", text:"Je recommande"}
-      ].map(c=>`
-        <div class="comment">
-          <div>
-            <b>${c.name}</b><br>
-            ${c.text}
+            <div class="tags">
+              ${servicesHTML}
+            </div>
           </div>
         </div>
-      `).join("")}
 
-    </div>
-  </div>
+        <h2>${artiste.nom}</h2>
 
-  <button class="cta" onclick="openArtist(${artiste.id})">
-    Demander un rendez-vous
-  </button>
+        <div class="service-slider">
+          <div class="service-track">
+            <div class="service-card">🎵<br>50€</div>
+            <div class="service-card">🎚️<br>50€</div>
+            <div class="service-card">📱<br>50€</div>
+            <div class="service-card">🎤<br>50€</div>
+            <div class="service-card">📀<br>50€</div>
+          </div>
+        </div>
 
-</div>
+        <div class="comments-box">
+          <h3>Commentaires</h3>
 
-`);
+          <div class="comments-list">
+            ${commentsHTML}
+          </div>
+        </div>
+
+        <button class="cta" onclick="openArtist(${artiste.id})">
+          Demander un rendez-vous
+        </button>
+
+      </div>
+    `);
 
     markerCluster.addLayer(marker);
   });
