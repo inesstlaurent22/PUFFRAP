@@ -20,15 +20,28 @@
 <!-- TOP RIGHT MENU -->
 <div class="topbar">
 
-  <button id="signupBtn">Inscription</button>
+  <!-- INSCRIPTION -->
+  <button id="signupBtn" type="button">Inscription</button>
 
+  <!-- DROPDOWN INSCRIPTION -->
   <div id="dropdown" class="dropdown hidden">
-    <button onclick="selectUser('client')">Client</button>
-    <button>Artiste</button>
+    <button type="button" onclick="selectUser('client')">Client</button>
+    <button type="button">Artiste</button>
   </div>
 
+  <!-- PROFIL -->
   <div id="profile" class="hidden">
+
     <span id="profileName"></span>
+
+    <!-- DROPDOWN PROFIL -->
+    <div id="profileDropdown" class="dropdown hidden">
+      <button type="button" onclick="openAccount()">Mon compte</button>
+      <button type="button" onclick="openReservations()">Mes réservations</button>
+      <button type="button" onclick="openFavoris()">Mes favoris</button>
+      <button type="button" onclick="logout()">Déconnexion</button>
+    </div>
+
   </div>
 
 </div>
@@ -45,13 +58,13 @@
     <input id="email" placeholder="Email">
     <input id="password" type="password" placeholder="Mot de passe">
 
-    <button onclick="signup()">S’inscrire</button>
+    <button type="button" onclick="signup()">S’inscrire</button>
 
   </div>
 </div>
 
 <!-- GPS BUTTON -->
-<button id="locateBtn">📍</button>
+<button id="locateBtn" type="button">📍</button>
 
 <script src="application.js"></script>
 
