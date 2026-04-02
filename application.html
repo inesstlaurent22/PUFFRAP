@@ -57,7 +57,11 @@
 
 <!-- ================= POPUP INSCRIPTION ================= -->
 <div id="popup" class="popup hidden">
+  <div class="popup-overlay" onclick="closePopup()"></div>
+
   <div class="popup-content">
+
+    <button class="close-btn" onclick="closePopup()">✕</button>
 
     <h2>Créer un compte</h2>
 
@@ -67,7 +71,7 @@
     <input id="email" type="email" placeholder="Email">
     <input id="password" type="password" placeholder="Mot de passe">
 
-    <button type="button" onclick="signup()">S’inscrire</button>
+    <button id="signupSubmit" type="button">S’inscrire</button>
 
   </div>
 </div>
@@ -75,17 +79,22 @@
 
 <!-- ================= POPUP CONNEXION ================= -->
 <div id="loginPopup" class="popup hidden">
+  <div class="popup-overlay" onclick="closePopup()"></div>
+
   <div class="popup-content">
+
+    <button class="close-btn" onclick="closePopup()">✕</button>
 
     <h2>Connexion</h2>
 
-    <input id="loginUsername" type="email" placeholder="Email">
+    <input id="loginEmail" type="email" placeholder="Email">
     <input id="loginPassword" type="password" placeholder="Mot de passe">
 
-    <button type="button" onclick="login()">Se connecter</button>
+    <button id="loginSubmit" type="button">Se connecter</button>
 
   </div>
 </div>
+
 
 <!-- ================= GPS BUTTON ================= -->
 <button id="locateBtn" type="button">📍</button>
@@ -101,6 +110,15 @@
 
 <!-- APP -->
 <script type="module" src="application.js"></script>
+
+
+<!-- ================= FIX FUNCTIONS ================= -->
+<script>
+  // évite erreurs JS si fonctions non définies
+  window.openAccount = () => alert("Mon compte");
+  window.openReservations = () => alert("Mes réservations");
+  window.openFavoris = () => alert("Mes favoris");
+</script>
 
 </body>
 </html>
