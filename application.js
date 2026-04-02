@@ -177,8 +177,8 @@ function addRating(id, rating){
 
 function getAverage(id){
   const r = getRatings(id);
-  if(!r.length) return "⭐ 0";
-  return "⭐ " + (r.reduce((a,b)=>a+b)/r.length).toFixed(1);
+  if(!r.length) return "0.0";
+  return (r.reduce((a,b)=>a+b)/r.length).toFixed(1);
 }
 
 
@@ -216,21 +216,24 @@ const artistes = [
     nom:"Léo Martin",
     coords:[48.1173,-1.6778],
     image:"images/artiste1.jpg",
-    categories:["Rap","Freestyle"]
+    categories:["Rap","Freestyle"],
+    services:["Mixage","Mastering","Freestyle"]
   },
   {
     id:2,
     nom:"Sarah K",
     coords:[48.115,-1.68],
     image:"images/artiste2.jpg",
-    categories:["Chant","Pop"]
+    categories:["Chant","Pop"],
+    services:["Chant","Cover","Studio"]
   },
   {
     id:3,
     nom:"DJ Nox",
     coords:[48.118,-1.675],
     image:"images/artiste3.jpg",
-    categories:["DJ","Electro"]
+    categories:["DJ","Electro"],
+    services:["DJ Set","Soirée","Mix"]
   }
 ];
 
@@ -259,43 +262,60 @@ function renderMarkers(){
     const marker = L.marker(artiste.coords,{icon});
 
     marker.bindPopup(`
-      <div class="card">
+  <div class="card">
 
-        <img src="${artiste.image}" class="card-img">
+    <img src="${artiste.image}" class="card-img">
 
-        <h3>${artiste.nom}</h3>
+    <h3>${artiste.nom}</h3>
 
-        <div class="rating">${avg}</div>
-
-        <div class="stars">
-          ${[1,2,3,4,5].map(n=>`<span onclick="addRating(${artiste.id},${n})">⭐</span>`).join("")}
-        </div>
-
-        <div class="categories">
-          ${artiste.categories.map(c=>`<span>${c}</span>`).join("")}
-        </div>
-
-        <input type="date">
-
-        <div class="comments">
-          ${comments.map(c=>`<div><b>${c.pseudo}</b>: ${c.text}</div>`).join("")}
-        </div>
-
-        <input id="comment-${artiste.id}" placeholder="Commentaire">
-        <button onclick="addComment(${artiste.id})">Envoyer</button>
-
-        <div onclick="toggleFavori(${artiste.id})">
-          ${isFav ? "❤️" : "🤍"}
-        </div>
-
+    <!-- ⭐ NOTE -->
+    <div class="rating">
+      <div class="stars">
+        ${[1,2,3,4,5].map(n=>`
+          <span onclick="addRating(${artiste.id},${n})">⭐</span>
+        `).join("")}
       </div>
-    `);
+      <span class="avg">${avg}</span>
+    </div>
+
+    <!-- 🎧 SERVICES -->
+    <div class="services">
+      ${artiste.services.map(s=>`<span>${s}</span>`).join("")}
+    </div>
+
+    <!-- 📅 DATE -->
+    <input type="date">
+
+    <!-- 💬 COMMENTAIRES -->
+    <div class="comments">
+      ${comments.map(c=>`<div><b>${c.pseudo}</b>: ${c.text}</div>`).join("")}
+    </div>
+
+    <input id="comment-${artiste.id}" placeholder="Commentaire">
+    <button onclick="addComment(${artiste.id})">Envoyer</button>
+
+    <!-- ❤️ FAVORI -->
+    <div onclick="toggleFavori(${artiste.id})">
+      ${isFav ? "❤️" : "🤍"}
+    </div>
+
+    <!-- 🔘 RESERVATION -->
+    <button onclick="openArtist(${artiste.id})" class="book-btn">
+      Réserver
+    </button>
+
+  </div>
+`);
 
     markerCluster.addLayer(marker);
   });
 }
 
 renderMarkers();
+
+  window.openArtist = function(id){
+  window.location.href = "artiste.html?id=" + id;
+};
 
 
 /* ================= LOGOUT ================= */
