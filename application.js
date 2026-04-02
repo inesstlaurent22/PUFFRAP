@@ -212,7 +212,6 @@ function addComment(id){
 }
 
 /* ================= COMMENTS EXPAND ================= */
-
 window.toggleComments = function(id, btn){
 
   const el = document.getElementById("comments-"+id);
@@ -393,41 +392,37 @@ function renderMarkers(){
   </div>
 
   <!-- COMMENTS -->
-  <div class="comments-box">
+<!-- COMMENTS -->
+<div class="comments-box">
 
-    <h3>Commentaires</h3>
+  <h3>Commentaires</h3>
 
-    <div class="comments-list" id="comments-${artiste.id}">
-      ${
-        (comments.length ? comments : [
-          {
-            pseudo:"Lucas",
-            text:"Très bon artiste 🔥",
-            avatar:"https://randomuser.me/api/portraits/men/32.jpg"
-          },
-          {
-            pseudo:"Sarah",
-            text:"Super expérience",
-            avatar:"https://randomuser.me/api/portraits/women/44.jpg"
-          }
-        ]).map(c=>`
-          <div class="comment">
-            <img src="${c.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg'}" class="mini-avatar">
-            <div>
-              <b>${c.pseudo}</b><br>
-              ${c.text}
-            </div>
-          </div>
-        `).join("")
-      }
-    </div>
-
-    <!-- FLECHE -->
-    <div class="expand-btn" onclick="toggleComments(${artiste.id}, this)">
-      ⬇️
-    </div>
+  <div class="comments-list" id="comments-${artiste.id}">
+    
+    ${[
+      {name:"Lucas Martin", avatar:"https://randomuser.me/api/portraits/men/32.jpg", text:"Incroyable prestation 🔥"},
+      {name:"Sarah Dupont", avatar:"https://randomuser.me/api/portraits/women/44.jpg", text:"Très professionnelle"},
+      {name:"Mehdi K", avatar:"https://randomuser.me/api/portraits/men/22.jpg", text:"Qualité studio parfaite"},
+      {name:"Inès Laurent", avatar:"https://randomuser.me/api/portraits/women/65.jpg", text:"Super expérience !"},
+      {name:"Thomas R", avatar:"https://randomuser.me/api/portraits/men/12.jpg", text:"Je recommande à 100%"}
+    ].map(c=>`
+      <div class="comment">
+        <img src="${c.avatar}" class="mini-avatar">
+        <div>
+          <b>${c.name}</b><br>
+          ${c.text}
+        </div>
+      </div>
+    `).join("")}
 
   </div>
+
+  <!-- FLECHE -->
+  <div class="expand-btn" onclick="toggleComments(${artiste.id}, this)">
+    ⬇️
+  </div>
+
+</div>
 
   <!-- CTA -->
   <button class="cta" onclick="openArtist(${artiste.id})">
