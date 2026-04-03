@@ -204,12 +204,26 @@ button {
   box-shadow: 0 0 15px rgba(0,255,100,0.9);
 }
 
+.marker-premium {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-size: cover;
+  border: 3px solid white;
+  box-shadow: 0 0 20px rgba(0,255,150,0.8);
+}
+
 /* ================= CARD ================= */
 
 .card-premium {
-  width: 260px;
-  background: #000;
-  color: white;
+  border-radius: 20px;
+  overflow: hidden;
+  animation: fadeUp 0.3s ease;
+}
+
+@keyframes fadeUp {
+  from { transform: translateY(20px); opacity:0; }
+  to { transform: translateY(0); opacity:1; }
 }
 
 .card-premium * {
