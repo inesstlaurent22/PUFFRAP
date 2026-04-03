@@ -284,22 +284,16 @@ async function loadArtists(){
 
     const d = docSnap.data();
 
-    if(d.lat == null || d.lng == null)
+    if(d.lat == null || d.lng == null) return;
 
     const marker = L.marker([d.lat, d.lng]);
 
-    /* 🔥 FICHE ARTISTE AVANCÉE */
-
     marker.bindPopup(`
-  <div>
-    <h2>${d.prenom} ${d.nom}</h2>
-    <p>${d.produits || ""}</p>
-  </div>
-`);
-
-    marker.on("click", () => {
-      setTimeout(() => loadComments(docSnap.id), 200);
-    });
+      <div>
+        <h2>${d.prenom} ${d.nom}</h2>
+        <p>${d.produits || ""}</p>
+      </div>
+    `);
 
     markerCluster.addLayer(marker);
   });
@@ -418,35 +412,25 @@ function initGeoloc(){
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  /* ========= ACTIONS FORM ========= */
-
   document.getElementById("signupSubmit")?.addEventListener("click", signup);
   document.getElementById("loginSubmit")?.addEventListener("click", login);
   document.getElementById("createArtistBtn")?.addEventListener("click", createArtistAccount);
-
-  /* ========= UI TOPBAR ========= */
 
   const signupBtn = document.getElementById("signupBtn");
   const loginBtn = document.getElementById("loginBtn");
   const dropdown = document.getElementById("dropdown");
   const loginPopup = document.getElementById("loginPopup");
 
-  if(signupBtn && dropdown){
-    signupBtn.addEventListener("click", (e)=>{
-      e.stopPropagation();
-      dropdown.classList.toggle("hidden");
-    });
-  }
+  signupBtn?.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    dropdown?.classList.toggle("hidden");
+  });
 
-  if(loginBtn && loginPopup){
-    loginBtn.addEventListener("click", (e)=>{
-      e.stopPropagation();
-      loginPopup.classList.remove("hidden");
-      loginPopup.classList.add("active");
-    });
-  }
-
-  /* ========= MAP ========= */
+  loginBtn?.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    loginPopup?.classList.remove("hidden");
+    loginPopup?.classList.add("active");
+  });
 
   const mapEl = document.getElementById("map");
 
@@ -454,9 +438,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     map = L.map(mapEl).setView([48.85, 2.35], 6);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: "&copy; OpenStreetMap"
-    }).addTo(map);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
 
     markerCluster = L.markerClusterGroup();
     map.addLayer(markerCluster);
@@ -464,11 +446,11 @@ document.addEventListener("DOMContentLoaded", () => {
     loadArtists();
   }
 
-  /* ========= INIT FEATURES ========= */
-
   initAutocomplete();
   initGeoloc();
-  initPreview(); 
+  initPreview(); // maintenant OK
+
+});
 
   /* ========= POPUP CLICK FIX ========= */
 
@@ -522,3 +504,32 @@ window.addEventListener("click", (e) => {
     closePopup();
   }
 });
+
+function initPreview(){
+
+  const input = document.getElementById("artistMedia");
+  const preview = document.getElementById("mediaPreview");
+
+  if(!input || !preview) return;
+
+  input.addEventListener("change", () => {
+
+    preview.innerHTML = "";
+
+    Array.from(input.files).forEach(file => {
+
+      const url = URL.createObjectURL(file);
+
+      if(file.type.startsWith("audio")){
+        preview.innerHTML += `<audio controls src="${url}"></audio>`;
+      }
+
+      if(file.type.startsWith("video")){
+        preview.innerHTML += `<video controls width="120" src="${url}"></video>`;
+      }
+
+    });
+  });
+}
+
+if(!data || !data.features) return;
