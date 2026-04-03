@@ -1,8 +1,6 @@
-/* ================= IMPORTS ================= */
+ /* ================= IMPORTS ================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-
-/* AUTH */
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -11,7 +9,6 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-/* FIRESTORE */
 import {
   getFirestore,
   setDoc,
@@ -20,14 +17,6 @@ import {
   collection,
   getDocs
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-/* STORAGE */
-import {
-  getStorage,
-  ref,
-  uploadBytes,
-  getDownloadURL
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 /* ================= FIREBASE ================= */
 
@@ -43,105 +32,85 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
 
 /* ================= GLOBAL ================= */
 
 let map;
 let markerCluster;
 
+/* ================= SIGNUP CLIENT ================= */
+
+window.signup = async () => {
+
+  const username = document.getElementById("username")?.value.trim();
+  const nom = document.getElementById("nom")?.value.trim();
+  const prenom = document.getElementById("prenom")?.value.trim();
+  const email = document.getElementById("email")?.value.trim();
+  const password = document.getElementById("password")?.value.trim();
+
+  if(!username || !nom || !prenom || !email || !password){
+    alert("Remplis tous les champs");
+    return;
+  }
+
+  try{
+    const user = await createUserWithEmailAndPassword(auth, email, password);
+
+    await setDoc(doc(db, "users", user.user.uid), {
+      username, nom, prenom, email,
+      role: "client",
+      createdAt: Date.now()
+    });
+
+    closePopup();
+    alert("Bienvenue " + prenom);
+
+  } catch(e){
+    alert(e.message);
+  }
+};
+
 /* ================= SIGNUP ARTIST ================= */
 
 window.createArtistAccount = async () => {
 
-  const nomEl = document.getElementById("artistNom");
-  const prenomEl = document.getElementById("artistPrenom");
-  const emailEl = document.getElementById("artistEmail");
-  const passwordEl = document.getElementById("artistPassword");
-  const produitsEl = document.getElementById("artistProduits");
+  const nom = document.getElementById("artistNom")?.value.trim();
+  const prenom = document.getElementById("artistPrenom")?.value.trim();
+  const email = document.getElementById("artistEmail")?.value.trim();
+  const password = document.getElementById("artistPassword")?.value.trim();
+  const produits = document.getElementById("artistProduits")?.value.trim();
+  const media = document.getElementById("artistMedia")?.value.trim();
   const locInput = document.getElementById("artistArr");
-  const mediaInput = document.getElementById("artistMedia");
-
-  if(!nomEl || !prenomEl || !emailEl || !passwordEl || !locInput){
-    alert("Erreur formulaire");
-    return;
-  }
-
-  const nom = nomEl.value.trim();
-  const prenom = prenomEl.value.trim();
-  const email = emailEl.value.trim();
-  const password = passwordEl.value.trim();
-  const produits = produitsEl?.value || "";
-  const files = mediaInput?.files;
 
   if(!nom || !prenom || !email || !password){
     alert("Champs obligatoires manquants");
     return;
   }
 
-  if(password.length < 6){
-    alert("Mot de passe trop court");
-    return;
-  }
+  const lat = parseFloat(locInput?.dataset.lat);
+  const lng = parseFloat(locInput?.dataset.lng);
+  const localisation = locInput?.value;
 
-  if(!email.includes("@")){
-    alert("Email invalide");
-    return;
-  }
-
-  const lat = parseFloat(locInput.dataset.lat);
-  const lng = parseFloat(locInput.dataset.lng);
-  const localisation = locInput.value;
-
-  if(isNaN(lat) || isNaN(lng)){
-    alert("Choisis une localisation valide");
+  if(!lat || !lng){
+    alert("Choisis une localisation valide dans la liste");
     return;
   }
 
   try{
 
-    const btn = document.getElementById("createArtistBtn");
-    if(btn) btn.disabled = true;
-
     const user = await createUserWithEmailAndPassword(auth, email, password);
     const uid = user.user.uid;
 
-    /* ================= UPLOAD MEDIA ================= */
-
-    let mediaUrls = [];
-
-    if(files && files.length){
-
-      for (const file of files) {
-
-        const storageRef = ref(storage, `artists/${uid}/${Date.now()}_${file.name}`);
-
-        await uploadBytes(storageRef, file);
-
-        const url = await getDownloadURL(storageRef);
-
-        mediaUrls.push(url);
-      }
-    }
-
-    /* ================= SAVE ARTIST ================= */
-
     await setDoc(doc(db, "artists", uid), {
-      nom,
-      prenom,
-      email,
+      nom, prenom, email,
       produits,
-      media: mediaUrls,
-      photo: mediaUrls[0] || "",
-      rating: 0,
-      disponibilites: [],
+      media,
       arrondissement: localisation,
-      lat,
-      lng,
+      lat, lng,
       createdAt: Date.now()
     });
 
-    /* ================= MARKER ================= */
+    /* MARKER DIRECT */
 
     if(map && markerCluster){
 
@@ -151,7 +120,7 @@ window.createArtistAccount = async () => {
         <div class="card-premium">
           <h2>${prenom} ${nom}</h2>
           <p>${localisation}</p>
-          <p>${produits}</p>
+          <p>${produits || ""}</p>
         </div>
       `);
 
@@ -163,24 +132,7 @@ window.createArtistAccount = async () => {
     closePopup();
 
   } catch(e){
-
-    console.error(e);
-
-    if(e.code === "auth/email-already-in-use"){
-      alert("Email déjà utilisé");
-    } else if(e.code === "auth/invalid-email"){
-      alert("Email invalide");
-    } else if(e.code === "auth/weak-password"){
-      alert("Mot de passe trop faible");
-    } else {
-      alert("Erreur : " + e.message);
-    }
-
-  } finally {
-
-    const btn = document.getElementById("createArtistBtn");
-    if(btn) btn.disabled = false;
-
+    alert(e.message);
   }
 };
 
@@ -188,60 +140,20 @@ window.createArtistAccount = async () => {
 
 window.login = async () => {
 
-  const emailEl = document.getElementById("loginEmail");
-  const passwordEl = document.getElementById("loginPassword");
-
-  if(!emailEl || !passwordEl){
-    alert("Erreur formulaire");
-    return;
-  }
-
-  const email = emailEl.value.trim();
-  const password = passwordEl.value.trim();
-
-  if(!email || !password){
-    alert("Remplis tous les champs");
-    return;
-  }
+  const email = document.getElementById("loginEmail")?.value.trim();
+  const password = document.getElementById("loginPassword")?.value.trim();
 
   try{
-
-    const btn = document.getElementById("loginSubmit");
-    if(btn) btn.disabled = true;
-
     await signInWithEmailAndPassword(auth, email, password);
-
     closePopup();
-
   } catch(e){
-
-    console.error(e);
-
-    if(e.code === "auth/user-not-found"){
-      alert("Utilisateur introuvable");
-    } else if(e.code === "auth/wrong-password"){
-      alert("Mot de passe incorrect");
-    } else if(e.code === "auth/invalid-email"){
-      alert("Email invalide");
-    } else {
-      alert("Erreur : " + e.message);
-    }
-
-  } finally {
-    const btn = document.getElementById("loginSubmit");
-    if(btn) btn.disabled = false;
+    alert(e.message);
   }
 };
 
 /* ================= LOGOUT ================= */
 
-window.logout = async () => {
-  try{
-    await signOut(auth);
-  } catch(e){
-    console.error("Erreur logout", e);
-  }
-};
+window.logout = () => signOut(auth);
 
 /* ================= AUTH STATE ================= */
 
@@ -256,16 +168,11 @@ onAuthStateChanged(auth, async (user) => {
 
     let prenom = "Utilisateur";
 
-    try{
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      const artistDoc = await getDoc(doc(db, "artists", user.uid));
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    const artistDoc = await getDoc(doc(db, "artists", user.uid));
 
-      if(userDoc.exists()) prenom = userDoc.data().prenom;
-      else if(artistDoc.exists()) prenom = artistDoc.data().prenom;
-
-    } catch(e){
-      console.error("Erreur profil", e);
-    }
+    if(userDoc.exists()) prenom = userDoc.data().prenom;
+    if(artistDoc.exists()) prenom = artistDoc.data().prenom;
 
     signupBtn?.classList.add("hidden");
     loginBtn?.classList.add("hidden");
@@ -296,22 +203,24 @@ async function loadArtists(){
 
     const d = docSnap.data();
 
-    if(d.lat == null || d.lng == null) return;
+    if(!d.lat || !d.lng) return;
 
     const marker = L.marker([d.lat, d.lng]);
 
     marker.bindPopup(`
-      <div>
+      <div class="card-premium">
         <h2>${d.prenom} ${d.nom}</h2>
+        <p>${d.arrondissement || ""}</p>
         <p>${d.produits || ""}</p>
       </div>
     `);
 
     markerCluster.addLayer(marker);
+
   });
 }
 
-/* ================= AUTOCOMPLETE ================= */
+/* ================= AUTOCOMPLETE FRANCE ================= */
 
 function initAutocomplete(){
 
@@ -326,122 +235,48 @@ function initAutocomplete(){
 
     clearTimeout(debounce);
 
-    const query = input.value.trim();
+    const query = input.value;
 
-    if(query.length < 2){
+    if(query.length < 3){
       box.classList.add("hidden");
-      box.innerHTML = "";
       return;
     }
 
     debounce = setTimeout(async () => {
 
-      try{
+      const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${query}&limit=5`);
+      const data = await res.json();
 
-        const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=5`);
-        const data = await res.json();
+      box.innerHTML = "";
 
-        box.innerHTML = "";
+      data.features.forEach(f => {
 
-        if(!data || !data.features || !data.features.length){
-          box.classList.add("hidden");
-          return;
-        }
+        const label = f.properties.label;
+        const lat = f.geometry.coordinates[1];
+        const lng = f.geometry.coordinates[0];
 
-        data.features.forEach(f => {
+        const btn = document.createElement("button");
+        btn.textContent = label;
 
-          const btn = document.createElement("button");
-          btn.textContent = f.properties.label;
+        btn.onclick = () => {
 
-          btn.onclick = () => {
-            input.value = f.properties.label;
-            input.dataset.lat = f.geometry.coordinates[1];
-            input.dataset.lng = f.geometry.coordinates[0];
-            box.classList.add("hidden");
-          };
-
-          box.appendChild(btn);
-        });
-
-        box.classList.remove("hidden");
-
-      } catch(e){
-        console.error("Erreur autocomplete", e);
-      }
-
-    }, 300);
-  });
-}
-
-/* ================= GEOLOC ================= */
-
-function initGeoloc(){
-
-  const btn = document.getElementById("geoBtn");
-  if(!btn) return;
-
-  btn.addEventListener("click", () => {
-
-    if(!navigator.geolocation){
-      alert("Géolocalisation non supportée");
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
-
-      try{
-
-        const res = await fetch(`https://api-adresse.data.gouv.fr/reverse/?lat=${lat}&lon=${lng}`);
-        const data = await res.json();
-
-        if(data.features?.length){
-
-          const input = document.getElementById("artistArr");
-
-          input.value = data.features[0].properties.label;
+          input.value = label;
           input.dataset.lat = lat;
           input.dataset.lng = lng;
-        }
 
-      } catch(e){
-        console.error("Erreur géoloc", e);
-      }
+          box.classList.add("hidden");
 
-    }, () => {
-      alert("Localisation refusée");
-    });
-  });
-}
+          if(map){
+            map.setView([lat, lng], 14);
+          }
+        };
 
-/* ================= PREVIEW ================= */
+        box.appendChild(btn);
+      });
 
-function initPreview(){
+      box.classList.remove("hidden");
 
-  const input = document.getElementById("artistMedia");
-  const preview = document.getElementById("mediaPreview");
-
-  if(!input || !preview) return;
-
-  input.addEventListener("change", () => {
-
-    preview.innerHTML = "";
-
-    Array.from(input.files).forEach(file => {
-
-      const url = URL.createObjectURL(file);
-
-      if(file.type.startsWith("audio")){
-        preview.innerHTML += `<audio controls src="${url}"></audio>`;
-      }
-
-      if(file.type.startsWith("video")){
-        preview.innerHTML += `<video controls width="120" src="${url}"></video>`;
-      }
-
-    });
+    }, 300);
   });
 }
 
@@ -458,20 +293,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const dropdown = document.getElementById("dropdown");
   const loginPopup = document.getElementById("loginPopup");
 
-  signupBtn?.addEventListener("click", (e)=>{
+  signupBtn?.addEventListener("click", e=>{
     e.stopPropagation();
     dropdown?.classList.toggle("hidden");
   });
 
-  loginBtn?.addEventListener("click", (e)=>{
+  loginBtn?.addEventListener("click", e=>{
     e.stopPropagation();
     loginPopup?.classList.remove("hidden");
     loginPopup?.classList.add("active");
   });
 
+  /* MAP */
+
   const mapEl = document.getElementById("map");
 
-  if(mapEl && typeof L !== "undefined"){
+  if(mapEl){
     map = L.map(mapEl).setView([48.85, 2.35], 6);
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
@@ -483,11 +320,54 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   initAutocomplete();
-  initGeoloc();
-  initPreview();
 
   document.querySelectorAll(".popup-content").forEach(el => {
     el.addEventListener("click", e => e.stopPropagation());
   });
 
 });
+
+/* ================= POPUP ================= */
+
+window.closePopup = () => {
+  document.querySelectorAll(".popup").forEach(p=>{
+    p.classList.remove("active");
+    p.classList.add("hidden");
+  });
+};
+
+/* ================= SELECT USER ================= */
+
+window.selectUser = (type) => {
+
+  const popup = document.getElementById("popup");
+  const artistPopup = document.getElementById("artistPopup");
+  const dropdown = document.getElementById("dropdown");
+
+  dropdown?.classList.add("hidden");
+
+  if(type === "client"){
+    popup.classList.remove("hidden");
+    popup.classList.add("active");
+  }
+
+  if(type === "artist"){
+    artistPopup.classList.remove("hidden");
+    artistPopup.classList.add("active");
+  }
+};
+
+/* ================= GLOBAL CLICK ================= */
+
+window.addEventListener("click", (e) => {
+
+  const dropdown = document.getElementById("dropdown");
+
+  if(!e.target.closest(".topbar")){
+    dropdown?.classList.add("hidden");
+  }
+
+  if(e.target.classList.contains("popup-overlay")){
+    closePopup();
+  }
+}); 
