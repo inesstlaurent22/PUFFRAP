@@ -304,12 +304,20 @@ window.addEventListener("click", (e) => {
 
   const dropdown = document.getElementById("dropdown");
 
+  /* FERME DROPDOWN SI CLICK OUTSIDE */
   if(!e.target.closest(".topbar")){
     dropdown?.classList.add("hidden");
   }
 
-  if(!e.target.closest(".popup-content")){
+  /* FERME POPUP UNIQUEMENT SI ON CLIQUE SUR L'OVERLAY */
+  if(e.target.classList.contains("popup-overlay")){
     closePopup();
   }
 
 });
+
+document.querySelectorAll(".popup-content").forEach(el => {
+  el.addEventListener("click", e => e.stopPropagation());
+});
+
+
