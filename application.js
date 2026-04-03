@@ -57,7 +57,10 @@ window.signup = async function(){
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
     await setDoc(doc(db, "users", userCredential.user.uid), {
-      username, nom, prenom, email,
+      username,
+      nom,
+      prenom,
+      email,
       role: "client",
       createdAt: Date.now()
     });
@@ -78,7 +81,6 @@ window.createArtistAccount = async function(){
   const prenom = document.getElementById("artistPrenom")?.value.trim();
   const email = document.getElementById("artistEmail")?.value.trim();
   const password = document.getElementById("artistPassword")?.value.trim();
-  const ville = document.getElementById("artistVille")?.value.trim();
   const produits = document.getElementById("artistProduits")?.value.trim();
   const media = document.getElementById("artistMedia")?.value.trim();
 
@@ -88,6 +90,7 @@ window.createArtistAccount = async function(){
   }
 
   try{
+
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const uid = userCredential.user.uid;
 
@@ -99,37 +102,45 @@ window.createArtistAccount = async function(){
     navigator.geolocation.getCurrentPosition(async (pos) => {
 
       const lat = pos.coords.latitude;
-const lng = pos.coords.longitude;
+      const lng = pos.coords.longitude;
 
-/* 🔥 RÉCUPÉRATION ARRONDISSEMENT */
+      /* 🔥 RÉCUP ARRONDISSEMENT */
 
-let arrondissement = "Non défini";
+      let arrondissement = "Non défini";
 
-try {
+      try{
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+        );
 
-  const res = await fetch(
-    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
-  );
+        const dataGeo = await res.json();
 
-  const dataGeo = await res.json();
+        arrondissement =
+          dataGeo.address?.city_district ||
+          dataGeo.address?.suburb ||
+          dataGeo.address?.town ||
+          dataGeo.address?.city ||
+          "Non défini";
 
-  arrondissement =
-    dataGeo.address?.city_district ||
-    dataGeo.address?.suburb ||
-    dataGeo.address?.city ||
-    "Non défini";
+      } catch(e){
+        console.log(e);
+      }
 
-} catch(e){
-  console.log("Erreur géocodage", e);
-}
+      /* ✅ SAVE FIREBASE */
 
       await setDoc(doc(db, "artists", uid), {
-        nom, prenom, email, ville, produits, media,
-        lat, lng,
+        nom,
+        prenom,
+        email,
+        produits,
+        media,
+        arrondissement,
+        lat,
+        lng,
         createdAt: Date.now()
       });
 
-      /* ✅ AJOUT DIRECT MARKER */
+      /* ✅ MARKER DIRECT */
 
       if(map && markerCluster){
 
@@ -138,7 +149,7 @@ try {
         marker.bindPopup(`
           <div class="card-premium">
             <h2>${prenom} ${nom}</h2>
-            <p>${ville || ""}</p>
+            <p>${arrondissement}</p>
             <p>${produits || ""}</p>
 
             ${
@@ -153,7 +164,6 @@ try {
 
         markerCluster.addLayer(marker);
 
-        /* 🎯 CENTRER MAP */
         map.setView([lat, lng], 14);
       }
 
@@ -172,6 +182,7 @@ try {
 /* ================= LOGIN ================= */
 
 window.login = async function(){
+
   const email = document.getElementById("loginEmail")?.value.trim();
   const password = document.getElementById("loginPassword")?.value.trim();
 
@@ -181,6 +192,12 @@ window.login = async function(){
   } catch(e){
     alert(e.message);
   }
+};
+
+/* ================= LOGOUT ================= */
+
+window.logout = function(){
+  signOut(auth);
 };
 
 /* ================= AUTH STATE ================= */
@@ -209,10 +226,13 @@ onAuthStateChanged(auth, async (user) => {
     if(profileName) profileName.textContent = prenom;
 
   } else {
+
     signupBtn?.classList.remove("hidden");
     loginBtn?.classList.remove("hidden");
     profile?.classList.add("hidden");
+
   }
+
 });
 
 /* ================= LOAD ARTISTS ================= */
@@ -236,7 +256,7 @@ async function loadArtists(){
     marker.bindPopup(`
       <div class="card-premium">
         <h2>${data.prenom} ${data.nom}</h2>
-        <p>${data.arrondissement || ""}</p>
+        <p>${data.arrondissement || "Localisation inconnue"}</p>
         <p>${data.produits || ""}</p>
       </div>
     `);
@@ -275,6 +295,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const mapElement = document.getElementById("map");
 
   if(mapElement){
+
     map = L.map(mapElement).setView([48.1173, -1.6778], 12);
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -287,7 +308,6 @@ document.addEventListener("DOMContentLoaded", () => {
     loadArtists();
   }
 
-  /* FIX CLICK POPUP */
   document.querySelectorAll(".popup-content").forEach(el => {
     el.addEventListener("click", e => e.stopPropagation());
   });
@@ -297,10 +317,12 @@ document.addEventListener("DOMContentLoaded", () => {
 /* ================= POPUP ================= */
 
 window.closePopup = function(){
+
   document.querySelectorAll(".popup").forEach(p=>{
     p.classList.remove("active");
     p.classList.add("hidden");
   });
+
 };
 
 /* ================= SELECT USER ================= */
@@ -322,6 +344,7 @@ window.selectUser = function(type){
     artistPopup.classList.remove("hidden");
     artistPopup.classList.add("active");
   }
+
 };
 
 /* ================= CLICK GLOBAL ================= */
