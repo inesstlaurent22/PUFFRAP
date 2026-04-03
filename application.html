@@ -91,19 +91,40 @@
     <input id="artistPassword" type="password" placeholder="Mot de passe">
 
     <!-- 🔥 NOUVEAU CHAMP LOCALISATION FRANCE -->
-    <div class="location-wrapper">
-      <input id="artistArr" placeholder="Ville ou code postal (auto)">
-      <div id="arrSuggestions" class="dropdown hidden"></div>
-    </div>
+<div class="location-wrapper" style="position: relative;">
 
-    <input id="artistProduits" placeholder="Produits (DJ, peinture...)">
-    <input id="artistMedia" placeholder="Lien média (mp3, mp4, image...)">
+  <input 
+    id="artistArr"
+    type="text"
+    placeholder="Ville ou code postal (auto)"
+    autocomplete="off"
+  >
 
-    <button id="createArtistBtn">Créer mon profil</button>
+  <div 
+    id="arrSuggestions" 
+    class="dropdown hidden"
+  ></div>
 
-  </div>
 </div>
 
+<input 
+  id="artistProduits" 
+  type="text"
+  placeholder="Produits (DJ, peinture...)"
+>
+
+<input 
+  id="artistMedia" 
+  type="text"
+  placeholder="Lien média (mp3, mp4, image...)"
+>
+
+<button 
+  id="createArtistBtn" 
+  type="button"
+>
+  Créer mon profil
+</button>
 
 <!-- ================= POPUP LOGIN ================= -->
 <div id="loginPopup" class="popup hidden">
