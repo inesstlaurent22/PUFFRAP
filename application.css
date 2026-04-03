@@ -72,17 +72,24 @@ button {
 
 /* ================= DROPDOWN ================= */
 
+.signup-wrapper {
+  position: relative;
+}
+
 .dropdown {
   position: absolute;
-  top: 55px;
-  left: 0;
+  top: 110%; /* juste sous le bouton */
+  right: 0; /* aligné à droite du bouton */
+
   background: rgba(0,0,0,0.95);
   backdrop-filter: blur(15px);
   border-radius: 15px;
   padding: 8px;
+
   display: flex;
   flex-direction: column;
   gap: 5px;
+
   min-width: 160px;
   z-index: 3000;
 }
