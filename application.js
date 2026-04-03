@@ -227,8 +227,6 @@ function initAutocomplete(){
   const input = document.getElementById("artistArr");
   const box = document.getElementById("arrSuggestions");
 
-  if(!input || !box) return;
-
   let debounce;
 
   input.addEventListener("input", () => {
@@ -237,59 +235,43 @@ function initAutocomplete(){
 
     const query = input.value.trim();
 
-    // 🔧 FIX 1 : minimum 2 caractères (pas 3)
     if(query.length < 2){
       box.classList.add("hidden");
-      box.innerHTML = "";
       return;
     }
 
     debounce = setTimeout(async () => {
 
-      try {
+      const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=5`);
+      const data = await res.json();
 
-        const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=5`);
-        const data = await res.json();
+      box.innerHTML = "";
 
-        box.innerHTML = "";
-
-        // 🔧 FIX 2 : vérifier si résultats
-        if(!data.features || data.features.length === 0){
-          box.classList.add("hidden");
-          return;
-        }
-
-        data.features.forEach(f => {
-
-          const label = f.properties.label;
-          const lat = f.geometry.coordinates[1];
-          const lng = f.geometry.coordinates[0];
-
-          const btn = document.createElement("button");
-          btn.textContent = label;
-          btn.type = "button";
-
-          btn.addEventListener("click", () => {
-
-            input.value = label;
-            input.dataset.lat = lat;
-            input.dataset.lng = lng;
-
-            box.classList.add("hidden");
-
-            if(map){
-              map.setView([lat, lng], 14);
-            }
-          });
-
-          box.appendChild(btn);
-        });
-
-        box.classList.remove("hidden");
-
-      } catch(e){
-        console.error("Erreur autocomplete :", e);
+      if(!data.features.length){
+        box.classList.add("hidden");
+        return;
       }
+
+      data.features.forEach(f => {
+
+        const label = f.properties.label;
+        const lat = f.geometry.coordinates[1];
+        const lng = f.geometry.coordinates[0];
+
+        const btn = document.createElement("button");
+        btn.textContent = label;
+
+        btn.onclick = () => {
+          input.value = label;
+          input.dataset.lat = lat;
+          input.dataset.lng = lng;
+          box.classList.add("hidden");
+        };
+
+        box.appendChild(btn);
+      });
+
+      box.classList.remove("hidden");
 
     }, 300);
   });
@@ -385,4 +367,36 @@ window.addEventListener("click", (e) => {
   if(e.target.classList.contains("popup-overlay")){
     closePopup();
   }
+});
+
+document.getElementById("geoBtn")?.addEventListener("click", () => {
+
+  if(!navigator.geolocation){
+    alert("Géolocalisation non supportée");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(async (pos) => {
+
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+
+    // reverse geocoding
+    const res = await fetch(`https://api-adresse.data.gouv.fr/reverse/?lat=${lat}&lon=${lng}`);
+    const data = await res.json();
+
+    if(data.features.length){
+
+      const label = data.features[0].properties.label;
+
+      const input = document.getElementById("artistArr");
+
+      input.value = label;
+      input.dataset.lat = lat;
+      input.dataset.lng = lng;
+    }
+
+  }, () => {
+    alert("Localisation refusée");
+  });
 });
