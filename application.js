@@ -236,29 +236,121 @@ async function loadArtists(){
 
   if(!markerCluster) return;
 
-  markerCluster.clearLayers();
+  try{
 
-  const snap = await getDocs(collection(db, "artists"));
+    markerCluster.clearLayers();
 
-  snap.forEach(docSnap => {
+    const snap = await getDocs(collection(db, "artists"));
 
-    const d = docSnap.data();
+    snap.forEach(docSnap => {
 
-    if(!d.lat || !d.lng) return;
+      const d = docSnap.data();
 
-    const marker = L.marker([d.lat, d.lng]);
+      /* 🔒 sécurités */
+      if(!d || d.lat == null || d.lng == null) return;
 
-    marker.bindPopup(`
-      <div class="card-premium">
-        <h2>${d.prenom} ${d.nom}</h2>
-        <p>${d.arrondissement || ""}</p>
-        <p>${d.produits || ""}</p>
+      const lat = Number(d.lat);
+      const lng = Number(d.lng);
+
+      if(isNaN(lat) || isNaN(lng)) return;
+
+      const marker = L.marker([lat, lng]);
+
+      /* ✅ NOUVEAU POPUP DESIGN */
+      marker.bindPopup(generateArtistCard(d, docSnap.id));
+
+      /* 🔥 charger commentaires au clic */
+      marker.on("click", () => {
+        setTimeout(() => loadComments(docSnap.id), 200);
+      });
+
+      markerCluster.addLayer(marker);
+
+    });
+
+  } catch(e){
+    console.error("Erreur loadArtists :", e);
+  }
+}
+
+function generateArtistCard(d, id){
+
+  const photo = d.photo || "https://via.placeholder.com/120";
+  const rating = d.rating || 0;
+
+  const stars = "★".repeat(Math.round(rating)) + "☆".repeat(5 - Math.round(rating));
+
+  const dispo = (d.disponibilites || []).slice(0,3);
+
+  return `
+  <div class="artist-card">
+
+    <img src="${photo}" class="artist-photo">
+
+    <div class="artist-badge">${d.produits || "Artiste"}</div>
+
+    <div class="artist-rating">
+      ${stars} ${rating.toFixed(1)}
+    </div>
+
+    <h2>${d.prenom} ${d.nom}</h2>
+
+    <div class="artist-dispo">
+      <p>Prochaine disponibilité</p>
+      <div class="dates">
+        ${dispo.map(d => `<span>${d}</span>`).join("")}
       </div>
-    `);
+    </div>
 
-    markerCluster.addLayer(marker);
+    <button onclick="openArtistPage('${id}')">
+      Voir le calendrier
+    </button>
 
+    <div class="artist-media">
+      ${(d.media || []).map(url => {
+
+        if(url.includes(".mp3")){
+          return `<audio controls src="${url}"></audio>`;
+        }
+
+        if(url.includes(".mp4") || url.includes(".mov")){
+          return `<video src="${url}" controls></video>`;
+        }
+
+        return "";
+
+      }).join("")}
+    </div>
+
+    <div class="artist-comments" id="comments-${id}">
+      Chargement...
+    </div>
+
+  </div>
+  `;
+}
+
+async function loadComments(artistId){
+
+  const container = document.getElementById(`comments-${artistId}`);
+  if(!container) return;
+
+  const snap = await getDocs(collection(db, "artists", artistId, "comments"));
+
+  container.innerHTML = "";
+
+  snap.forEach(doc => {
+
+    const c = doc.data();
+
+    container.innerHTML += `
+      <div>
+        <strong>${c.nom}</strong>
+        <p>${c.text}</p>
+      </div>
+    `;
   });
+
 }
 
 /* ================= AUTOCOMPLETE FRANCE ================= */
