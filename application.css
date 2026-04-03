@@ -339,12 +339,19 @@ button {
 
 /* ================= ARRONDISSEMENT ================= */
 
+.location-wrapper {
+  position: relative;
+}
+
 #arrSuggestions {
   position: absolute;
-  background: white;
+  top: 100%;
+  left: 0;
   width: 100%;
+  background: white;
   z-index: 9999;
-  border-radius: 8px;
+  border-radius: 10px;
+  margin-top: 5px;
   overflow: hidden;
 }
 
@@ -358,5 +365,5 @@ button {
 }
 
 #arrSuggestions button:hover {
-  background: #f0f0f0;
+  background: #f2f2f2;
 }
