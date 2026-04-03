@@ -1,6 +1,8 @@
 /* ================= IMPORTS ================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
+/* AUTH */
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -9,6 +11,7 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+/* FIRESTORE */
 import {
   getFirestore,
   setDoc,
@@ -17,6 +20,14 @@ import {
   collection,
   getDocs
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+/* STORAGE (🔥 IMPORTANT POUR TES MÉDIAS) */
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 /* ================= FIREBASE ================= */
 
