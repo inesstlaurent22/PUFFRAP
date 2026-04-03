@@ -284,13 +284,18 @@ async function loadArtists(){
 
     const d = docSnap.data();
 
-    if(!d.lat || !d.lng) return;
+    if(d.lat == null || d.lng == null)
 
     const marker = L.marker([d.lat, d.lng]);
 
     /* 🔥 FICHE ARTISTE AVANCÉE */
 
-    marker.bindPopup(generateArtistCard(d, docSnap.id));
+    marker.bindPopup(`
+  <div>
+    <h2>${d.prenom} ${d.nom}</h2>
+    <p>${d.produits || ""}</p>
+  </div>
+`);
 
     marker.on("click", () => {
       setTimeout(() => loadComments(docSnap.id), 200);
@@ -463,7 +468,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initAutocomplete();
   initGeoloc();
-  initPreview();
+  initPreview(); 
 
   /* ========= POPUP CLICK FIX ========= */
 
