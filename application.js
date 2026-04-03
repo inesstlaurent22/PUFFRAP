@@ -1,21 +1,16 @@
 /* ================= IMPORTS ================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
 import {
   getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut
+  createUserWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 import {
   getFirestore,
   setDoc,
-  doc,
-  getDoc,
-  collection,
-  getDocs
+  doc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import {
@@ -47,49 +42,29 @@ let map;
 let markerCluster;
 
 /* ================= SIGNUP CLIENT ================= */
+
 window.signup = async () => {
 
-  const usernameEl = document.getElementById("username");
-  const nomEl = document.getElementById("nom");
-  const prenomEl = document.getElementById("prenom");
-  const emailEl = document.getElementById("email");
-  const passwordEl = document.getElementById("password");
-
-  if(!usernameEl || !nomEl || !prenomEl || !emailEl || !passwordEl){
-    alert("Erreur formulaire");
-    return;
-  }
-
-  const username = usernameEl.value.trim();
-  const nom = nomEl.value.trim();
-  const prenom = prenomEl.value.trim();
-  const email = emailEl.value.trim();
-  const password = passwordEl.value.trim();
+  const username = document.getElementById("username")?.value.trim();
+  const nom = document.getElementById("nom")?.value.trim();
+  const prenom = document.getElementById("prenom")?.value.trim();
+  const email = document.getElementById("email")?.value.trim();
+  const password = document.getElementById("password")?.value.trim();
 
   if(!username || !nom || !prenom || !email || !password){
     alert("Remplis tous les champs");
     return;
   }
 
-  // 🔐 sécurité basique
   if(password.length < 6){
-    alert("Mot de passe trop court (min 6 caractères)");
-    return;
-  }
-
-  if(!email.includes("@")){
-    alert("Email invalide");
+    alert("Mot de passe trop court");
     return;
   }
 
   try{
 
-    // 🔒 désactive bouton pour éviter double clic
-    const btn = document.getElementById("signupSubmit");
-    if(btn) btn.disabled = true;
-
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const uid = userCredential.user.uid;
+    const user = await createUserWithEmailAndPassword(auth, email, password);
+    const uid = user.user.uid;
 
     await setDoc(doc(db, "users", uid), {
       username,
@@ -104,22 +79,7 @@ window.signup = async () => {
     alert("Bienvenue " + prenom);
 
   } catch(e){
-
-    console.error(e);
-
-    if(e.code === "auth/email-already-in-use"){
-      alert("Email déjà utilisé");
-    } else if(e.code === "auth/invalid-email"){
-      alert("Email invalide");
-    } else if(e.code === "auth/weak-password"){
-      alert("Mot de passe trop faible");
-    } else {
-      alert("Erreur : " + e.message);
-    }
-
-  } finally {
-    const btn = document.getElementById("signupSubmit");
-    if(btn) btn.disabled = false;
+    alert(e.message);
   }
 };
 
@@ -131,9 +91,9 @@ window.createArtistAccount = async () => {
   const prenom = document.getElementById("artistPrenom")?.value.trim();
   const email = document.getElementById("artistEmail")?.value.trim();
   const password = document.getElementById("artistPassword")?.value.trim();
-  const produits = document.getElementById("artistProduits")?.value.trim();
-  const media = document.getElementById("artistMedia")?.value.trim();
+  const produits = document.getElementById("artistProduits")?.value;
   const locInput = document.getElementById("artistArr");
+  const files = document.getElementById("artistMedia")?.files;
 
   if(!nom || !prenom || !email || !password){
     alert("Champs obligatoires manquants");
@@ -144,8 +104,8 @@ window.createArtistAccount = async () => {
   const lng = parseFloat(locInput?.dataset.lng);
   const localisation = locInput?.value;
 
-  if(!lat || !lng){
-    alert("Choisis une localisation valide dans la liste");
+  if(isNaN(lat) || isNaN(lng)){
+    alert("Choisis une localisation valide");
     return;
   }
 
@@ -154,16 +114,43 @@ window.createArtistAccount = async () => {
     const user = await createUserWithEmailAndPassword(auth, email, password);
     const uid = user.user.uid;
 
+    /* ================= UPLOAD MEDIA ================= */
+
+    let mediaUrls = [];
+
+    if(files && files.length){
+
+      for (let file of files) {
+
+        const storageRef = ref(storage, `artists/${uid}/${Date.now()}_${file.name}`);
+
+        await uploadBytes(storageRef, file);
+
+        const url = await getDownloadURL(storageRef);
+
+        mediaUrls.push(url);
+      }
+
+    }
+
+    /* ================= SAVE ARTIST ================= */
+
     await setDoc(doc(db, "artists", uid), {
-      nom, prenom, email,
+      nom,
+      prenom,
+      email,
       produits,
-      media,
+      media: mediaUrls,
+      photo: mediaUrls[0] || "", // première image utilisée comme photo
+      rating: 0,
+      disponibilites: [],
       arrondissement: localisation,
-      lat, lng,
+      lat,
+      lng,
       createdAt: Date.now()
     });
 
-    /* MARKER DIRECT */
+    /* ================= MARKER ================= */
 
     if(map && markerCluster){
 
@@ -196,17 +183,43 @@ window.login = async () => {
   const email = document.getElementById("loginEmail")?.value.trim();
   const password = document.getElementById("loginPassword")?.value.trim();
 
+  if(!email || !password){
+    alert("Remplis tous les champs");
+    return;
+  }
+
   try{
+
+    const btn = document.getElementById("loginSubmit");
+    if(btn) btn.disabled = true;
+
     await signInWithEmailAndPassword(auth, email, password);
+
     closePopup();
+
   } catch(e){
-    alert(e.message);
+
+    console.error(e);
+
+    if(e.code === "auth/user-not-found"){
+      alert("Utilisateur introuvable");
+    } else if(e.code === "auth/wrong-password"){
+      alert("Mot de passe incorrect");
+    } else {
+      alert("Erreur : " + e.message);
+    }
+
+  } finally {
+    const btn = document.getElementById("loginSubmit");
+    if(btn) btn.disabled = false;
   }
 };
 
 /* ================= LOGOUT ================= */
 
-window.logout = () => signOut(auth);
+window.logout = async () => {
+  await signOut(auth);
+};
 
 /* ================= AUTH STATE ================= */
 
@@ -221,11 +234,17 @@ onAuthStateChanged(auth, async (user) => {
 
     let prenom = "Utilisateur";
 
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    const artistDoc = await getDoc(doc(db, "artists", user.uid));
+    try{
 
-    if(userDoc.exists()) prenom = userDoc.data().prenom;
-    if(artistDoc.exists()) prenom = artistDoc.data().prenom;
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      const artistDoc = await getDoc(doc(db, "artists", user.uid));
+
+      if(userDoc.exists()) prenom = userDoc.data().prenom;
+      if(artistDoc.exists()) prenom = artistDoc.data().prenom;
+
+    } catch(e){
+      console.error("Erreur récupération profil", e);
+    }
 
     signupBtn?.classList.add("hidden");
     loginBtn?.classList.add("hidden");
@@ -260,25 +279,26 @@ async function loadArtists(){
 
     const marker = L.marker([d.lat, d.lng]);
 
-    marker.bindPopup(`
-      <div class="card-premium">
-        <h2>${d.prenom} ${d.nom}</h2>
-        <p>${d.arrondissement || ""}</p>
-        <p>${d.produits || ""}</p>
-      </div>
-    `);
+    /* 🔥 FICHE ARTISTE AVANCÉE */
+
+    marker.bindPopup(generateArtistCard(d, docSnap.id));
+
+    marker.on("click", () => {
+      setTimeout(() => loadComments(docSnap.id), 200);
+    });
 
     markerCluster.addLayer(marker);
-
   });
 }
 
-/* ================= AUTOCOMPLETE FRANCE ================= */
+/* ================= AUTOCOMPLETE ================= */
 
 function initAutocomplete(){
 
   const input = document.getElementById("artistArr");
   const box = document.getElementById("arrSuggestions");
+
+  if(!input || !box) return;
 
   let debounce;
 
@@ -290,110 +310,139 @@ function initAutocomplete(){
 
     if(query.length < 2){
       box.classList.add("hidden");
+      box.innerHTML = "";
       return;
     }
 
     debounce = setTimeout(async () => {
 
-      const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=5`);
-      const data = await res.json();
+      try{
 
-      box.innerHTML = "";
+        const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=5`);
+        const data = await res.json();
 
-      if(!data.features.length){
-        box.classList.add("hidden");
-        return;
-      }
+        box.innerHTML = "";
 
-      data.features.forEach(f => {
-
-        const label = f.properties.label;
-        const lat = f.geometry.coordinates[1];
-        const lng = f.geometry.coordinates[0];
-
-        const btn = document.createElement("button");
-        btn.textContent = label;
-
-        btn.onclick = () => {
-          input.value = label;
-          input.dataset.lat = lat;
-          input.dataset.lng = lng;
+        if(!data.features || !data.features.length){
           box.classList.add("hidden");
-        };
+          return;
+        }
 
-        box.appendChild(btn);
-      });
+        data.features.forEach(f => {
 
-      box.classList.remove("hidden");
+          const label = f.properties.label;
+          const lat = f.geometry.coordinates[1];
+          const lng = f.geometry.coordinates[0];
+
+          const btn = document.createElement("button");
+          btn.textContent = label;
+
+          btn.onclick = () => {
+            input.value = label;
+            input.dataset.lat = lat;
+            input.dataset.lng = lng;
+            box.classList.add("hidden");
+          };
+
+          box.appendChild(btn);
+        });
+
+        box.classList.remove("hidden");
+
+      } catch(e){
+        console.error("Erreur autocomplete", e);
+      }
 
     }, 300);
   });
 }
 
-document.getElementById("geoBtn")?.addEventListener("click", () => {
+/* ================= GEOLOC ================= */
 
-  if(!navigator.geolocation){
-    alert("Géolocalisation non supportée");
-    return;
-  }
+function initGeoloc(){
 
-  navigator.geolocation.getCurrentPosition(async (pos) => {
+  const btn = document.getElementById("geoBtn");
+  if(!btn) return;
 
-    const lat = pos.coords.latitude;
-    const lng = pos.coords.longitude;
+  btn.addEventListener("click", () => {
 
-    // reverse geocoding
-    const res = await fetch(`https://api-adresse.data.gouv.fr/reverse/?lat=${lat}&lon=${lng}`);
-    const data = await res.json();
-
-    if(data.features.length){
-
-      const label = data.features[0].properties.label;
-
-      const input = document.getElementById("artistArr");
-
-      input.value = label;
-      input.dataset.lat = lat;
-      input.dataset.lng = lng;
+    if(!navigator.geolocation){
+      alert("Géolocalisation non supportée");
+      return;
     }
 
-  }, () => {
-    alert("Localisation refusée");
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+
+      try{
+
+        const res = await fetch(`https://api-adresse.data.gouv.fr/reverse/?lat=${lat}&lon=${lng}`);
+        const data = await res.json();
+
+        if(data.features.length){
+
+          const input = document.getElementById("artistArr");
+
+          input.value = data.features[0].properties.label;
+          input.dataset.lat = lat;
+          input.dataset.lng = lng;
+        }
+
+      } catch(e){
+        console.error("Erreur géoloc", e);
+      }
+
+    }, () => {
+      alert("Localisation refusée");
+    });
   });
-});
+}
 
 /* ================= DOM READY ================= */
 
 document.addEventListener("DOMContentLoaded", () => {
 
+  /* ========= ACTIONS FORM ========= */
+
   document.getElementById("signupSubmit")?.addEventListener("click", signup);
   document.getElementById("loginSubmit")?.addEventListener("click", login);
   document.getElementById("createArtistBtn")?.addEventListener("click", createArtistAccount);
+
+  /* ========= UI TOPBAR ========= */
 
   const signupBtn = document.getElementById("signupBtn");
   const loginBtn = document.getElementById("loginBtn");
   const dropdown = document.getElementById("dropdown");
   const loginPopup = document.getElementById("loginPopup");
 
-  signupBtn?.addEventListener("click", e=>{
-    e.stopPropagation();
-    dropdown?.classList.toggle("hidden");
-  });
+  if(signupBtn && dropdown){
+    signupBtn.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      dropdown.classList.toggle("hidden");
+    });
+  }
 
-  loginBtn?.addEventListener("click", e=>{
-    e.stopPropagation();
-    loginPopup?.classList.remove("hidden");
-    loginPopup?.classList.add("active");
-  });
+  if(loginBtn && loginPopup){
+    loginBtn.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      loginPopup.classList.remove("hidden");
+      loginPopup.classList.add("active");
+    });
+  }
 
-  /* MAP */
+  /* ========= MAP ========= */
 
   const mapEl = document.getElementById("map");
 
-  if(mapEl){
+  if(mapEl && typeof L !== "undefined"){
+
     map = L.map(mapEl).setView([48.85, 2.35], 6);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: "&copy; OpenStreetMap"
+    }).addTo(map);
 
     markerCluster = L.markerClusterGroup();
     map.addLayer(markerCluster);
@@ -401,7 +450,13 @@ document.addEventListener("DOMContentLoaded", () => {
     loadArtists();
   }
 
+  /* ========= INIT FEATURES ========= */
+
   initAutocomplete();
+  initGeoloc();
+  initPreview();
+
+  /* ========= POPUP CLICK FIX ========= */
 
   document.querySelectorAll(".popup-content").forEach(el => {
     el.addEventListener("click", e => e.stopPropagation());
@@ -428,12 +483,12 @@ window.selectUser = (type) => {
 
   dropdown?.classList.add("hidden");
 
-  if(type === "client"){
+  if(type === "client" && popup){
     popup.classList.remove("hidden");
     popup.classList.add("active");
   }
 
-  if(type === "artist"){
+  if(type === "artist" && artistPopup){
     artistPopup.classList.remove("hidden");
     artistPopup.classList.add("active");
   }
