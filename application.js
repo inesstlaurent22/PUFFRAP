@@ -47,25 +47,55 @@ let map;
 let markerCluster;
 
 /* ================= SIGNUP CLIENT ================= */
-
 window.signup = async () => {
 
-  const username = document.getElementById("username")?.value.trim();
-  const nom = document.getElementById("nom")?.value.trim();
-  const prenom = document.getElementById("prenom")?.value.trim();
-  const email = document.getElementById("email")?.value.trim();
-  const password = document.getElementById("password")?.value.trim();
+  const usernameEl = document.getElementById("username");
+  const nomEl = document.getElementById("nom");
+  const prenomEl = document.getElementById("prenom");
+  const emailEl = document.getElementById("email");
+  const passwordEl = document.getElementById("password");
+
+  if(!usernameEl || !nomEl || !prenomEl || !emailEl || !passwordEl){
+    alert("Erreur formulaire");
+    return;
+  }
+
+  const username = usernameEl.value.trim();
+  const nom = nomEl.value.trim();
+  const prenom = prenomEl.value.trim();
+  const email = emailEl.value.trim();
+  const password = passwordEl.value.trim();
 
   if(!username || !nom || !prenom || !email || !password){
     alert("Remplis tous les champs");
     return;
   }
 
-  try{
-    const user = await createUserWithEmailAndPassword(auth, email, password);
+  // 🔐 sécurité basique
+  if(password.length < 6){
+    alert("Mot de passe trop court (min 6 caractères)");
+    return;
+  }
 
-    await setDoc(doc(db, "users", user.user.uid), {
-      username, nom, prenom, email,
+  if(!email.includes("@")){
+    alert("Email invalide");
+    return;
+  }
+
+  try{
+
+    // 🔒 désactive bouton pour éviter double clic
+    const btn = document.getElementById("signupSubmit");
+    if(btn) btn.disabled = true;
+
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const uid = userCredential.user.uid;
+
+    await setDoc(doc(db, "users", uid), {
+      username,
+      nom,
+      prenom,
+      email,
       role: "client",
       createdAt: Date.now()
     });
@@ -74,7 +104,22 @@ window.signup = async () => {
     alert("Bienvenue " + prenom);
 
   } catch(e){
-    alert(e.message);
+
+    console.error(e);
+
+    if(e.code === "auth/email-already-in-use"){
+      alert("Email déjà utilisé");
+    } else if(e.code === "auth/invalid-email"){
+      alert("Email invalide");
+    } else if(e.code === "auth/weak-password"){
+      alert("Mot de passe trop faible");
+    } else {
+      alert("Erreur : " + e.message);
+    }
+
+  } finally {
+    const btn = document.getElementById("signupSubmit");
+    if(btn) btn.disabled = false;
   }
 };
 
