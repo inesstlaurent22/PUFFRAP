@@ -227,27 +227,30 @@ function initAutocomplete(){
   const input = document.getElementById("artistArr");
   const box = document.getElementById("arrSuggestions");
 
-  if(!input || !box) return;
-
   let debounce;
 
   input.addEventListener("input", () => {
 
     clearTimeout(debounce);
 
-    const query = input.value;
+    const query = input.value.trim();
 
-    if(query.length < 3){
+    if(query.length < 2){
       box.classList.add("hidden");
       return;
     }
 
     debounce = setTimeout(async () => {
 
-      const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${query}&limit=5`);
+      const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=5`);
       const data = await res.json();
 
       box.innerHTML = "";
+
+      if(!data.features.length){
+        box.classList.add("hidden");
+        return;
+      }
 
       data.features.forEach(f => {
 
@@ -259,16 +262,10 @@ function initAutocomplete(){
         btn.textContent = label;
 
         btn.onclick = () => {
-
           input.value = label;
           input.dataset.lat = lat;
           input.dataset.lng = lng;
-
           box.classList.add("hidden");
-
-          if(map){
-            map.setView([lat, lng], 14);
-          }
         };
 
         box.appendChild(btn);
@@ -279,6 +276,38 @@ function initAutocomplete(){
     }, 300);
   });
 }
+
+document.getElementById("geoBtn")?.addEventListener("click", () => {
+
+  if(!navigator.geolocation){
+    alert("Géolocalisation non supportée");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(async (pos) => {
+
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+
+    // reverse geocoding
+    const res = await fetch(`https://api-adresse.data.gouv.fr/reverse/?lat=${lat}&lon=${lng}`);
+    const data = await res.json();
+
+    if(data.features.length){
+
+      const label = data.features[0].properties.label;
+
+      const input = document.getElementById("artistArr");
+
+      input.value = label;
+      input.dataset.lat = lat;
+      input.dataset.lng = lng;
+    }
+
+  }, () => {
+    alert("Localisation refusée");
+  });
+});
 
 /* ================= DOM READY ================= */
 
