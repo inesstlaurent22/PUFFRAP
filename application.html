@@ -16,30 +16,6 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"/>
 
-<style>
-/* 🔥 IMPORTANT POUR ÉVITER LES BLOCS INVISIBLES */
-.topbar {
-  position: relative;
-  z-index: 1000;
-}
-
-.popup {
-  position: fixed;
-  inset: 0;
-  z-index: 2000;
-}
-
-.popup-overlay {
-  position: absolute;
-  inset: 0;
-}
-
-.popup-content {
-  position: relative;
-  z-index: 2001;
-}
-</style>
-
 </head>
 
 <body>
@@ -52,15 +28,15 @@
 <div class="topbar">
 
   <!-- INSCRIPTION -->
-  <button id="signupBtn" type="button">Inscription</button>
+  <button id="signupBtn">Inscription</button>
 
   <!-- CONNEXION -->
-  <button id="loginBtn" type="button">Connexion</button>
+  <button id="loginBtn">Connexion</button>
 
-  <!-- DROPDOWN INSCRIPTION -->
+  <!-- DROPDOWN -->
   <div id="dropdown" class="dropdown hidden">
-    <button type="button" onclick="selectUser('client')">Client</button>
-    <button type="button">Artiste</button>
+    <button onclick="selectUser('client')">Client</button>
+    <button onclick="selectUser('artist')">Artiste</button>
   </div>
 
   <!-- PROFIL -->
@@ -68,63 +44,81 @@
     <span id="profileName"></span>
 
     <div id="profileDropdown" class="dropdown hidden">
-      <button type="button" onclick="openAccount()">Mon compte</button>
-      <button type="button" onclick="openReservations()">Mes réservations</button>
-      <button type="button" onclick="openFavoris()">Mes favoris</button>
-      <button type="button" onclick="logout()">Déconnexion</button>
+      <button onclick="openAccount()">Mon compte</button>
+      <button onclick="openReservations()">Mes réservations</button>
+      <button onclick="openFavoris()">Mes favoris</button>
+      <button onclick="logout()">Déconnexion</button>
     </div>
   </div>
 
 </div>
 
 
-<!-- ================= POPUP INSCRIPTION ================= -->
+<!-- ================= POPUP CLIENT ================= -->
 <div id="popup" class="popup hidden">
 
-  <!-- ⚠️ overlay SANS onclick (géré en JS) -->
   <div class="popup-overlay"></div>
 
   <div class="popup-content">
 
-    <!-- ❌ bouton supprimé volontairement -->
+    <h2>Créer un compte client</h2>
 
-    <h2>Créer un compte</h2>
-
-    <input id="username" type="text" placeholder="Identifiant">
-    <input id="nom" type="text" placeholder="Nom">
-    <input id="prenom" type="text" placeholder="Prénom">
+    <input id="username" placeholder="Identifiant">
+    <input id="nom" placeholder="Nom">
+    <input id="prenom" placeholder="Prénom">
     <input id="email" type="email" placeholder="Email">
     <input id="password" type="password" placeholder="Mot de passe">
 
-    <button id="signupSubmit" type="button">S’inscrire</button>
+    <button id="signupSubmit">Créer mon compte</button>
 
   </div>
 </div>
 
 
-<!-- ================= POPUP CONNEXION ================= -->
-<div id="loginPopup" class="popup hidden">
+<!-- ================= POPUP ARTISTE ================= -->
+<div id="artistPopup" class="popup hidden">
 
-  <!-- ⚠️ overlay SANS onclick -->
   <div class="popup-overlay"></div>
 
   <div class="popup-content">
 
-    <!-- ❌ bouton supprimé -->
+    <h2>Créer un profil artiste</h2>
+
+    <input id="artistNom" placeholder="Nom">
+    <input id="artistPrenom" placeholder="Prénom">
+    <input id="artistEmail" type="email" placeholder="Email">
+    <input id="artistPassword" type="password" placeholder="Mot de passe">
+
+    <input id="artistVille" placeholder="Lieu">
+    <input id="artistProduits" placeholder="Produits (DJ, peinture...)">
+    <input id="artistMedia" placeholder="Lien média (mp3, mp4, image...)">
+
+    <button id="createArtistBtn">Créer mon profil</button>
+
+  </div>
+</div>
+
+
+<!-- ================= POPUP LOGIN ================= -->
+<div id="loginPopup" class="popup hidden">
+
+  <div class="popup-overlay"></div>
+
+  <div class="popup-content">
 
     <h2>Connexion</h2>
 
     <input id="loginEmail" type="email" placeholder="Email">
     <input id="loginPassword" type="password" placeholder="Mot de passe">
 
-    <button id="loginSubmit" type="button">Se connecter</button>
+    <button id="loginSubmit">Se connecter</button>
 
   </div>
 </div>
 
 
 <!-- ================= GPS BUTTON ================= -->
-<button id="locateBtn" type="button">📍</button>
+<button id="locateBtn">📍</button>
 
 
 <!-- ================= SCRIPTS ================= -->
