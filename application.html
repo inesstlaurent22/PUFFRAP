@@ -27,7 +27,7 @@
 <!-- ================= TOPBAR ================= -->
 <div class="topbar">
 
-  <!-- INSCRIPTION + DROPDOWN -->
+  <!-- INSCRIPTION -->
   <div class="signup-wrapper">
     <button id="signupBtn">Inscription</button>
 
@@ -42,7 +42,6 @@
 
   <!-- PROFIL -->
   <div id="profile" class="profile-wrapper hidden">
-
     <span id="profileName"></span>
 
     <div id="profileDropdown" class="dropdown hidden">
@@ -51,7 +50,6 @@
       <button onclick="openFavoris()">Mes favoris</button>
       <button onclick="logout()">Déconnexion</button>
     </div>
-
   </div>
 
 </div>
@@ -92,7 +90,12 @@
     <input id="artistEmail" type="email" placeholder="Email">
     <input id="artistPassword" type="password" placeholder="Mot de passe">
 
-    <input id="artistVille" placeholder="Lieu">
+    <!-- 🔥 NOUVEAU CHAMP LOCALISATION FRANCE -->
+    <div class="location-wrapper">
+      <input id="artistArr" placeholder="Ville ou code postal (auto)">
+      <div id="arrSuggestions" class="dropdown hidden"></div>
+    </div>
+
     <input id="artistProduits" placeholder="Produits (DJ, peinture...)">
     <input id="artistMedia" placeholder="Lien média (mp3, mp4, image...)">
 
