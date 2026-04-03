@@ -6,7 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Puff Map</title>
 
-<!-- CSS -->
 <link rel="stylesheet" href="application.css">
 
 <!-- LEAFLET -->
@@ -27,7 +26,6 @@
 <!-- ================= TOPBAR ================= -->
 <div class="topbar">
 
-  <!-- INSCRIPTION -->
   <div class="signup-wrapper">
     <button id="signupBtn">Inscription</button>
 
@@ -37,10 +35,8 @@
     </div>
   </div>
 
-  <!-- CONNEXION -->
   <button id="loginBtn">Connexion</button>
 
-  <!-- PROFIL -->
   <div id="profile" class="profile-wrapper hidden">
     <span id="profileName"></span>
 
@@ -61,7 +57,6 @@
   <div class="popup-overlay"></div>
 
   <div class="popup-content">
-
     <h2>Créer un compte client</h2>
 
     <input id="username" placeholder="Identifiant">
@@ -70,9 +65,9 @@
     <input id="email" type="email" placeholder="Email">
     <input id="password" type="password" placeholder="Mot de passe">
 
-    <button id="signupSubmit">Créer mon compte</button>
-
+    <button id="signupSubmit" type="button">Créer mon compte</button>
   </div>
+
 </div>
 
 
@@ -90,41 +85,48 @@
     <input id="artistEmail" type="email" placeholder="Email">
     <input id="artistPassword" type="password" placeholder="Mot de passe">
 
-    <!-- 🔥 NOUVEAU CHAMP LOCALISATION FRANCE -->
-<div class="location-wrapper" style="position: relative;">
+    <!-- LOCALISATION -->
+    <div class="location-wrapper">
 
-  <input 
-    id="artistArr"
-    type="text"
-    placeholder="Ville ou code postal (auto)"
-    autocomplete="off"
-  >
+      <div class="location-input">
+        <input 
+          id="artistArr"
+          type="text"
+          placeholder="Ville ou code postal"
+          autocomplete="off"
+        >
+        <button id="geoBtn" type="button">📍</button>
+      </div>
 
-  <div 
-    id="arrSuggestions" 
-    class="dropdown hidden"
-  ></div>
+      <div id="arrSuggestions" class="dropdown hidden"></div>
 
+    </div>
+
+    <!-- PRODUITS -->
+    <select id="artistProduits">
+      <option value="">Choisir un domaine</option>
+      <option>Chant</option>
+      <option>Mixage</option>
+      <option>Community Manager</option>
+      <option>Manager</option>
+      <option>Vidéaste</option>
+      <option>Autre</option>
+    </select>
+
+    <!-- MEDIA -->
+    <input 
+      id="artistMedia" 
+      type="file" 
+      accept=".mp3,.mp4,.mov"
+    >
+
+    <button id="createArtistBtn" type="button">
+      Créer mon profil
+    </button>
+
+  </div>
 </div>
 
-<input 
-  id="artistProduits" 
-  type="text"
-  placeholder="Produits (DJ, peinture...)"
->
-
-<input 
-  id="artistMedia" 
-  type="text"
-  placeholder="Lien média (mp3, mp4, image...)"
->
-
-<button 
-  id="createArtistBtn" 
-  type="button"
->
-  Créer mon profil
-</button>
 
 <!-- ================= POPUP LOGIN ================= -->
 <div id="loginPopup" class="popup hidden">
@@ -138,13 +140,13 @@
     <input id="loginEmail" type="email" placeholder="Email">
     <input id="loginPassword" type="password" placeholder="Mot de passe">
 
-    <button id="loginSubmit">Se connecter</button>
+    <button id="loginSubmit" type="button">Se connecter</button>
 
   </div>
 </div>
 
 
-<!-- ================= GPS BUTTON ================= -->
+<!-- ================= GPS BUTTON MAP ================= -->
 <button id="locateBtn">📍</button>
 
 
@@ -155,8 +157,6 @@
 
 <script type="module" src="application.js"></script>
 
-
-<!-- ================= SAFE FUNCTIONS ================= -->
 <script>
 window.openAccount = () => alert("Mon compte");
 window.openReservations = () => alert("Mes réservations");
