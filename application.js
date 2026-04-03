@@ -100,7 +100,7 @@ window.createArtistAccount = async () => {
   const lng = parseFloat(locInput?.dataset.lng);
   const localisation = locInput?.value;
 
-  if(!lat || !lng){
+  if(isNaN(lat) || isNaN(lng)){
     alert("Choisis une localisation valide");
     return;
   }
@@ -252,6 +252,8 @@ function initAutocomplete(){
   const input = document.getElementById("artistArr");
   const box = document.getElementById("arrSuggestions");
 
+  if(!input || !box) return;
+
   let debounce;
 
   input.addEventListener("input", () => {
@@ -305,7 +307,11 @@ function initAutocomplete(){
 /* ================= GEOLOC ================= */
 
 function initGeoloc(){
-  document.getElementById("geoBtn")?.addEventListener("click", () => {
+  const btn = document.getElementById("geoBtn");
+
+  if(!btn) return;
+
+  btn.addEventListener("click", () => {
 
     navigator.geolocation.getCurrentPosition(async (pos) => {
 
@@ -329,10 +335,13 @@ function initGeoloc(){
 /* ================= PREVIEW ================= */
 
 function initPreview(){
+
   const input = document.getElementById("artistMedia");
   const preview = document.getElementById("mediaPreview");
 
-  input?.addEventListener("change", () => {
+  if(!input || !preview) return;
+
+  input.addEventListener("change", () => {
 
     preview.innerHTML = "";
 
