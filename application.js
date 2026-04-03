@@ -50,18 +50,32 @@ const storage = getStorage(app);
 let map;
 let markerCluster;
 
-/* ================= SIGNUP CLIENT ================= */
+/* ================= SIGNUP ARTIST ================= */
 
-window.signup = async () => {
+window.createArtistAccount = async () => {
 
-  const username = document.getElementById("username")?.value.trim();
-  const nom = document.getElementById("nom")?.value.trim();
-  const prenom = document.getElementById("prenom")?.value.trim();
-  const email = document.getElementById("email")?.value.trim();
-  const password = document.getElementById("password")?.value.trim();
+  const nomEl = document.getElementById("artistNom");
+  const prenomEl = document.getElementById("artistPrenom");
+  const emailEl = document.getElementById("artistEmail");
+  const passwordEl = document.getElementById("artistPassword");
+  const produitsEl = document.getElementById("artistProduits");
+  const locInput = document.getElementById("artistArr");
+  const mediaInput = document.getElementById("artistMedia");
 
-  if(!username || !nom || !prenom || !email || !password){
-    alert("Remplis tous les champs");
+  if(!nomEl || !prenomEl || !emailEl || !passwordEl || !locInput){
+    alert("Erreur formulaire");
+    return;
+  }
+
+  const nom = nomEl.value.trim();
+  const prenom = prenomEl.value.trim();
+  const email = emailEl.value.trim();
+  const password = passwordEl.value.trim();
+  const produits = produitsEl?.value || "";
+  const files = mediaInput?.files;
+
+  if(!nom || !prenom || !email || !password){
+    alert("Champs obligatoires manquants");
     return;
   }
 
@@ -70,48 +84,14 @@ window.signup = async () => {
     return;
   }
 
-  try{
-
-    const user = await createUserWithEmailAndPassword(auth, email, password);
-    const uid = user.user.uid;
-
-    await setDoc(doc(db, "users", uid), {
-      username,
-      nom,
-      prenom,
-      email,
-      role: "client",
-      createdAt: Date.now()
-    });
-
-    closePopup();
-    alert("Bienvenue " + prenom);
-
-  } catch(e){
-    alert(e.message);
-  }
-};
-
-/* ================= SIGNUP ARTIST ================= */
-
-window.createArtistAccount = async () => {
-
-  const nom = document.getElementById("artistNom")?.value.trim();
-  const prenom = document.getElementById("artistPrenom")?.value.trim();
-  const email = document.getElementById("artistEmail")?.value.trim();
-  const password = document.getElementById("artistPassword")?.value.trim();
-  const produits = document.getElementById("artistProduits")?.value;
-  const locInput = document.getElementById("artistArr");
-  const files = document.getElementById("artistMedia")?.files;
-
-  if(!nom || !prenom || !email || !password){
-    alert("Champs obligatoires manquants");
+  if(!email.includes("@")){
+    alert("Email invalide");
     return;
   }
 
-  const lat = parseFloat(locInput?.dataset.lat);
-  const lng = parseFloat(locInput?.dataset.lng);
-  const localisation = locInput?.value;
+  const lat = parseFloat(locInput.dataset.lat);
+  const lng = parseFloat(locInput.dataset.lng);
+  const localisation = locInput.value;
 
   if(isNaN(lat) || isNaN(lng)){
     alert("Choisis une localisation valide");
@@ -119,6 +99,9 @@ window.createArtistAccount = async () => {
   }
 
   try{
+
+    const btn = document.getElementById("createArtistBtn");
+    if(btn) btn.disabled = true;
 
     const user = await createUserWithEmailAndPassword(auth, email, password);
     const uid = user.user.uid;
@@ -129,7 +112,7 @@ window.createArtistAccount = async () => {
 
     if(files && files.length){
 
-      for (let file of files) {
+      for (const file of files) {
 
         const storageRef = ref(storage, `artists/${uid}/${Date.now()}_${file.name}`);
 
@@ -139,7 +122,6 @@ window.createArtistAccount = async () => {
 
         mediaUrls.push(url);
       }
-
     }
 
     /* ================= SAVE ARTIST ================= */
@@ -150,7 +132,7 @@ window.createArtistAccount = async () => {
       email,
       produits,
       media: mediaUrls,
-      photo: mediaUrls[0] || "", // première image utilisée comme photo
+      photo: mediaUrls[0] || "",
       rating: 0,
       disponibilites: [],
       arrondissement: localisation,
@@ -169,7 +151,7 @@ window.createArtistAccount = async () => {
         <div class="card-premium">
           <h2>${prenom} ${nom}</h2>
           <p>${localisation}</p>
-          <p>${produits || ""}</p>
+          <p>${produits}</p>
         </div>
       `);
 
@@ -181,7 +163,24 @@ window.createArtistAccount = async () => {
     closePopup();
 
   } catch(e){
-    alert(e.message);
+
+    console.error(e);
+
+    if(e.code === "auth/email-already-in-use"){
+      alert("Email déjà utilisé");
+    } else if(e.code === "auth/invalid-email"){
+      alert("Email invalide");
+    } else if(e.code === "auth/weak-password"){
+      alert("Mot de passe trop faible");
+    } else {
+      alert("Erreur : " + e.message);
+    }
+
+  } finally {
+
+    const btn = document.getElementById("createArtistBtn");
+    if(btn) btn.disabled = false;
+
   }
 };
 
@@ -189,8 +188,16 @@ window.createArtistAccount = async () => {
 
 window.login = async () => {
 
-  const email = document.getElementById("loginEmail")?.value.trim();
-  const password = document.getElementById("loginPassword")?.value.trim();
+  const emailEl = document.getElementById("loginEmail");
+  const passwordEl = document.getElementById("loginPassword");
+
+  if(!emailEl || !passwordEl){
+    alert("Erreur formulaire");
+    return;
+  }
+
+  const email = emailEl.value.trim();
+  const password = passwordEl.value.trim();
 
   if(!email || !password){
     alert("Remplis tous les champs");
@@ -214,6 +221,8 @@ window.login = async () => {
       alert("Utilisateur introuvable");
     } else if(e.code === "auth/wrong-password"){
       alert("Mot de passe incorrect");
+    } else if(e.code === "auth/invalid-email"){
+      alert("Email invalide");
     } else {
       alert("Erreur : " + e.message);
     }
@@ -227,7 +236,11 @@ window.login = async () => {
 /* ================= LOGOUT ================= */
 
 window.logout = async () => {
-  await signOut(auth);
+  try{
+    await signOut(auth);
+  } catch(e){
+    console.error("Erreur logout", e);
+  }
 };
 
 /* ================= AUTH STATE ================= */
@@ -244,15 +257,14 @@ onAuthStateChanged(auth, async (user) => {
     let prenom = "Utilisateur";
 
     try{
-
       const userDoc = await getDoc(doc(db, "users", user.uid));
       const artistDoc = await getDoc(doc(db, "artists", user.uid));
 
       if(userDoc.exists()) prenom = userDoc.data().prenom;
-      if(artistDoc.exists()) prenom = artistDoc.data().prenom;
+      else if(artistDoc.exists()) prenom = artistDoc.data().prenom;
 
     } catch(e){
-      console.error("Erreur récupération profil", e);
+      console.error("Erreur profil", e);
     }
 
     signupBtn?.classList.add("hidden");
@@ -331,24 +343,20 @@ function initAutocomplete(){
 
         box.innerHTML = "";
 
-        if(!data.features || !data.features.length){
+        if(!data || !data.features || !data.features.length){
           box.classList.add("hidden");
           return;
         }
 
         data.features.forEach(f => {
 
-          const label = f.properties.label;
-          const lat = f.geometry.coordinates[1];
-          const lng = f.geometry.coordinates[0];
-
           const btn = document.createElement("button");
-          btn.textContent = label;
+          btn.textContent = f.properties.label;
 
           btn.onclick = () => {
-            input.value = label;
-            input.dataset.lat = lat;
-            input.dataset.lng = lng;
+            input.value = f.properties.label;
+            input.dataset.lat = f.geometry.coordinates[1];
+            input.dataset.lng = f.geometry.coordinates[0];
             box.classList.add("hidden");
           };
 
@@ -389,7 +397,7 @@ function initGeoloc(){
         const res = await fetch(`https://api-adresse.data.gouv.fr/reverse/?lat=${lat}&lon=${lng}`);
         const data = await res.json();
 
-        if(data.features.length){
+        if(data.features?.length){
 
           const input = document.getElementById("artistArr");
 
@@ -404,6 +412,35 @@ function initGeoloc(){
 
     }, () => {
       alert("Localisation refusée");
+    });
+  });
+}
+
+/* ================= PREVIEW ================= */
+
+function initPreview(){
+
+  const input = document.getElementById("artistMedia");
+  const preview = document.getElementById("mediaPreview");
+
+  if(!input || !preview) return;
+
+  input.addEventListener("change", () => {
+
+    preview.innerHTML = "";
+
+    Array.from(input.files).forEach(file => {
+
+      const url = URL.createObjectURL(file);
+
+      if(file.type.startsWith("audio")){
+        preview.innerHTML += `<audio controls src="${url}"></audio>`;
+      }
+
+      if(file.type.startsWith("video")){
+        preview.innerHTML += `<video controls width="120" src="${url}"></video>`;
+      }
+
     });
   });
 }
@@ -435,7 +472,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const mapEl = document.getElementById("map");
 
   if(mapEl && typeof L !== "undefined"){
-
     map = L.map(mapEl).setView([48.85, 2.35], 6);
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
@@ -448,88 +484,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initAutocomplete();
   initGeoloc();
-  initPreview(); // maintenant OK
-
-});
-
-  /* ========= POPUP CLICK FIX ========= */
+  initPreview();
 
   document.querySelectorAll(".popup-content").forEach(el => {
     el.addEventListener("click", e => e.stopPropagation());
   });
 
 });
-
-/* ================= POPUP ================= */
-
-window.closePopup = () => {
-  document.querySelectorAll(".popup").forEach(p=>{
-    p.classList.remove("active");
-    p.classList.add("hidden");
-  });
-};
-
-/* ================= SELECT USER ================= */
-
-window.selectUser = (type) => {
-
-  const popup = document.getElementById("popup");
-  const artistPopup = document.getElementById("artistPopup");
-  const dropdown = document.getElementById("dropdown");
-
-  dropdown?.classList.add("hidden");
-
-  if(type === "client" && popup){
-    popup.classList.remove("hidden");
-    popup.classList.add("active");
-  }
-
-  if(type === "artist" && artistPopup){
-    artistPopup.classList.remove("hidden");
-    artistPopup.classList.add("active");
-  }
-};
-
-/* ================= GLOBAL CLICK ================= */
-
-window.addEventListener("click", (e) => {
-
-  const dropdown = document.getElementById("dropdown");
-
-  if(!e.target.closest(".topbar")){
-    dropdown?.classList.add("hidden");
-  }
-
-  if(e.target.classList.contains("popup-overlay")){
-    closePopup();
-  }
-});
-
-function initPreview(){
-
-  const input = document.getElementById("artistMedia");
-  const preview = document.getElementById("mediaPreview");
-
-  if(!input || !preview) return;
-
-  input.addEventListener("change", () => {
-
-    preview.innerHTML = "";
-
-    Array.from(input.files).forEach(file => {
-
-      const url = URL.createObjectURL(file);
-
-      if(file.type.startsWith("audio")){
-        preview.innerHTML += `<audio controls src="${url}"></audio>`;
-      }
-
-      if(file.type.startsWith("video")){
-        preview.innerHTML += `<video controls width="120" src="${url}"></video>`;
-      }
-
-    });
-  });
-}
-
-if(!data || !data.features) return;
