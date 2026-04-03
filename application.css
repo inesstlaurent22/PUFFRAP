@@ -270,6 +270,74 @@ button {
   margin: 10px 0;
 }
 
+.artist-card{
+  width:280px;
+  background:#000;
+  color:#fff;
+  text-align:center;
+}
+
+.artist-photo{
+  width:120px;
+  height:120px;
+  border-radius:50%;
+  object-fit:cover;
+  margin:10px auto;
+}
+
+.artist-badge{
+  background:#6EDC5F;
+  padding:6px 20px;
+  border-radius:20px;
+  margin:10px auto;
+  width:fit-content;
+}
+
+.artist-rating{
+  margin:10px;
+}
+
+.artist-dispo{
+  background:#ccc;
+  border-radius:20px;
+  padding:10px;
+  margin:10px;
+}
+
+.artist-dispo .dates{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+}
+
+.artist-dispo span{
+  background:#6EDC5F;
+  padding:5px 10px;
+  border-radius:10px;
+}
+
+.artist-media{
+  display:flex;
+  overflow-x:auto;
+  gap:10px;
+  padding:10px;
+}
+
+.artist-media video,
+.artist-media audio{
+  width:120px;
+  border-radius:10px;
+}
+
+.artist-comments{
+  max-height:150px;
+  overflow-y:auto;
+  background:#ccc;
+  margin:10px;
+  border-radius:15px;
+  padding:10px;
+}
+
 /* ================= CTA ================= */
 
 .cta {
