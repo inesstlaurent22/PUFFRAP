@@ -57,10 +57,7 @@ window.signup = async function(){
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
     await setDoc(doc(db, "users", userCredential.user.uid), {
-      username,
-      nom,
-      prenom,
-      email,
+      username, nom, prenom, email,
       role: "client",
       createdAt: Date.now()
     });
@@ -91,9 +88,13 @@ window.createArtistAccount = async function(){
   }
 
   try{
-
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const uid = userCredential.user.uid;
+
+    if(!navigator.geolocation){
+      alert("GPS non disponible");
+      return;
+    }
 
     navigator.geolocation.getCurrentPosition(async (pos) => {
 
@@ -101,21 +102,44 @@ window.createArtistAccount = async function(){
       const lng = pos.coords.longitude;
 
       await setDoc(doc(db, "artists", uid), {
-        nom,
-        prenom,
-        email,
-        ville,
-        produits,
-        media,
-        lat,
-        lng,
+        nom, prenom, email, ville, produits, media,
+        lat, lng,
         createdAt: Date.now()
       });
 
+      /* ✅ AJOUT DIRECT MARKER */
+
+      if(map && markerCluster){
+
+        const marker = L.marker([lat, lng]);
+
+        marker.bindPopup(`
+          <div class="card-premium">
+            <h2>${prenom} ${nom}</h2>
+            <p>${ville || ""}</p>
+            <p>${produits || ""}</p>
+
+            ${
+              media?.includes("mp4")
+              ? `<video src="${media}" controls width="100%"></video>`
+              : media?.includes("mp3")
+              ? `<audio src="${media}" controls></audio>`
+              : `<img src="${media}" width="100%">`
+            }
+          </div>
+        `);
+
+        markerCluster.addLayer(marker);
+
+        /* 🎯 CENTRER MAP */
+        map.setView([lat, lng], 14);
+      }
+
       alert("Profil artiste créé !");
       closePopup();
-      loadArtists();
 
+    }, () => {
+      alert("Impossible de récupérer ta position");
     });
 
   } catch(e){
@@ -126,7 +150,6 @@ window.createArtistAccount = async function(){
 /* ================= LOGIN ================= */
 
 window.login = async function(){
-
   const email = document.getElementById("loginEmail")?.value.trim();
   const password = document.getElementById("loginPassword")?.value.trim();
 
@@ -154,28 +177,20 @@ onAuthStateChanged(auth, async (user) => {
     const userDoc = await getDoc(doc(db, "users", user.uid));
     const artistDoc = await getDoc(doc(db, "artists", user.uid));
 
-    if(userDoc.exists()){
-      prenom = userDoc.data().prenom;
-    }
-
-    if(artistDoc.exists()){
-      prenom = artistDoc.data().prenom;
-    }
+    if(userDoc.exists()) prenom = userDoc.data().prenom;
+    if(artistDoc.exists()) prenom = artistDoc.data().prenom;
 
     signupBtn?.classList.add("hidden");
     loginBtn?.classList.add("hidden");
-
     profile?.classList.remove("hidden");
+
     if(profileName) profileName.textContent = prenom;
 
   } else {
-
     signupBtn?.classList.remove("hidden");
     loginBtn?.classList.remove("hidden");
     profile?.classList.add("hidden");
-
   }
-
 });
 
 /* ================= LOAD ARTISTS ================= */
@@ -192,6 +207,8 @@ async function loadArtists(){
 
     const data = docSnap.data();
 
+    if(!data.lat || !data.lng) return;
+
     const marker = L.marker([data.lat, data.lng]);
 
     marker.bindPopup(`
@@ -199,21 +216,12 @@ async function loadArtists(){
         <h2>${data.prenom} ${data.nom}</h2>
         <p>${data.ville || ""}</p>
         <p>${data.produits || ""}</p>
-
-        ${
-          data.media?.includes("mp4")
-          ? `<video src="${data.media}" controls width="100%"></video>`
-          : data.media?.includes("mp3")
-          ? `<audio src="${data.media}" controls></audio>`
-          : `<img src="${data.media}" width="100%">`
-        }
       </div>
     `);
 
     markerCluster.addLayer(marker);
 
   });
-
 }
 
 /* ================= DOM READY ================= */
@@ -223,11 +231,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const signupBtn = document.getElementById("signupBtn");
   const loginBtn = document.getElementById("loginBtn");
   const dropdown = document.getElementById("dropdown");
-  const popup = document.getElementById("popup");
   const loginPopup = document.getElementById("loginPopup");
-  const artistPopup = document.getElementById("artistPopup");
-
-  /* BUTTONS */
 
   document.getElementById("signupSubmit")?.addEventListener("click", signup);
   document.getElementById("loginSubmit")?.addEventListener("click", login);
@@ -249,12 +253,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const mapElement = document.getElementById("map");
 
   if(mapElement){
-
     map = L.map(mapElement).setView([48.1173, -1.6778], 12);
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap & Carto',
-      maxZoom: 20
+      attribution: '&copy; OpenStreetMap & Carto'
     }).addTo(map);
 
     markerCluster = L.markerClusterGroup();
@@ -263,7 +265,21 @@ document.addEventListener("DOMContentLoaded", () => {
     loadArtists();
   }
 
+  /* FIX CLICK POPUP */
+  document.querySelectorAll(".popup-content").forEach(el => {
+    el.addEventListener("click", e => e.stopPropagation());
+  });
+
 });
+
+/* ================= POPUP ================= */
+
+window.closePopup = function(){
+  document.querySelectorAll(".popup").forEach(p=>{
+    p.classList.remove("active");
+    p.classList.add("hidden");
+  });
+};
 
 /* ================= SELECT USER ================= */
 
@@ -284,18 +300,6 @@ window.selectUser = function(type){
     artistPopup.classList.remove("hidden");
     artistPopup.classList.add("active");
   }
-
-};
-
-/* ================= POPUP ================= */
-
-window.closePopup = function(){
-
-  document.querySelectorAll(".popup").forEach(p=>{
-    p.classList.remove("active");
-    p.classList.add("hidden");
-  });
-
 };
 
 /* ================= CLICK GLOBAL ================= */
@@ -304,20 +308,12 @@ window.addEventListener("click", (e) => {
 
   const dropdown = document.getElementById("dropdown");
 
-  /* FERME DROPDOWN SI CLICK OUTSIDE */
   if(!e.target.closest(".topbar")){
     dropdown?.classList.add("hidden");
   }
 
-  /* FERME POPUP UNIQUEMENT SI ON CLIQUE SUR L'OVERLAY */
   if(e.target.classList.contains("popup-overlay")){
     closePopup();
   }
 
 });
-
-document.querySelectorAll(".popup-content").forEach(el => {
-  el.addEventListener("click", e => e.stopPropagation());
-});
-
-
