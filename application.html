@@ -27,24 +27,24 @@
 <div class="topbar">
 
   <div class="signup-wrapper">
-    <button id="signupBtn">Inscription</button>
+    <button id="signupBtn" type="button">Inscription</button>
 
     <div id="dropdown" class="dropdown hidden">
-      <button onclick="selectUser('client')">Client</button>
-      <button onclick="selectUser('artist')">Artiste</button>
+      <button onclick="selectUser('client')" type="button">Client</button>
+      <button onclick="selectUser('artist')" type="button">Artiste</button>
     </div>
   </div>
 
-  <button id="loginBtn">Connexion</button>
+  <button id="loginBtn" type="button">Connexion</button>
 
   <div id="profile" class="profile-wrapper hidden">
     <span id="profileName"></span>
 
     <div id="profileDropdown" class="dropdown hidden">
-      <button onclick="openAccount()">Mon compte</button>
-      <button onclick="openReservations()">Mes réservations</button>
-      <button onclick="openFavoris()">Mes favoris</button>
-      <button onclick="logout()">Déconnexion</button>
+      <button onclick="openAccount()" type="button">Mon compte</button>
+      <button onclick="openReservations()" type="button">Mes réservations</button>
+      <button onclick="openFavoris()" type="button">Mes favoris</button>
+      <button onclick="logout()" type="button">Déconnexion</button>
     </div>
   </div>
 
@@ -113,12 +113,16 @@
       <option>Autre</option>
     </select>
 
-    <!-- MEDIA -->
+    <!-- MEDIA MULTIPLE -->
     <input 
       id="artistMedia" 
       type="file" 
       accept=".mp3,.mp4,.mov"
+      multiple
     >
+
+    <!-- PREVIEW -->
+    <div id="mediaPreview"></div>
 
     <button id="createArtistBtn" type="button">
       Créer mon profil
@@ -147,7 +151,7 @@
 
 
 <!-- ================= GPS BUTTON MAP ================= -->
-<button id="locateBtn">📍</button>
+<button id="locateBtn" type="button">📍</button>
 
 
 <!-- ================= SCRIPTS ================= -->
