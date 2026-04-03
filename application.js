@@ -1,18 +1,18 @@
 /* ================= IMPORTS ================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { 
-  getAuth, 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword, 
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-import { 
-  getFirestore, 
-  setDoc, 
-  doc, 
+import {
+  getFirestore,
+  setDoc,
+  doc,
   getDoc,
   collection,
   getDocs
@@ -33,14 +33,14 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* ================= GLOBAL MAP ================= */
+/* ================= GLOBAL ================= */
 
 let map;
 let markerCluster;
 
 /* ================= SIGNUP CLIENT ================= */
 
-window.signup = async function(){
+window.signup = async () => {
 
   const username = document.getElementById("username")?.value.trim();
   const nom = document.getElementById("nom")?.value.trim();
@@ -54,13 +54,10 @@ window.signup = async function(){
   }
 
   try{
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = await createUserWithEmailAndPassword(auth, email, password);
 
-    await setDoc(doc(db, "users", userCredential.user.uid), {
-      username,
-      nom,
-      prenom,
-      email,
+    await setDoc(doc(db, "users", user.user.uid), {
+      username, nom, prenom, email,
       role: "client",
       createdAt: Date.now()
     });
@@ -75,7 +72,7 @@ window.signup = async function(){
 
 /* ================= SIGNUP ARTIST ================= */
 
-window.createArtistAccount = async function(){
+window.createArtistAccount = async () => {
 
   const nom = document.getElementById("artistNom")?.value.trim();
   const prenom = document.getElementById("artistPrenom")?.value.trim();
@@ -83,96 +80,56 @@ window.createArtistAccount = async function(){
   const password = document.getElementById("artistPassword")?.value.trim();
   const produits = document.getElementById("artistProduits")?.value.trim();
   const media = document.getElementById("artistMedia")?.value.trim();
+  const locInput = document.getElementById("artistArr");
 
   if(!nom || !prenom || !email || !password){
     alert("Champs obligatoires manquants");
     return;
   }
 
+  const lat = parseFloat(locInput?.dataset.lat);
+  const lng = parseFloat(locInput?.dataset.lng);
+  const localisation = locInput?.value;
+
+  if(!lat || !lng){
+    alert("Choisis une localisation valide dans la liste");
+    return;
+  }
+
   try{
 
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const uid = userCredential.user.uid;
+    const user = await createUserWithEmailAndPassword(auth, email, password);
+    const uid = user.user.uid;
 
-    if(!navigator.geolocation){
-      alert("GPS non disponible");
-      return;
+    await setDoc(doc(db, "artists", uid), {
+      nom, prenom, email,
+      produits,
+      media,
+      arrondissement: localisation,
+      lat, lng,
+      createdAt: Date.now()
+    });
+
+    /* MARKER DIRECT */
+
+    if(map && markerCluster){
+
+      const marker = L.marker([lat, lng]);
+
+      marker.bindPopup(`
+        <div class="card-premium">
+          <h2>${prenom} ${nom}</h2>
+          <p>${localisation}</p>
+          <p>${produits || ""}</p>
+        </div>
+      `);
+
+      markerCluster.addLayer(marker);
+      map.setView([lat, lng], 14);
     }
 
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
-
-      /* 🔥 RÉCUP ARRONDISSEMENT */
-
-      let arrondissement = "Non défini";
-
-      try{
-        const res = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
-        );
-
-        const dataGeo = await res.json();
-
-        arrondissement =
-          dataGeo.address?.city_district ||
-          dataGeo.address?.suburb ||
-          dataGeo.address?.town ||
-          dataGeo.address?.city ||
-          "Non défini";
-
-      } catch(e){
-        console.log(e);
-      }
-
-      /* ✅ SAVE FIREBASE */
-
-      await setDoc(doc(db, "artists", uid), {
-        nom,
-        prenom,
-        email,
-        produits,
-        media,
-        arrondissement,
-        lat,
-        lng,
-        createdAt: Date.now()
-      });
-
-      /* ✅ MARKER DIRECT */
-
-      if(map && markerCluster){
-
-        const marker = L.marker([lat, lng]);
-
-        marker.bindPopup(`
-          <div class="card-premium">
-            <h2>${prenom} ${nom}</h2>
-            <p>${arrondissement}</p>
-            <p>${produits || ""}</p>
-
-            ${
-              media?.includes("mp4")
-              ? `<video src="${media}" controls width="100%"></video>`
-              : media?.includes("mp3")
-              ? `<audio src="${media}" controls></audio>`
-              : `<img src="${media}" width="100%">`
-            }
-          </div>
-        `);
-
-        markerCluster.addLayer(marker);
-
-        map.setView([lat, lng], 14);
-      }
-
-      alert("Profil artiste créé !");
-      closePopup();
-
-    }, () => {
-      alert("Impossible de récupérer ta position");
-    });
+    alert("Profil artiste créé !");
+    closePopup();
 
   } catch(e){
     alert(e.message);
@@ -181,7 +138,7 @@ window.createArtistAccount = async function(){
 
 /* ================= LOGIN ================= */
 
-window.login = async function(){
+window.login = async () => {
 
   const email = document.getElementById("loginEmail")?.value.trim();
   const password = document.getElementById("loginPassword")?.value.trim();
@@ -196,9 +153,7 @@ window.login = async function(){
 
 /* ================= LOGOUT ================= */
 
-window.logout = function(){
-  signOut(auth);
-};
+window.logout = () => signOut(auth);
 
 /* ================= AUTH STATE ================= */
 
@@ -232,7 +187,6 @@ onAuthStateChanged(auth, async (user) => {
     profile?.classList.add("hidden");
 
   }
-
 });
 
 /* ================= LOAD ARTISTS ================= */
@@ -247,17 +201,17 @@ async function loadArtists(){
 
   snap.forEach(docSnap => {
 
-    const data = docSnap.data();
+    const d = docSnap.data();
 
-    if(!data.lat || !data.lng) return;
+    if(!d.lat || !d.lng) return;
 
-    const marker = L.marker([data.lat, data.lng]);
+    const marker = L.marker([d.lat, d.lng]);
 
     marker.bindPopup(`
       <div class="card-premium">
-        <h2>${data.prenom} ${data.nom}</h2>
-        <p>${data.arrondissement || "Localisation inconnue"}</p>
-        <p>${data.produits || ""}</p>
+        <h2>${d.prenom} ${d.nom}</h2>
+        <p>${d.arrondissement || ""}</p>
+        <p>${d.produits || ""}</p>
       </div>
     `);
 
@@ -266,25 +220,85 @@ async function loadArtists(){
   });
 }
 
+/* ================= AUTOCOMPLETE FRANCE ================= */
+
+function initAutocomplete(){
+
+  const input = document.getElementById("artistArr");
+  const box = document.getElementById("arrSuggestions");
+
+  if(!input || !box) return;
+
+  let debounce;
+
+  input.addEventListener("input", () => {
+
+    clearTimeout(debounce);
+
+    const query = input.value;
+
+    if(query.length < 3){
+      box.classList.add("hidden");
+      return;
+    }
+
+    debounce = setTimeout(async () => {
+
+      const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${query}&limit=5`);
+      const data = await res.json();
+
+      box.innerHTML = "";
+
+      data.features.forEach(f => {
+
+        const label = f.properties.label;
+        const lat = f.geometry.coordinates[1];
+        const lng = f.geometry.coordinates[0];
+
+        const btn = document.createElement("button");
+        btn.textContent = label;
+
+        btn.onclick = () => {
+
+          input.value = label;
+          input.dataset.lat = lat;
+          input.dataset.lng = lng;
+
+          box.classList.add("hidden");
+
+          if(map){
+            map.setView([lat, lng], 14);
+          }
+        };
+
+        box.appendChild(btn);
+      });
+
+      box.classList.remove("hidden");
+
+    }, 300);
+  });
+}
+
 /* ================= DOM READY ================= */
 
 document.addEventListener("DOMContentLoaded", () => {
+
+  document.getElementById("signupSubmit")?.addEventListener("click", signup);
+  document.getElementById("loginSubmit")?.addEventListener("click", login);
+  document.getElementById("createArtistBtn")?.addEventListener("click", createArtistAccount);
 
   const signupBtn = document.getElementById("signupBtn");
   const loginBtn = document.getElementById("loginBtn");
   const dropdown = document.getElementById("dropdown");
   const loginPopup = document.getElementById("loginPopup");
 
-  document.getElementById("signupSubmit")?.addEventListener("click", signup);
-  document.getElementById("loginSubmit")?.addEventListener("click", login);
-  document.getElementById("createArtistBtn")?.addEventListener("click", createArtistAccount);
-
-  signupBtn?.addEventListener("click", (e)=>{
+  signupBtn?.addEventListener("click", e=>{
     e.stopPropagation();
     dropdown?.classList.toggle("hidden");
   });
 
-  loginBtn?.addEventListener("click", (e)=>{
+  loginBtn?.addEventListener("click", e=>{
     e.stopPropagation();
     loginPopup?.classList.remove("hidden");
     loginPopup?.classList.add("active");
@@ -292,21 +306,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* MAP */
 
-  const mapElement = document.getElementById("map");
+  const mapEl = document.getElementById("map");
 
-  if(mapElement){
+  if(mapEl){
+    map = L.map(mapEl).setView([48.85, 2.35], 6);
 
-    map = L.map(mapElement).setView([48.1173, -1.6778], 12);
-
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap & Carto'
-    }).addTo(map);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
 
     markerCluster = L.markerClusterGroup();
     map.addLayer(markerCluster);
 
     loadArtists();
   }
+
+  initAutocomplete();
 
   document.querySelectorAll(".popup-content").forEach(el => {
     el.addEventListener("click", e => e.stopPropagation());
@@ -316,18 +329,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* ================= POPUP ================= */
 
-window.closePopup = function(){
-
+window.closePopup = () => {
   document.querySelectorAll(".popup").forEach(p=>{
     p.classList.remove("active");
     p.classList.add("hidden");
   });
-
 };
 
 /* ================= SELECT USER ================= */
 
-window.selectUser = function(type){
+window.selectUser = (type) => {
 
   const popup = document.getElementById("popup");
   const artistPopup = document.getElementById("artistPopup");
@@ -344,10 +355,9 @@ window.selectUser = function(type){
     artistPopup.classList.remove("hidden");
     artistPopup.classList.add("active");
   }
-
 };
 
-/* ================= CLICK GLOBAL ================= */
+/* ================= GLOBAL CLICK ================= */
 
 window.addEventListener("click", (e) => {
 
@@ -360,5 +370,4 @@ window.addEventListener("click", (e) => {
   if(e.target.classList.contains("popup-overlay")){
     closePopup();
   }
-
 });
