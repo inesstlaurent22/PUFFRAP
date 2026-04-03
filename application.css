@@ -343,6 +343,25 @@ button {
   position: relative;
 }
 
+.location-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#artistArr {
+  flex: 1;
+}
+
+#geoBtn {
+  background: #1e90ff;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
 #arrSuggestions {
   position: absolute;
   top: 100%;
@@ -352,7 +371,6 @@ button {
   z-index: 9999;
   border-radius: 10px;
   margin-top: 5px;
-  overflow: hidden;
 }
 
 #arrSuggestions button {
@@ -361,9 +379,8 @@ button {
   border: none;
   background: white;
   text-align: left;
-  cursor: pointer;
 }
 
 #arrSuggestions button:hover {
-  background: #f2f2f2;
+  background: #eee;
 }
