@@ -1,7 +1,6 @@
 /* ================= IMPORTS ================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -19,13 +18,6 @@ import {
   getDocs
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-import {
-  getStorage,
-  ref,
-  uploadBytes,
-  getDownloadURL
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-
 /* ================= FIREBASE ================= */
 
 const firebaseConfig = {
@@ -40,7 +32,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
 
 /* ================= GLOBAL ================= */
 
@@ -87,9 +78,9 @@ window.createArtistAccount = async () => {
   const prenom = document.getElementById("artistPrenom")?.value.trim();
   const email = document.getElementById("artistEmail")?.value.trim();
   const password = document.getElementById("artistPassword")?.value.trim();
-  const produits = document.getElementById("artistProduits")?.value;
+  const produits = document.getElementById("artistProduits")?.value.trim();
+  const media = document.getElementById("artistMedia")?.value.trim();
   const locInput = document.getElementById("artistArr");
-  const files = document.getElementById("artistMedia").files;
 
   if(!nom || !prenom || !email || !password){
     alert("Champs obligatoires manquants");
@@ -100,8 +91,8 @@ window.createArtistAccount = async () => {
   const lng = parseFloat(locInput?.dataset.lng);
   const localisation = locInput?.value;
 
-  if(isNaN(lat) || isNaN(lng)){
-    alert("Choisis une localisation valide");
+  if(!lat || !lng){
+    alert("Choisis une localisation valide dans la liste");
     return;
   }
 
@@ -110,33 +101,16 @@ window.createArtistAccount = async () => {
     const user = await createUserWithEmailAndPassword(auth, email, password);
     const uid = user.user.uid;
 
-    /* ========= UPLOAD MULTI MEDIA ========= */
-
-    let mediaUrls = [];
-
-    for (let file of files) {
-
-      const storageRef = ref(storage, `artists/${uid}/${Date.now()}_${file.name}`);
-
-      await uploadBytes(storageRef, file);
-
-      const url = await getDownloadURL(storageRef);
-
-      mediaUrls.push(url);
-    }
-
-    /* ========= FIRESTORE ========= */
-
     await setDoc(doc(db, "artists", uid), {
       nom, prenom, email,
       produits,
-      media: mediaUrls,
+      media,
       arrondissement: localisation,
       lat, lng,
       createdAt: Date.now()
     });
 
-    /* ========= MARKER ========= */
+    /* MARKER DIRECT */
 
     if(map && markerCluster){
 
@@ -242,10 +216,11 @@ async function loadArtists(){
     `);
 
     markerCluster.addLayer(marker);
+
   });
 }
 
-/* ================= AUTOCOMPLETE ================= */
+/* ================= AUTOCOMPLETE FRANCE ================= */
 
 function initAutocomplete(){
 
@@ -260,24 +235,19 @@ function initAutocomplete(){
 
     clearTimeout(debounce);
 
-    const query = input.value.trim();
+    const query = input.value;
 
-    if(query.length < 2){
+    if(query.length < 3){
       box.classList.add("hidden");
       return;
     }
 
     debounce = setTimeout(async () => {
 
-      const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=5`);
+      const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${query}&limit=5`);
       const data = await res.json();
 
       box.innerHTML = "";
-
-      if(!data.features.length){
-        box.classList.add("hidden");
-        return;
-      }
 
       data.features.forEach(f => {
 
@@ -289,10 +259,16 @@ function initAutocomplete(){
         btn.textContent = label;
 
         btn.onclick = () => {
+
           input.value = label;
           input.dataset.lat = lat;
           input.dataset.lng = lng;
+
           box.classList.add("hidden");
+
+          if(map){
+            map.setView([lat, lng], 14);
+          }
         };
 
         box.appendChild(btn);
@@ -304,62 +280,6 @@ function initAutocomplete(){
   });
 }
 
-/* ================= GEOLOC ================= */
-
-function initGeoloc(){
-  const btn = document.getElementById("geoBtn");
-
-  if(!btn) return;
-
-  btn.addEventListener("click", () => {
-
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
-
-      const res = await fetch(`https://api-adresse.data.gouv.fr/reverse/?lat=${lat}&lon=${lng}`);
-      const data = await res.json();
-
-      if(data.features.length){
-        const input = document.getElementById("artistArr");
-        input.value = data.features[0].properties.label;
-        input.dataset.lat = lat;
-        input.dataset.lng = lng;
-      }
-
-    });
-  });
-}
-
-/* ================= PREVIEW ================= */
-
-function initPreview(){
-
-  const input = document.getElementById("artistMedia");
-  const preview = document.getElementById("mediaPreview");
-
-  if(!input || !preview) return;
-
-  input.addEventListener("change", () => {
-
-    preview.innerHTML = "";
-
-    Array.from(input.files).forEach(file => {
-
-      const url = URL.createObjectURL(file);
-
-      if(file.type.startsWith("audio")){
-        preview.innerHTML += `<audio controls src="${url}"></audio>`;
-      }
-
-      if(file.type.startsWith("video")){
-        preview.innerHTML += `<video controls width="120" src="${url}"></video>`;
-      }
-    });
-  });
-}
-
 /* ================= DOM READY ================= */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -368,8 +288,86 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("loginSubmit")?.addEventListener("click", login);
   document.getElementById("createArtistBtn")?.addEventListener("click", createArtistAccount);
 
-  initAutocomplete();
-  initGeoloc();
-  initPreview();
+  const signupBtn = document.getElementById("signupBtn");
+  const loginBtn = document.getElementById("loginBtn");
+  const dropdown = document.getElementById("dropdown");
+  const loginPopup = document.getElementById("loginPopup");
 
+  signupBtn?.addEventListener("click", e=>{
+    e.stopPropagation();
+    dropdown?.classList.toggle("hidden");
+  });
+
+  loginBtn?.addEventListener("click", e=>{
+    e.stopPropagation();
+    loginPopup?.classList.remove("hidden");
+    loginPopup?.classList.add("active");
+  });
+
+  /* MAP */
+
+  const mapEl = document.getElementById("map");
+
+  if(mapEl){
+    map = L.map(mapEl).setView([48.85, 2.35], 6);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+
+    markerCluster = L.markerClusterGroup();
+    map.addLayer(markerCluster);
+
+    loadArtists();
+  }
+
+  initAutocomplete();
+
+  document.querySelectorAll(".popup-content").forEach(el => {
+    el.addEventListener("click", e => e.stopPropagation());
+  });
+
+});
+
+/* ================= POPUP ================= */
+
+window.closePopup = () => {
+  document.querySelectorAll(".popup").forEach(p=>{
+    p.classList.remove("active");
+    p.classList.add("hidden");
+  });
+};
+
+/* ================= SELECT USER ================= */
+
+window.selectUser = (type) => {
+
+  const popup = document.getElementById("popup");
+  const artistPopup = document.getElementById("artistPopup");
+  const dropdown = document.getElementById("dropdown");
+
+  dropdown?.classList.add("hidden");
+
+  if(type === "client"){
+    popup.classList.remove("hidden");
+    popup.classList.add("active");
+  }
+
+  if(type === "artist"){
+    artistPopup.classList.remove("hidden");
+    artistPopup.classList.add("active");
+  }
+};
+
+/* ================= GLOBAL CLICK ================= */
+
+window.addEventListener("click", (e) => {
+
+  const dropdown = document.getElementById("dropdown");
+
+  if(!e.target.closest(".topbar")){
+    dropdown?.classList.add("hidden");
+  }
+
+  if(e.target.classList.contains("popup-overlay")){
+    closePopup();
+  }
 });
