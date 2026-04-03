@@ -236,7 +236,7 @@ async function loadArtists(){
     marker.bindPopup(`
       <div class="card-premium">
         <h2>${data.prenom} ${data.nom}</h2>
-        <p>${data.ville || ""}</p>
+        <p>${data.arrondissement || ""}</p>
         <p>${data.produits || ""}</p>
       </div>
     `);
