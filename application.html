@@ -27,20 +27,22 @@
 <!-- ================= TOPBAR ================= -->
 <div class="topbar">
 
-  <!-- INSCRIPTION -->
-  <button id="signupBtn">Inscription</button>
+  <!-- INSCRIPTION + DROPDOWN -->
+  <div class="signup-wrapper">
+    <button id="signupBtn">Inscription</button>
+
+    <div id="dropdown" class="dropdown hidden">
+      <button onclick="selectUser('client')">Client</button>
+      <button onclick="selectUser('artist')">Artiste</button>
+    </div>
+  </div>
 
   <!-- CONNEXION -->
   <button id="loginBtn">Connexion</button>
 
-  <!-- DROPDOWN -->
-  <div id="dropdown" class="dropdown hidden">
-    <button onclick="selectUser('client')">Client</button>
-    <button onclick="selectUser('artist')">Artiste</button>
-  </div>
-
   <!-- PROFIL -->
-  <div id="profile" class="hidden">
+  <div id="profile" class="profile-wrapper hidden">
+
     <span id="profileName"></span>
 
     <div id="profileDropdown" class="dropdown hidden">
@@ -49,6 +51,7 @@
       <button onclick="openFavoris()">Mes favoris</button>
       <button onclick="logout()">Déconnexion</button>
     </div>
+
   </div>
 
 </div>
