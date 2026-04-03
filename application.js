@@ -110,26 +110,18 @@ window.createArtistAccount = async () => {
     const uid = user.user.uid;
 
     /* ===== UPLOAD MEDIA ===== */
-
     let mediaUrls = [];
 
     if(files && files.length){
-
       for (let file of files) {
-
         const storageRef = ref(storage, `artists/${uid}/${Date.now()}_${file.name}`);
-
         await uploadBytes(storageRef, file);
-
         const url = await getDownloadURL(storageRef);
-
         mediaUrls.push(url);
       }
-
     }
 
     /* ===== FIRESTORE ===== */
-
     await setDoc(doc(db, "artists", uid), {
       nom,
       prenom,
@@ -143,27 +135,18 @@ window.createArtistAccount = async () => {
       createdAt: Date.now()
     });
 
-    alert("Profil artiste créé !");
-    closePopup();
-
-  } catch(e){
-    alert(e.message);
-  }
-};
-
-    /* MARKER DIRECT */
-
+    /* ✅ MARKER AU BON ENDROIT */
     if(map && markerCluster){
 
       const marker = L.marker([lat, lng]);
 
-      marker.bindPopup(`
-        <div class="card-premium">
-          <h2>${prenom} ${nom}</h2>
-          <p>${localisation}</p>
-          <p>${produits || ""}</p>
-        </div>
-      `);
+      marker.bindPopup(generateArtistCard({
+        nom,
+        prenom,
+        produits,
+        photo: mediaUrls[0] || "",
+        media: mediaUrls
+      }, uid));
 
       markerCluster.addLayer(marker);
       map.setView([lat, lng], 14);
@@ -173,6 +156,7 @@ window.createArtistAccount = async () => {
     closePopup();
 
   } catch(e){
+    console.error(e);
     alert(e.message);
   }
 };
@@ -380,7 +364,7 @@ function initAutocomplete(){
 
       box.innerHTML = "";
 
-      if(!data.features.length){
+      if(!data.features || !data.features.length)
         box.classList.add("hidden");
         return;
       }
