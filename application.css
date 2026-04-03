@@ -336,3 +336,27 @@ button {
   height: 30px;
   border-radius: 50%;
 }
+
+/* ================= ARRONDISSEMENT ================= */
+
+#arrSuggestions {
+  position: absolute;
+  background: white;
+  width: 100%;
+  z-index: 9999;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+#arrSuggestions button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  background: white;
+  text-align: left;
+  cursor: pointer;
+}
+
+#arrSuggestions button:hover {
+  background: #f0f0f0;
+}
