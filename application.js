@@ -99,7 +99,29 @@ window.createArtistAccount = async function(){
     navigator.geolocation.getCurrentPosition(async (pos) => {
 
       const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
+const lng = pos.coords.longitude;
+
+/* 🔥 RÉCUPÉRATION ARRONDISSEMENT */
+
+let arrondissement = "Non défini";
+
+try {
+
+  const res = await fetch(
+    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+  );
+
+  const dataGeo = await res.json();
+
+  arrondissement =
+    dataGeo.address?.city_district ||
+    dataGeo.address?.suburb ||
+    dataGeo.address?.city ||
+    "Non défini";
+
+} catch(e){
+  console.log("Erreur géocodage", e);
+}
 
       await setDoc(doc(db, "artists", uid), {
         nom, prenom, email, ville, produits, media,
