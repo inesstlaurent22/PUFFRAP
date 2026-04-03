@@ -17,7 +17,7 @@ import {
 
 /* ================= FIREBASE ================= */
 
-onst firebaseConfig = {
+const firebaseConfig = {
   apiKey: "AIzaSyAHb_jyRobERs677A4ZlGTzOVRCLZaaF3s",
   authDomain: "puffrap.firebaseapp.com",
   projectId: "puffrap",
@@ -57,7 +57,7 @@ window.signup = async function(){
       createdAt: Date.now()
     });
 
-    closePopup();
+    window.closePopup();
     alert("Bienvenue " + prenom);
 
   } catch(e){
@@ -75,7 +75,7 @@ window.login = async function(){
 
   try{
     await signInWithEmailAndPassword(auth, email, password);
-    closePopup();
+    window.closePopup();
   } catch(e){
     alert(e.message);
   }
@@ -115,7 +115,7 @@ onAuthStateChanged(auth, async (user) => {
     profile?.classList.remove("hidden");
     if(profileName) profileName.textContent = prenom;
 
-    closePopup();
+    window.closePopup();
 
   } else {
 
@@ -131,13 +131,6 @@ onAuthStateChanged(auth, async (user) => {
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  /* ===== BUTTONS ===== */
-
-  document.getElementById("signupSubmit")?.addEventListener("click", window.signup);
-  document.getElementById("loginSubmit")?.addEventListener("click", window.login);
-
-  /* ===== UI ===== */
-
   const signupBtn = document.getElementById("signupBtn");
   const loginBtn = document.getElementById("loginBtn");
   const dropdown = document.getElementById("dropdown");
@@ -146,30 +139,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const profile = document.getElementById("profile");
   const profileDropdown = document.getElementById("profileDropdown");
 
+  /* ===== BUTTONS ===== */
+
+  document.getElementById("signupSubmit")?.addEventListener("click", window.signup);
+  document.getElementById("loginSubmit")?.addEventListener("click", window.login);
+
   signupBtn?.addEventListener("click", (e) => {
     e.stopPropagation();
-
     popup?.classList.remove("hidden");
     popup?.classList.add("active");
-
-    dropdown?.classList.add("hidden");
-    profileDropdown?.classList.add("hidden");
   });
 
   loginBtn?.addEventListener("click", (e) => {
     e.stopPropagation();
-
     loginPopup?.classList.remove("hidden");
     loginPopup?.classList.add("active");
-
-    dropdown?.classList.add("hidden");
   });
 
   profile?.addEventListener("click", (e) => {
     e.stopPropagation();
-
     profileDropdown?.classList.toggle("hidden");
-    dropdown?.classList.add("hidden");
   });
 
   /* ===== STOP CLICK DANS POPUP ===== */
@@ -240,9 +229,6 @@ window.closePopup = function(){
 window.selectUser = function(type){
 
   const popup = document.getElementById("popup");
-  const dropdown = document.getElementById("dropdown");
-
-  dropdown?.classList.add("hidden");
 
   if(type === "client"){
     popup?.classList.remove("hidden");
@@ -268,14 +254,14 @@ window.addEventListener("click", (e) => {
     popup?.classList.contains("active") &&
     !e.target.closest(".popup-content")
   ){
-    closePopup();
+    window.closePopup();
   }
 
   if(
     loginPopup?.classList.contains("active") &&
     !e.target.closest(".popup-content")
   ){
-    closePopup();
+    window.closePopup();
   }
 
 });
