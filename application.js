@@ -235,46 +235,61 @@ function initAutocomplete(){
 
     clearTimeout(debounce);
 
-    const query = input.value;
+    const query = input.value.trim();
 
-    if(query.length < 3){
+    // 🔧 FIX 1 : minimum 2 caractères (pas 3)
+    if(query.length < 2){
       box.classList.add("hidden");
+      box.innerHTML = "";
       return;
     }
 
     debounce = setTimeout(async () => {
 
-      const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${query}&limit=5`);
-      const data = await res.json();
+      try {
 
-      box.innerHTML = "";
+        const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=5`);
+        const data = await res.json();
 
-      data.features.forEach(f => {
+        box.innerHTML = "";
 
-        const label = f.properties.label;
-        const lat = f.geometry.coordinates[1];
-        const lng = f.geometry.coordinates[0];
-
-        const btn = document.createElement("button");
-        btn.textContent = label;
-
-        btn.onclick = () => {
-
-          input.value = label;
-          input.dataset.lat = lat;
-          input.dataset.lng = lng;
-
+        // 🔧 FIX 2 : vérifier si résultats
+        if(!data.features || data.features.length === 0){
           box.classList.add("hidden");
+          return;
+        }
 
-          if(map){
-            map.setView([lat, lng], 14);
-          }
-        };
+        data.features.forEach(f => {
 
-        box.appendChild(btn);
-      });
+          const label = f.properties.label;
+          const lat = f.geometry.coordinates[1];
+          const lng = f.geometry.coordinates[0];
 
-      box.classList.remove("hidden");
+          const btn = document.createElement("button");
+          btn.textContent = label;
+          btn.type = "button";
+
+          btn.addEventListener("click", () => {
+
+            input.value = label;
+            input.dataset.lat = lat;
+            input.dataset.lng = lng;
+
+            box.classList.add("hidden");
+
+            if(map){
+              map.setView([lat, lng], 14);
+            }
+          });
+
+          box.appendChild(btn);
+        });
+
+        box.classList.remove("hidden");
+
+      } catch(e){
+        console.error("Erreur autocomplete :", e);
+      }
 
     }, 300);
   });
