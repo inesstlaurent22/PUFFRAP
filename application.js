@@ -18,6 +18,13 @@ import {
   getDocs
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
 /* ================= FIREBASE ================= */
 
 const firebaseConfig = {
@@ -32,6 +39,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 /* ================= GLOBAL ================= */
 
@@ -78,8 +86,8 @@ window.createArtistAccount = async () => {
   const prenom = document.getElementById("artistPrenom")?.value.trim();
   const email = document.getElementById("artistEmail")?.value.trim();
   const password = document.getElementById("artistPassword")?.value.trim();
-  const produits = document.getElementById("artistProduits")?.value.trim();
-  const media = document.getElementById("artistMedia")?.value.trim();
+  const produits = document.getElementById("artistProduits")?.value;
+  const files = document.getElementById("artistMedia")?.files;
   const locInput = document.getElementById("artistArr");
 
   if(!nom || !prenom || !email || !password){
@@ -91,8 +99,8 @@ window.createArtistAccount = async () => {
   const lng = parseFloat(locInput?.dataset.lng);
   const localisation = locInput?.value;
 
-  if(!lat || !lng){
-    alert("Choisis une localisation valide dans la liste");
+  if(isNaN(lat) || isNaN(lng)){
+    alert("Choisis une localisation valide");
     return;
   }
 
@@ -101,14 +109,47 @@ window.createArtistAccount = async () => {
     const user = await createUserWithEmailAndPassword(auth, email, password);
     const uid = user.user.uid;
 
+    /* ===== UPLOAD MEDIA ===== */
+
+    let mediaUrls = [];
+
+    if(files && files.length){
+
+      for (let file of files) {
+
+        const storageRef = ref(storage, `artists/${uid}/${Date.now()}_${file.name}`);
+
+        await uploadBytes(storageRef, file);
+
+        const url = await getDownloadURL(storageRef);
+
+        mediaUrls.push(url);
+      }
+
+    }
+
+    /* ===== FIRESTORE ===== */
+
     await setDoc(doc(db, "artists", uid), {
-      nom, prenom, email,
+      nom,
+      prenom,
+      email,
       produits,
-      media,
+      media: mediaUrls,
+      photo: mediaUrls[0] || "",
       arrondissement: localisation,
-      lat, lng,
+      lat,
+      lng,
       createdAt: Date.now()
     });
+
+    alert("Profil artiste créé !");
+    closePopup();
+
+  } catch(e){
+    alert(e.message);
+  }
+};
 
     /* MARKER DIRECT */
 
