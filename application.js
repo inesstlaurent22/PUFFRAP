@@ -557,9 +557,9 @@ window.addEventListener("click", (e) => {
 
 /* ================= NAVIGATION ================= */
 
-function openAccount() {
-  window.location.href = "monprofil.html"; 
-}
+window.openAccount = function() {
+  window.location.href = "monprofil.html";
+};
 
 function openReservations() {
   window.location.href = "reservations.html"; // adapte si besoin
