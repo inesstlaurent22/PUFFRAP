@@ -266,6 +266,10 @@ function generateArtistCard(d, id){
 
   const dispo = (d.disponibilites || []).slice(0,3);
 
+  const dispo = Array.isArray(d.disponibilites) 
+  ? d.disponibilites.slice(0,3) 
+  : [];
+  
   return `
   <div class="artist-card">
 
@@ -344,6 +348,8 @@ function initAutocomplete(){
   const input = document.getElementById("artistArr");
   const box = document.getElementById("arrSuggestions");
 
+  if(!input || !box) return;
+
   let debounce;
 
   input.addEventListener("input", () => {
@@ -354,45 +360,51 @@ function initAutocomplete(){
 
     if(query.length < 2){
       box.classList.add("hidden");
+      box.innerHTML = "";
       return;
     }
 
     debounce = setTimeout(async () => {
 
-      const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=5`);
-      const data = await res.json();
+      try{
 
-      box.innerHTML = "";
+        const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=5`);
+        const data = await res.json();
 
-      if(!data.features || !data.features.length)
-        box.classList.add("hidden");
-        return;
-      }
+        box.innerHTML = "";
 
-      data.features.forEach(f => {
-
-        const label = f.properties.label;
-        const lat = f.geometry.coordinates[1];
-        const lng = f.geometry.coordinates[0];
-
-        const btn = document.createElement("button");
-        btn.textContent = label;
-
-        btn.onclick = () => {
-          input.value = label;
-          input.dataset.lat = lat;
-          input.dataset.lng = lng;
+        /* ✅ FIX ICI */
+        if(!data.features || !data.features.length){
           box.classList.add("hidden");
-        };
+          return;
+        }
 
-        box.appendChild(btn);
-      });
+        data.features.forEach(f => {
 
-      box.classList.remove("hidden");
+          const btn = document.createElement("button");
+          btn.textContent = f.properties.label;
+
+          btn.onclick = () => {
+            input.value = f.properties.label;
+            input.dataset.lat = f.geometry.coordinates[1];
+            input.dataset.lng = f.geometry.coordinates[0];
+            box.classList.add("hidden");
+          };
+
+          box.appendChild(btn);
+        });
+
+        box.classList.remove("hidden");
+
+      } catch(e){
+        console.error("Erreur autocomplete", e);
+      }
 
     }, 300);
   });
 }
+
+if(data.features && data.features.length){
 
 document.getElementById("geoBtn")?.addEventListener("click", () => {
 
@@ -517,3 +529,8 @@ window.addEventListener("click", (e) => {
     closePopup();
   }
 }); 
+
+window.openArtistPage = (id) => {
+  window.location.href = `artiste.html?id=${id}`;
+};
+
