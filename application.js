@@ -498,16 +498,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
-const profile = document.getElementById("profile");
-const profileDropdown = document.getElementById("profileDropdown");
-
-if(profile && profileDropdown){
-  profile.addEventListener("click", (e)=>{
-    e.stopPropagation();
-    profileDropdown.classList.toggle("hidden");
-  });
-}
-
 /* ================= POPUP ================= */
 
 window.closePopup = () => {
@@ -564,15 +554,3 @@ window.addEventListener("click", (e) => {
     closePopup();
   }
 });
-
-/* ================= NAVIGATION ARTISTE ================= */
-
-window.openArtistPage = (id) => {
-
-  if(!id){
-    console.error("ID artiste manquant");
-    return;
-  }
-
-  window.location.href = `artiste.html?id=${id}`;
-};
