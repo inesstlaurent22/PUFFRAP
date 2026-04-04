@@ -498,6 +498,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
+const profile = document.getElementById("profile");
+const profileDropdown = document.getElementById("profileDropdown");
+
+if(profile && profileDropdown){
+  profile.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    profileDropdown.classList.toggle("hidden");
+  });
+}
+
 /* ================= POPUP ================= */
 
 window.closePopup = () => {
@@ -513,19 +523,28 @@ window.selectUser = (type) => {
 
   const popup = document.getElementById("popup");
   const artistPopup = document.getElementById("artistPopup");
-
   const dropdown = document.getElementById("dropdown");
 
-  if(!e.target.closest(".topbar")){
-    dropdown?.classList.add("hidden");
+  dropdown?.classList.add("hidden");
+
+  if(type === "client" && popup){
+    popup.classList.remove("hidden");
+    popup.classList.add("active");
   }
 
-  if(e.target.classList.contains("popup-overlay")){
-    closePopup();
+  if(type === "artist" && artistPopup){
+    artistPopup.classList.remove("hidden");
+    artistPopup.classList.add("active");
   }
-}); 
+};
 
 window.openArtistPage = (id) => {
+
+  if(!id){
+    console.error("ID artiste manquant");
+    return;
+  }
+
   window.location.href = `artiste.html?id=${id}`;
 };
 
@@ -536,18 +555,11 @@ window.addEventListener("click", (e) => {
   const dropdown = document.getElementById("dropdown");
   const profileDropdown = document.getElementById("profileDropdown");
 
-  /* ✅ Fermer menus si clic hors zone */
   if(!e.target.closest(".topbar")){
     dropdown?.classList.add("hidden");
     profileDropdown?.classList.add("hidden");
   }
 
-  /* ✅ Empêche fermeture si clic dans dropdown */
-  if(e.target.closest("#dropdown") || e.target.closest("#profileDropdown")){
-    return;
-  }
-
-  /* ✅ Fermer popup si clic overlay */
   if(e.target.classList.contains("popup-overlay")){
     closePopup();
   }
