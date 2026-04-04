@@ -176,10 +176,6 @@ window.login = async () => {
   }
 };
 
-/* ================= LOGOUT ================= */
-
-window.logout = () => signOut(auth);
-
 /* ================= AUTH STATE ================= */
 
 onAuthStateChanged(auth, async (user) => {
