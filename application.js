@@ -557,24 +557,19 @@ window.addEventListener("click", (e) => {
 
 /* ================= NAVIGATION ================= */
 
-window.openAccount = function() {
-  window.location.href = "monprofil.html";
+window.openAccount = function () {
+  window.location.href = "monprofil.html"; // ou moncompte.html
 };
 
-function openReservations() {
-  window.location.href = "reservations.html"; // adapte si besoin
-}
+window.openReservations = function () {
+  window.location.href = "reservations.html";
+};
 
-function openFavoris() {
-  window.location.href = "favoris.html"; // adapte si besoin
-}
+window.openFavoris = function () {
+  window.location.href = "favoris.html";
+};
 
-function logout() {
-  // Si Firebase :
-  // signOut(auth);
-
-  // Sinon simple :
-  localStorage.clear();
-
+window.logout = async function () {
+  await signOut(auth);
   window.location.href = "index.html";
-}
+};
