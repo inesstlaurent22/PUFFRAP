@@ -106,6 +106,42 @@ button {
   background: rgba(255,255,255,0.1);
 }
 
+
+.profile-wrapper {
+  position: relative;
+  cursor: pointer;
+}
+
+/* dropdown */
+#profileDropdown {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background: #000;
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 180px;
+  z-index: 1000;
+}
+
+/* boutons */
+#profileDropdown button {
+  background: transparent;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  text-align: left;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#profileDropdown button:hover {
+  background: #111;
+}
+
 /* ================= POPUP ================= */
 
 .popup {
