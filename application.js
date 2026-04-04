@@ -264,12 +264,11 @@ function generateArtistCard(d, id){
 
   const stars = "★".repeat(Math.round(rating)) + "☆".repeat(5 - Math.round(rating));
 
-  const dispo = (d.disponibilites || []).slice(0,3);
+  /* ✅ FIX */
+  const dispo = Array.isArray(d.disponibilites)
+    ? d.disponibilites.slice(0,3)
+    : [];
 
-  const dispo = Array.isArray(d.disponibilites) 
-  ? d.disponibilites.slice(0,3) 
-  : [];
-  
   return `
   <div class="artist-card">
 
@@ -404,8 +403,6 @@ function initAutocomplete(){
   });
 }
 
-if(data.features && data.features.length){
-
 document.getElementById("geoBtn")?.addEventListener("click", () => {
 
   if(!navigator.geolocation){
@@ -418,19 +415,21 @@ document.getElementById("geoBtn")?.addEventListener("click", () => {
     const lat = pos.coords.latitude;
     const lng = pos.coords.longitude;
 
-    // reverse geocoding
-    const res = await fetch(`https://api-adresse.data.gouv.fr/reverse/?lat=${lat}&lon=${lng}`);
-    const data = await res.json();
+    try{
+      const res = await fetch(`https://api-adresse.data.gouv.fr/reverse/?lat=${lat}&lon=${lng}`);
+      const data = await res.json();
 
-    if(data.features.length){
+      if(data.features && data.features.length){
 
-      const label = data.features[0].properties.label;
+        const input = document.getElementById("artistArr");
 
-      const input = document.getElementById("artistArr");
+        input.value = data.features[0].properties.label;
+        input.dataset.lat = lat;
+        input.dataset.lng = lng;
+      }
 
-      input.value = label;
-      input.dataset.lat = lat;
-      input.dataset.lng = lng;
+    } catch(e){
+      console.error("Erreur géoloc", e);
     }
 
   }, () => {
