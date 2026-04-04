@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Mon Profil</title>
+  <link rel="stylesheet" href="monprofil.css">
+</head>
+<body>
+
+<div class="container">
+
+  <h1>Mon Profil</h1>
+
+  <!-- PHOTO -->
+  <div class="section">
+    <h2>Photo de profil</h2>
+    <img id="profilePreview" src="" alt="Photo" class="profile-pic">
+    <input type="file" id="profileImage" accept="image/*">
+  </div>
+
+  <!-- INFOS -->
+  <div class="section">
+    <h2>Informations</h2>
+
+    <input type="text" id="nom" placeholder="Nom">
+    <input type="text" id="prenom" placeholder="Prénom">
+    <input type="text" id="username" placeholder="Identifiant">
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Mot de passe">
+    <input type="text" id="metier" placeholder="Métier">
+
+  </div>
+
+  <!-- LIENS -->
+  <div class="section">
+    <h2>Liens</h2>
+
+    <input type="text" id="instagram" placeholder="Lien Instagram">
+    <input type="text" id="portfolio" placeholder="Lien Portfolio">
+    <input type="text" id="tiktok" placeholder="Lien TikTok">
+
+  </div>
+
+  <!-- MEDIAS -->
+  <div class="section">
+    <h2>Médias (max 5)</h2>
+    <input type="file" id="mediaInput" multiple accept=".mp3,.mp4,.mov">
+    <div id="mediaPreview"></div>
+  </div>
+
+  <!-- PRODUITS -->
+  <div class="section">
+    <h2>Produits</h2>
+
+    <div id="productsList"></div>
+
+    <button id="addProduct">+ Ajouter un produit</button>
+  </div>
+
+  <!-- SAVE -->
+  <button id="saveProfile" class="save-btn">Enregistrer</button>
+
+</div>
+
+<script src="monprofil.js"></script>
+</body>
+</html>
