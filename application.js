@@ -270,7 +270,9 @@ function generateArtistCard(d, id){
     : [];
 
   return `
-  <div class="artist-card">
+<div class="artist-popup-wrapper">
+
+  <div class="artist-card dark">
 
     <img src="${photo}" class="artist-photo">
 
@@ -314,7 +316,9 @@ function generateArtistCard(d, id){
     </div>
 
   </div>
-  `;
+
+</div>
+`;
 }
 
 async function loadComments(artistId){
