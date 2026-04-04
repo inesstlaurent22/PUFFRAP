@@ -1,3 +1,120 @@
+import {
+  getAuth,
+  onAuthStateChanged,
+  updateEmail,
+  updatePassword,
+  sendEmailVerification
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+const auth = getAuth();
+const db = getFirestore();
+const storage = getStorage();
+
+/* ================= LOAD PROFILE ================= */
+
+onAuthStateChanged(auth, async (user) => {
+
+  if (!user) {
+    window.location.href = "application.html";
+    return;
+  }
+
+  const uid = user.uid;
+
+  // 🔥 ON VA CHERCHER DANS USERS + ARTISTS
+  const userDoc = await getDoc(doc(db, "users", uid));
+  const artistDoc = await getDoc(doc(db, "artists", uid));
+
+  let data = {};
+
+  if (artistDoc.exists()) data = artistDoc.data();
+  else if (userDoc.exists()) data = userDoc.data();
+
+  /* ===== PRE-REMPLISSAGE ===== */
+  document.getElementById("nom").value = data.nom || "";
+  document.getElementById("prenom").value = data.prenom || "";
+  document.getElementById("username").value = data.username || "";
+  document.getElementById("email").value = user.email || "";
+  document.getElementById("metier").value = data.produits || "";
+
+  /* ===== PHOTO ===== */
+  if (data.photo) {
+    document.getElementById("profilePreview").src = data.photo;
+  }
+
+});
+
+document.getElementById("saveProfile").addEventListener("click", async () => {
+
+  const user = auth.currentUser;
+  const uid = user.uid;
+
+  const nom = document.getElementById("nom").value;
+  const prenom = document.getElementById("prenom").value;
+  const username = document.getElementById("username").value;
+  const metier = document.getElementById("metier").value;
+
+  await updateDoc(doc(db, "artists", uid), {
+    nom,
+    prenom,
+    username,
+    produits: metier
+  });
+
+  alert("Profil mis à jour !");
+});
+
+document.getElementById("profileImage").addEventListener("change", async (e) => {
+
+  const file = e.target.files[0];
+  const user = auth.currentUser;
+
+  if (!file || !user) return;
+
+  const storageRef = ref(storage, `profiles/${user.uid}`);
+  await uploadBytes(storageRef, file);
+
+  const url = await getDownloadURL(storageRef);
+
+  document.getElementById("profilePreview").src = url;
+
+  await updateDoc(doc(db, "artists", user.uid), {
+    photo: url
+  });
+
+});
+
+async function changeEmail(newEmail) {
+  const user = auth.currentUser;
+
+  await updateEmail(user, newEmail);
+  await sendEmailVerification(user);
+
+  alert("Un email de validation a été envoyé !");
+}
+
+async function changePassword(newPassword) {
+  const user = auth.currentUser;
+
+  await updatePassword(user, newPassword);
+
+  alert("Mot de passe mis à jour !");
+}
+
 const profileImage = document.getElementById("profileImage");
 const profilePreview = document.getElementById("profilePreview");
 const mediaInput = document.getElementById("mediaInput");
