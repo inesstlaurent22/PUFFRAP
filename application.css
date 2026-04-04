@@ -452,3 +452,125 @@ button {
 #arrSuggestions button:hover {
   background: #eee;
 }
+
+/* ===== POPUP GLOBAL ===== */
+
+.leaflet-popup-content-wrapper {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.leaflet-popup-tip {
+  display: none;
+}
+
+/* ===== CONTAINER SCROLL ===== */
+
+.artist-popup-wrapper {
+  width: 300px;
+  max-height: 500px;
+  overflow-y: auto;
+  border-radius: 16px;
+}
+
+/* ===== CARD DARK ===== */
+
+.artist-card.dark {
+  background: #000;
+  color: #fff;
+  padding: 16px;
+  border-radius: 16px;
+  font-family: sans-serif;
+}
+
+/* ===== PHOTO ===== */
+
+.artist-photo {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* ===== BADGE ===== */
+
+.artist-badge {
+  background: #111;
+  padding: 6px 10px;
+  border-radius: 20px;
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 12px;
+}
+
+/* ===== RATING ===== */
+
+.artist-rating {
+  margin-top: 8px;
+  color: gold;
+  font-size: 14px;
+}
+
+/* ===== TITRE ===== */
+
+.artist-card h2 {
+  margin: 10px 0;
+  font-size: 18px;
+}
+
+/* ===== DISPO ===== */
+
+.artist-dispo .dates {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.artist-dispo span {
+  background: #222;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+/* ===== BUTTON ===== */
+
+.artist-card button {
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+  background: #fff;
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+/* ===== MEDIA SCROLL HORIZONTAL ===== */
+
+.artist-media {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.artist-media video,
+.artist-media audio {
+  width: 120px;
+  border-radius: 8px;
+}
+
+/* ===== COMMENTS SCROLL ===== */
+
+.artist-comments {
+  max-height: 150px;
+  overflow-y: auto;
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+.artist-comments div {
+  border-bottom: 1px solid #222;
+  padding: 6px 0;
+}
