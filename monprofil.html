@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mon Profil</title>
+
   <link rel="stylesheet" href="monprofil.css">
+
 </head>
+
 <body>
 
 <div class="container">
@@ -14,7 +19,9 @@
   <!-- PHOTO -->
   <div class="section">
     <h2>Photo de profil</h2>
-    <img id="profilePreview" src="" alt="Photo" class="profile-pic">
+
+    <img id="profilePreview" src="https://via.placeholder.com/100" alt="Photo" class="profile-pic">
+
     <input type="file" id="profileImage" accept="image/*">
   </div>
 
@@ -25,9 +32,19 @@
     <input type="text" id="nom" placeholder="Nom">
     <input type="text" id="prenom" placeholder="Prénom">
     <input type="text" id="username" placeholder="Identifiant">
+
     <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Mot de passe">
+
+    <div class="inline">
+      <input type="password" id="password" placeholder="Nouveau mot de passe">
+      <button type="button" id="changePasswordBtn">Modifier</button>
+    </div>
+
     <input type="text" id="metier" placeholder="Métier">
+
+    <button type="button" id="changeEmailBtn">
+      Modifier email
+    </button>
 
   </div>
 
@@ -35,16 +52,23 @@
   <div class="section">
     <h2>Liens</h2>
 
-    <input type="text" id="instagram" placeholder="Lien Instagram">
-    <input type="text" id="portfolio" placeholder="Lien Portfolio">
-    <input type="text" id="tiktok" placeholder="Lien TikTok">
+    <input type="url" id="instagram" placeholder="Lien Instagram">
+    <input type="url" id="portfolio" placeholder="Lien Portfolio">
+    <input type="url" id="tiktok" placeholder="Lien TikTok">
 
   </div>
 
   <!-- MEDIAS -->
   <div class="section">
     <h2>Médias (max 5)</h2>
-    <input type="file" id="mediaInput" multiple accept=".mp3,.mp4,.mov">
+
+    <input 
+      type="file" 
+      id="mediaInput" 
+      multiple 
+      accept=".mp3,.mp4,.mov"
+    >
+
     <div id="mediaPreview"></div>
   </div>
 
@@ -54,14 +78,21 @@
 
     <div id="productsList"></div>
 
-    <button id="addProduct">+ Ajouter un produit</button>
+    <button type="button" id="addProduct">
+      + Ajouter un produit
+    </button>
+
   </div>
 
   <!-- SAVE -->
-  <button id="saveProfile" class="save-btn">Enregistrer</button>
+  <button type="button" id="saveProfile" class="save-btn">
+    Enregistrer
+  </button>
 
 </div>
 
-<script src="monprofil.js"></script>
+<!-- ⚠️ IMPORTANT : module pour Firebase -->
+<script type="module" src="monprofil.js"></script>
+
 </body>
 </html>
