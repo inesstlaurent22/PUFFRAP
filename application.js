@@ -554,3 +554,27 @@ window.addEventListener("click", (e) => {
     closePopup();
   }
 });
+
+/* ================= NAVIGATION ================= */
+
+function openAccount() {
+  window.location.href = "monprofil.html";
+}
+
+function openReservations() {
+  window.location.href = "reservations.html"; // adapte si besoin
+}
+
+function openFavoris() {
+  window.location.href = "favoris.html"; // adapte si besoin
+}
+
+function logout() {
+  // Si Firebase :
+  // signOut(auth);
+
+  // Sinon simple :
+  localStorage.clear();
+
+  window.location.href = "index.html";
+}
