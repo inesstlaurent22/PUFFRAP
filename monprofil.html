@@ -2,97 +2,87 @@
 <html lang="fr">
 <head>
 
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mon Profil</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon Profil</title>
 
-  <link rel="stylesheet" href="monprofil.css">
+<link rel="stylesheet" href="monprofil.css">
 
 </head>
 
 <body>
 
-<div class="container">
+<div class="layout">
 
-  <h1>Mon Profil</h1>
-
-  <!-- PHOTO -->
-  <div class="section">
-    <h2>Photo de profil</h2>
-
-    <img id="profilePreview" src="https://via.placeholder.com/100" alt="Photo" class="profile-pic">
-
-    <input type="file" id="profileImage" accept="image/*">
+  <!-- MENU -->
+  <div class="sidebar">
+    <button class="active">Mon compte</button>
+    <button>Réservations</button>
+    <button>Favoris</button>
+    <button id="logoutBtn">Déconnexion</button>
   </div>
 
-  <!-- INFOS -->
-  <div class="section">
-    <h2>Informations</h2>
+  <!-- CONTENU -->
+  <div class="content">
 
-    <input type="text" id="nom" placeholder="Nom">
-    <input type="text" id="prenom" placeholder="Prénom">
-    <input type="text" id="username" placeholder="Identifiant">
+    <h1>Mon profil</h1>
 
-    <input type="email" id="email" placeholder="Email">
+    <!-- TOP -->
+    <div class="top-section">
 
-    <div class="inline">
-      <input type="password" id="password" placeholder="Nouveau mot de passe">
-      <button type="button" id="changePasswordBtn">Modifier</button>
+      <!-- INFOS -->
+      <div class="infos">
+
+        <input id="nom" placeholder="Nom">
+        <input id="prenom" placeholder="Prénom">
+        <input id="email" placeholder="Email">
+        <input id="password" type="password" placeholder="Nouveau mot de passe">
+        <input id="metier" placeholder="Métier">
+
+      </div>
+
+      <!-- PHOTO -->
+      <div class="photo-section">
+
+        <img id="profilePreview" src="https://via.placeholder.com/150">
+
+        <input type="file" id="profileImage" hidden>
+        <button id="uploadBtn">Télécharger</button>
+
+      </div>
+
     </div>
 
-    <input type="text" id="metier" placeholder="Métier">
+    <!-- LIENS -->
+    <div class="links">
+      <input id="instagram" placeholder="Instagram">
+      <input id="portfolio" placeholder="Portfolio">
+      <input id="tiktok" placeholder="TikTok">
+    </div>
 
-    <button type="button" id="changeEmailBtn">
-      Modifier email
-    </button>
+    <!-- MEDIAS -->
+    <div class="media-section">
+      <input type="file" id="mediaInput" multiple accept=".mp3,.mp4,.mov">
+      <div id="mediaPreview"></div>
+    </div>
 
-  </div>
+    <!-- PRODUITS -->
+    <div class="products">
+      <h2>Produits</h2>
 
-  <!-- LIENS -->
-  <div class="section">
-    <h2>Liens</h2>
+      <div id="productsList"></div>
 
-    <input type="url" id="instagram" placeholder="Lien Instagram">
-    <input type="url" id="portfolio" placeholder="Lien Portfolio">
-    <input type="url" id="tiktok" placeholder="Lien TikTok">
+      <button id="addProduct">+ Ajouter</button>
+    </div>
 
-  </div>
-
-  <!-- MEDIAS -->
-  <div class="section">
-    <h2>Médias (max 5)</h2>
-
-    <input 
-      type="file" 
-      id="mediaInput" 
-      multiple 
-      accept=".mp3,.mp4,.mov"
-    >
-
-    <div id="mediaPreview"></div>
-  </div>
-
-  <!-- PRODUITS -->
-  <div class="section">
-    <h2>Produits</h2>
-
-    <div id="productsList"></div>
-
-    <button type="button" id="addProduct">
-      + Ajouter un produit
-    </button>
+    <!-- SAVE -->
+    <button id="saveProfile" class="save">Enregistrer</button>
 
   </div>
-
-  <!-- SAVE -->
-  <button type="button" id="saveProfile" class="save-btn">
-    Enregistrer
-  </button>
 
 </div>
 
-<!-- ⚠️ IMPORTANT : module pour Firebase -->
-<script type="module" src="monprofil.js"></script>
+<script src="monprofil.js"></script>
 
 </body>
 </html>
