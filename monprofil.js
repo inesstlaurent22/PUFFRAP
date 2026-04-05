@@ -1,150 +1,33 @@
-import {
-  getAuth,
-  onAuthStateChanged,
-  updateEmail,
-  updatePassword,
-  sendEmailVerification
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  updateDoc
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-import {
-  getStorage,
-  ref,
-  uploadBytes,
-  getDownloadURL
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-
-const auth = getAuth();
-const db = getFirestore();
-const storage = getStorage();
-
-/* ================= LOAD PROFILE ================= */
-
-onAuthStateChanged(auth, async (user) => {
-
-  if (!user) {
-    window.location.href = "application.html";
-    return;
-  }
-
-  const uid = user.uid;
-
-  // 🔥 ON VA CHERCHER DANS USERS + ARTISTS
-  const userDoc = await getDoc(doc(db, "users", uid));
-  const artistDoc = await getDoc(doc(db, "artists", uid));
-
-  let data = {};
-
-  if (artistDoc.exists()) data = artistDoc.data();
-  else if (userDoc.exists()) data = userDoc.data();
-
-  /* ===== PRE-REMPLISSAGE ===== */
-  document.getElementById("nom").value = data.nom || "";
-  document.getElementById("prenom").value = data.prenom || "";
-  document.getElementById("username").value = data.username || "";
-  document.getElementById("email").value = user.email || "";
-  document.getElementById("metier").value = data.produits || "";
-
-  /* ===== PHOTO ===== */
-  if (data.photo) {
-    document.getElementById("profilePreview").src = data.photo;
-  }
-
-});
-
-document.getElementById("saveProfile").addEventListener("click", async () => {
-
-  const user = auth.currentUser;
-  const uid = user.uid;
-
-  const nom = document.getElementById("nom").value;
-  const prenom = document.getElementById("prenom").value;
-  const username = document.getElementById("username").value;
-  const metier = document.getElementById("metier").value;
-
-  await updateDoc(doc(db, "artists", uid), {
-    nom,
-    prenom,
-    username,
-    produits: metier
-  });
-
-  alert("Profil mis à jour !");
-});
-
-document.getElementById("profileImage").addEventListener("change", async (e) => {
-
-  const file = e.target.files[0];
-  const user = auth.currentUser;
-
-  if (!file || !user) return;
-
-  const storageRef = ref(storage, `profiles/${user.uid}`);
-  await uploadBytes(storageRef, file);
-
-  const url = await getDownloadURL(storageRef);
-
-  document.getElementById("profilePreview").src = url;
-
-  await updateDoc(doc(db, "artists", user.uid), {
-    photo: url
-  });
-
-});
-
-async function changeEmail(newEmail) {
-  const user = auth.currentUser;
-
-  await updateEmail(user, newEmail);
-  await sendEmailVerification(user);
-
-  alert("Un email de validation a été envoyé !");
-}
-
-async function changePassword(newPassword) {
-  const user = auth.currentUser;
-
-  await updatePassword(user, newPassword);
-
-  alert("Mot de passe mis à jour !");
-}
-
-const profileImage = document.getElementById("profileImage");
-const profilePreview = document.getElementById("profilePreview");
+const preview = document.getElementById("profilePreview");
+const inputFile = document.getElementById("profileImage");
+const uploadBtn = document.getElementById("uploadBtn");
 const mediaInput = document.getElementById("mediaInput");
 const mediaPreview = document.getElementById("mediaPreview");
-const addProductBtn = document.getElementById("addProduct");
 const productsList = document.getElementById("productsList");
-const saveBtn = document.getElementById("saveProfile");
 
 let mediaFiles = [];
-let products = [];
 
-/* ================= PHOTO ================= */
-profileImage.addEventListener("change", () => {
-  const file = profileImage.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      profilePreview.src = reader.result;
-      localStorage.setItem("profileImage", reader.result);
-    };
-    reader.readAsDataURL(file);
-  }
-});
+/* PHOTO */
+uploadBtn.onclick = () => inputFile.click();
 
-/* ================= MEDIAS ================= */
-mediaInput.addEventListener("change", () => {
+inputFile.onchange = () => {
+  const file = inputFile.files[0];
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    preview.src = reader.result;
+    localStorage.setItem("photo", reader.result);
+  };
+
+  reader.readAsDataURL(file);
+};
+
+/* MEDIA */
+mediaInput.onchange = () => {
   const files = Array.from(mediaInput.files);
 
   if (mediaFiles.length + files.length > 5) {
-    alert("Max 5 médias !");
+    alert("Max 5 fichiers");
     return;
   }
 
@@ -158,100 +41,69 @@ mediaInput.addEventListener("change", () => {
       video.src = url;
       video.controls = true;
       mediaPreview.appendChild(video);
-    } else if (file.type.includes("audio")) {
+    }
+
+    if (file.type.includes("audio")) {
       const audio = document.createElement("audio");
       audio.src = url;
       audio.controls = true;
       mediaPreview.appendChild(audio);
     }
   });
-});
+};
 
-/* ================= PRODUITS ================= */
-addProductBtn.addEventListener("click", () => {
+/* PRODUITS */
+document.getElementById("addProduct").onclick = () => {
   const div = document.createElement("div");
   div.className = "product";
 
-  const name = document.createElement("input");
-  name.placeholder = "Nom du produit";
-
-  const price = document.createElement("input");
-  price.placeholder = "Prix (€)";
-  price.type = "number";
-
-  div.appendChild(name);
-  div.appendChild(price);
+  div.innerHTML = `
+    <input placeholder="Nom produit">
+    <input type="number" placeholder="Prix">
+  `;
 
   productsList.appendChild(div);
-});
+};
 
-/* ================= SAVE ================= */
-saveBtn.addEventListener("click", () => {
+/* SAVE */
+document.getElementById("saveProfile").onclick = () => {
 
-  const profileData = {
-    nom: document.getElementById("nom").value,
-    prenom: document.getElementById("prenom").value,
-    username: document.getElementById("username").value,
-    email: document.getElementById("email").value,
-    password: document.getElementById("password").value,
-    metier: document.getElementById("metier").value,
-    instagram: document.getElementById("instagram").value,
-    portfolio: document.getElementById("portfolio").value,
-    tiktok: document.getElementById("tiktok").value,
-    products: []
+  const data = {
+    nom: nom.value,
+    prenom: prenom.value,
+    email: email.value,
+    metier: metier.value,
+    instagram: instagram.value,
+    portfolio: portfolio.value,
+    tiktok: tiktok.value
   };
 
-  const productDivs = document.querySelectorAll(".product");
+  localStorage.setItem("profile", JSON.stringify(data));
 
-  productDivs.forEach(div => {
-    const inputs = div.querySelectorAll("input");
-    profileData.products.push({
-      name: inputs[0].value,
-      price: inputs[1].value
-    });
-  });
+  alert("Profil enregistré");
+};
 
-  localStorage.setItem("profileData", JSON.stringify(profileData));
-
-  alert("Profil enregistré !");
-});
-
-/* ================= LOAD ================= */
+/* LOAD */
 window.onload = () => {
-  const data = JSON.parse(localStorage.getItem("profileData"));
+
+  const data = JSON.parse(localStorage.getItem("profile"));
 
   if (data) {
-    document.getElementById("nom").value = data.nom || "";
-    document.getElementById("prenom").value = data.prenom || "";
-    document.getElementById("username").value = data.username || "";
-    document.getElementById("email").value = data.email || "";
-    document.getElementById("password").value = data.password || "";
-    document.getElementById("metier").value = data.metier || "";
-    document.getElementById("instagram").value = data.instagram || "";
-    document.getElementById("portfolio").value = data.portfolio || "";
-    document.getElementById("tiktok").value = data.tiktok || "";
-
-    if (data.products) {
-      data.products.forEach(p => {
-        const div = document.createElement("div");
-        div.className = "product";
-
-        const name = document.createElement("input");
-        name.value = p.name;
-
-        const price = document.createElement("input");
-        price.value = p.price;
-
-        div.appendChild(name);
-        div.appendChild(price);
-
-        productsList.appendChild(div);
-      });
-    }
+    nom.value = data.nom || "";
+    prenom.value = data.prenom || "";
+    email.value = data.email || "";
+    metier.value = data.metier || "";
+    instagram.value = data.instagram || "";
+    portfolio.value = data.portfolio || "";
+    tiktok.value = data.tiktok || "";
   }
 
-  const savedImage = localStorage.getItem("profileImage");
-  if (savedImage) {
-    profilePreview.src = savedImage;
-  }
+  const photo = localStorage.getItem("photo");
+  if (photo) preview.src = photo;
+};
+
+/* LOGOUT */
+document.getElementById("logoutBtn").onclick = () => {
+  localStorage.clear();
+  window.location.href = "application.html";
 };
