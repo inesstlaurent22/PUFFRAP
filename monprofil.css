@@ -1,48 +1,108 @@
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #0f172a;
+  font-family: Arial;
+  background: black;
   color: white;
 }
 
-.container {
-  max-width: 600px;
-  margin: auto;
+/* LAYOUT */
+.layout {
+  display: flex;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 200px;
   padding: 20px;
 }
 
-h1 {
+.sidebar button {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 12px;
+  border-radius: 20px;
+  border: none;
+  background: #7ed957;
+  cursor: pointer;
+}
+
+.sidebar .active {
+  background: #5bc236;
+}
+
+/* CONTENT */
+.content {
+  flex: 1;
+  padding: 40px;
+}
+
+/* TOP */
+.top-section {
+  display: flex;
+  justify-content: space-between;
+}
+
+.infos {
+  width: 60%;
+}
+
+.infos input {
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 15px;
+  border-radius: 20px;
+  border: none;
+  background: #7ed957;
+}
+
+/* PHOTO */
+.photo-section {
   text-align: center;
 }
 
-.section {
-  background: #1e293b;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-}
-
-input {
-  width: 100%;
-  padding: 10px;
-  margin: 8px 0;
-  border-radius: 8px;
-  border: none;
-}
-
-.profile-pic {
-  width: 100px;
-  height: 100px;
+.photo-section img {
+  width: 150px;
+  height: 150px;
   border-radius: 50%;
-  object-fit: cover;
-  display: block;
-  margin-bottom: 10px;
+}
+
+.photo-section button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: none;
+  background: #7ed957;
+}
+
+/* LINKS */
+.links {
+  display: flex;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.links input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 20px;
+  border: none;
+  background: #7ed957;
+}
+
+/* MEDIA */
+.media-section {
+  margin-top: 20px;
 }
 
 #mediaPreview video,
 #mediaPreview audio {
-  width: 100%;
-  margin-top: 10px;
+  width: 120px;
+  margin: 10px;
+}
+
+/* PRODUCTS */
+.products {
+  margin-top: 30px;
 }
 
 .product {
@@ -53,24 +113,19 @@ input {
 
 .product input {
   flex: 1;
-}
-
-button {
   padding: 10px;
+  border-radius: 20px;
   border: none;
-  border-radius: 8px;
-  cursor: pointer;
+  background: #7ed957;
 }
 
-#addProduct {
-  background: #3b82f6;
-  color: white;
+/* SAVE */
+.save {
+  margin-top: 30px;
+  padding: 15px;
   width: 100%;
-}
-
-.save-btn {
-  width: 100%;
-  background: #22c55e;
-  color: white;
+  border-radius: 20px;
+  border: none;
+  background: #5bc236;
   font-weight: bold;
 }
