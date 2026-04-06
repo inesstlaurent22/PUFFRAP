@@ -25,16 +25,6 @@ import {
   getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-import {
-  getFirestore,
-  setDoc,
-  doc,
-  getDoc,
-  collection,
-  getDocs,
-  updateDoc   // ✅ AJOUT ICI
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
 /* ================= FIREBASE ================= */
 
 const firebaseConfig = {
