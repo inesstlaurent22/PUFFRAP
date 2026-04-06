@@ -177,23 +177,34 @@ window.login = async () => {
 };
 
 /* ================= AUTH STATE ================= */
+const profile = document.getElementById("profile");
+const profileDropdown = document.getElementById("profileDropdown");
 
 onAuthStateChanged(auth, async (user) => {
 
   const signupBtn = document.getElementById("signupBtn");
   const loginBtn = document.getElementById("loginBtn");
-  const profile = document.getElementById("profile");
   const profileName = document.getElementById("profileName");
 
   if(user){
 
     let prenom = "Utilisateur";
 
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    const artistDoc = await getDoc(doc(db, "artists", user.uid));
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const artistRef = doc(db, "artists", user.uid);
 
-    if(userDoc.exists()) prenom = userDoc.data().prenom;
-    if(artistDoc.exists()) prenom = artistDoc.data().prenom;
+      const [userDoc, artistDoc] = await Promise.all([
+        getDoc(userRef),
+        getDoc(artistRef)
+      ]);
+
+      if(userDoc.exists()) prenom = userDoc.data().prenom;
+      if(artistDoc.exists()) prenom = artistDoc.data().prenom;
+
+    } catch(e){
+      console.error("Erreur récupération profil :", e);
+    }
 
     signupBtn?.classList.add("hidden");
     loginBtn?.classList.add("hidden");
@@ -210,7 +221,7 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-const profileDropdown = document.getElementById("profileDropdown");
+/* ================= DROPDOWN ================= */
 
 if(profile && profileDropdown){
   profile.addEventListener("click", (e)=>{
