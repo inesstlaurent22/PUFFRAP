@@ -256,7 +256,6 @@ button {
   box-shadow: 0 0 20px rgba(0,255,150,0.8);
 }
 
-/* ================= CARD ================= */
 /* ================= BASE ================= */
 
 .card-premium,
@@ -266,8 +265,10 @@ button {
   border-radius: 20px;
   padding: 20px;
   text-align: center;
-  animation: fadeUp 0.3s ease;
   font-family: Arial, sans-serif;
+  animation: fadeUp 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  overflow: hidden; /* 🔥 évite tout débordement */
 }
 
 @keyframes fadeUp {
@@ -277,34 +278,29 @@ button {
 
 /* ================= HEADER ================= */
 
-.header {
+.artist-header {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
 }
 
-.artist-avatar,
-.artist-photo,
-.avatar {
+.artist-avatar {
   width: 100px;
   height: 100px;
   border-radius: 50%;
   object-fit: cover;
-  margin: 10px auto;
 }
 
 /* ================= BADGE ================= */
 
-.artist-badge,
-.tags span {
+.artist-badge {
   background: #6edc6e;
   color: #000;
   padding: 6px 18px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: bold;
-  display: inline-block;
-  margin-top: 8px;
+  margin-top: 10px;
 }
 
 /* ================= RATING ================= */
@@ -324,14 +320,12 @@ button {
 
 /* ================= TITRE ================= */
 
-.card-premium h2,
 .artist-popup h2 {
   margin: 10px 0;
 }
 
 /* ================= DISPO ================= */
 
-.artist-dispo,
 .artist-dispo-box {
   background: #bfcbd1;
   color: #000;
@@ -345,6 +339,7 @@ button {
   justify-content: center;
   gap: 8px;
   margin-top: 10px;
+  flex-wrap: wrap;
 }
 
 .dates span {
@@ -365,23 +360,58 @@ button {
   font-weight: bold;
   cursor: pointer;
   width: 100%;
+  transition: transform 0.2s;
+}
+
+.calendar-btn:hover {
+  transform: scale(1.03);
 }
 
 /* ================= SERVICES ================= */
 
-.artist-services {
-  display: flex;
-  gap: 10px;
+.artist-services-wrapper {
   margin-top: 20px;
 }
 
-.artist-services div {
-  flex: 1;
+/* Highlight (Community Manager) */
+.service-highlight {
+  background: #6edc6e;
+  color: #000;
+  padding: 12px;
+  border-radius: 15px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Scroll horizontal propre */
+.artist-services-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+  max-width: 100%;
+}
+
+/* cache scrollbar */
+.artist-services-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* cartes services */
+.service-card {
+  min-width: 90px;
+  flex-shrink: 0;
   background: #bfcbd1;
   color: #000;
   padding: 10px;
   border-radius: 15px;
   font-size: 12px;
+  text-align: center;
+  transition: transform 0.2s;
+}
+
+.service-card:hover {
+  transform: translateY(-2px);
 }
 
 /* ================= MEDIA ================= */
@@ -403,7 +433,7 @@ button {
 
 .artist-comments {
   margin-top: 20px;
-  max-height: 150px;
+  max-height: 160px;
   overflow-y: auto;
   background: #bfcbd1;
   color: #000;
@@ -411,17 +441,28 @@ button {
   border-radius: 15px;
 }
 
-.artist-popup {
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+/* commentaire individuel */
+.comment {
+  background: #6edc6e;
+  padding: 10px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  text-align: left;
 }
 
-.calendar-btn:hover {
-  transform: scale(1.03);
+.comment strong {
+  display: block;
+  margin-bottom: 5px;
 }
 
-.artist-services div:hover {
-  transform: translateY(-2px);
+.artist-services-scroll {
+  scroll-snap-type: x mandatory;
 }
+
+.service-card {
+  scroll-snap-align: start;
+}
+
 /* ================= CTA ================= */
 
 .cta {
