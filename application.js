@@ -1,4 +1,4 @@
- /* ================= IMPORTS ================= */
+/* ================= IMPORTS ================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
@@ -16,7 +16,7 @@ import {
   getDoc,
   collection,
   getDocs,
-  updateDoc   // ✅ AJOUT
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import {
@@ -44,18 +44,22 @@ const storage = getStorage(app);
 
 /* ================= GLOBAL ================= */
 
-let map;
-let markerCluster;
+let map = null;
+let markerCluster = null;
+
+/* ================= HELPERS ================= */
+
+const $ = (id) => document.getElementById(id);
 
 /* ================= SIGNUP CLIENT ================= */
 
 window.signup = async () => {
 
-  const username = document.getElementById("username")?.value.trim();
-  const nom = document.getElementById("nom")?.value.trim();
-  const prenom = document.getElementById("prenom")?.value.trim();
-  const email = document.getElementById("email")?.value.trim();
-  const password = document.getElementById("password")?.value.trim();
+  const username = $("username")?.value.trim();
+  const nom = $("nom")?.value.trim();
+  const prenom = $("prenom")?.value.trim();
+  const email = $("email")?.value.trim();
+  const password = $("password")?.value.trim();
 
   if(!username || !nom || !prenom || !email || !password){
     alert("Remplis tous les champs");
@@ -64,9 +68,13 @@ window.signup = async () => {
 
   try{
     const user = await createUserWithEmailAndPassword(auth, email, password);
+    const uid = user.user.uid;
 
-    await setDoc(doc(db, "users", user.user.uid), {
-      username, nom, prenom, email,
+    await setDoc(doc(db, "users", uid), {
+      username,
+      nom,
+      prenom,
+      email,
       role: "client",
       createdAt: Date.now()
     });
@@ -75,6 +83,7 @@ window.signup = async () => {
     alert("Bienvenue " + prenom);
 
   } catch(e){
+    console.error("Signup error:", e);
     alert(e.message);
   }
 };
@@ -83,13 +92,13 @@ window.signup = async () => {
 
 window.createArtistAccount = async () => {
 
-  const nom = document.getElementById("artistNom")?.value.trim();
-  const prenom = document.getElementById("artistPrenom")?.value.trim();
-  const email = document.getElementById("artistEmail")?.value.trim();
-  const password = document.getElementById("artistPassword")?.value.trim();
-  const produits = document.getElementById("artistProduits")?.value;
-  const files = document.getElementById("artistMedia")?.files;
-  const locInput = document.getElementById("artistArr");
+  const nom = $("artistNom")?.value.trim();
+  const prenom = $("artistPrenom")?.value.trim();
+  const email = $("artistEmail")?.value.trim();
+  const password = $("artistPassword")?.value.trim();
+  const produits = $("artistProduits")?.value;
+  const files = $("artistMedia")?.files;
+  const locInput = $("artistArr");
 
   if(!nom || !prenom || !email || !password){
     alert("Champs obligatoires manquants");
@@ -100,7 +109,7 @@ window.createArtistAccount = async () => {
   const lng = parseFloat(locInput?.dataset.lng);
   const localisation = locInput?.value;
 
-  if(isNaN(lat) || isNaN(lng)){
+  if(!locInput || isNaN(lat) || isNaN(lng)){
     alert("Choisis une localisation valide");
     return;
   }
@@ -110,16 +119,17 @@ window.createArtistAccount = async () => {
     const user = await createUserWithEmailAndPassword(auth, email, password);
     const uid = user.user.uid;
 
-    /* ===== UPLOAD MEDIA ===== */
+    /* ===== UPLOAD MEDIA OPTIMISÉ (PARALLÈLE) ===== */
     let mediaUrls = [];
 
     if(files && files.length){
-      for (let file of files) {
+      const uploadPromises = Array.from(files).map(async (file) => {
         const storageRef = ref(storage, `artists/${uid}/${Date.now()}_${file.name}`);
         await uploadBytes(storageRef, file);
-        const url = await getDownloadURL(storageRef);
-        mediaUrls.push(url);
-      }
+        return await getDownloadURL(storageRef);
+      });
+
+      mediaUrls = await Promise.all(uploadPromises);
     }
 
     /* ===== FIRESTORE ===== */
@@ -136,7 +146,7 @@ window.createArtistAccount = async () => {
       createdAt: Date.now()
     });
 
-    /* ✅ MARKER AU BON ENDROIT */
+    /* ===== MARKER ===== */
     if(map && markerCluster){
 
       const marker = L.marker([lat, lng]);
@@ -157,7 +167,7 @@ window.createArtistAccount = async () => {
     closePopup();
 
   } catch(e){
-    console.error(e);
+    console.error("Artist signup error:", e);
     alert(e.message);
   }
 };
@@ -166,17 +176,22 @@ window.createArtistAccount = async () => {
 
 window.login = async () => {
 
-  const email = document.getElementById("loginEmail")?.value.trim();
-  const password = document.getElementById("loginPassword")?.value.trim();
+  const email = $("loginEmail")?.value.trim();
+  const password = $("loginPassword")?.value.trim();
+
+  if(!email || !password){
+    alert("Champs requis");
+    return;
+  }
 
   try{
     await signInWithEmailAndPassword(auth, email, password);
     closePopup();
   } catch(e){
+    console.error("Login error:", e);
     alert(e.message);
   }
 };
-
 
 /* ================= LOAD ARTISTS ================= */
 
@@ -194,7 +209,6 @@ async function loadArtists(){
 
       const d = docSnap.data();
 
-      /* 🔒 sécurités */
       if(!d || d.lat == null || d.lng == null) return;
 
       const lat = Number(d.lat);
@@ -204,12 +218,11 @@ async function loadArtists(){
 
       const marker = L.marker([lat, lng]);
 
-      /* ✅ NOUVEAU POPUP DESIGN */
       marker.bindPopup(generateArtistCard(d, docSnap.id));
 
-      /* 🔥 charger commentaires au clic */
-      marker.on("click", () => {
-        setTimeout(() => loadComments(docSnap.id), 200);
+      /* ✅ FIX FIABLE */
+      marker.on("popupopen", () => {
+        loadComments(docSnap.id);
       });
 
       markerCluster.addLayer(marker);
@@ -221,42 +234,38 @@ async function loadArtists(){
   }
 }
 
+/* ================= CARD ================= */
+
 function generateArtistCard(d = {}, id){
 
   const photo = d.photo || "https://via.placeholder.com/150";
   const rating = Number(d.rating) || 4.8;
 
-  /* ⭐ étoiles */
   const starsHTML =
     "★".repeat(Math.floor(rating)) +
     "☆".repeat(5 - Math.floor(rating));
 
-  /* 📅 disponibilités */
   const dispo = Array.isArray(d.disponibilites)
     ? d.disponibilites.slice(0,3)
     : ["12/02", "13/02", "14/02"];
 
-  /* 🔥 SERVICES DYNAMIQUES */
   const services = Array.isArray(d.services) ? d.services : [];
 
   const servicesHTML = services.length
     ? services.map(service => `
         <div class="service-card">
-          ${service.name || "Service"}<br>
-          <strong>${service.price || 0} €</strong>
+          ${service?.name || "Service"}<br>
+          <strong>${service?.price || 0} €</strong>
         </div>
       `).join("")
     : `<div class="service-card">Aucun service</div>`;
 
   return `
   <div class="artist-popup-scroll">
-
     <div class="artist-popup">
 
       <div class="artist-header">
-
         <img src="${photo}" class="artist-avatar">
-
         <div class="artist-badge">${d.produits || "DJ"}</div>
 
         <div class="artist-rating">
@@ -265,10 +274,8 @@ function generateArtistCard(d = {}, id){
         </div>
 
         <h2>${d.prenom || ""} ${d.nom || ""}</h2>
-
       </div>
 
-      <!-- DISPO -->
       <div class="artist-dispo-box">
         <p>Prochaine disponibilité</p>
         <div class="dates">
@@ -280,275 +287,72 @@ function generateArtistCard(d = {}, id){
         Voir le calendrier
       </button>
 
-      <!-- 🔥 SERVICES SCROLL DYNAMIQUE -->
       <div class="artist-services-scroll">
         ${servicesHTML}
       </div>
 
-      <!-- 🔥 COMMENTAIRES -->
       <div class="artist-comments" id="comments-${id}">
         Chargement...
       </div>
 
     </div>
-
   </div>
   `;
 }
 
-async function loadMyServices(){
-
-  const user = auth.currentUser;
-  if(!user) return;
-
-  const snap = await getDoc(doc(db, "artists", user.uid));
-  const data = snap.data();
-
-  const container = document.getElementById("servicesList");
-  container.innerHTML = "";
-
-  (data.services || []).forEach((s, index) => {
-
-    container.innerHTML += `
-      <div class="service-edit">
-
-        <input 
-          value="${s.name}" 
-          onchange="updateService(${index}, 'name', this.value)"
-        >
-
-        <input 
-          type="number"
-          value="${s.price}" 
-          onchange="updateService(${index}, 'price', this.value)"
-        >
-
-        <button onclick="deleteService(${index})">❌</button>
-
-      </div>
-    `;
-  });
-}
-
-
-window.updateService = async (index, field, value) => {
-
-  const user = auth.currentUser;
-  if(!user) return;
-
-  const ref = doc(db, "artists", user.uid);
-  const snap = await getDoc(ref);
-  const data = snap.data();
-
-  let services = data.services || [];
-
-  if(field === "price"){
-    value = parseFloat(value);
-    if(isNaN(value)) return;
-  }
-
-  services[index][field] = value;
-
-  await updateDoc(ref, { services });
-
-};
-
-window.deleteService = async (index) => {
-
-  const user = auth.currentUser;
-  if(!user) return;
-
-  const ref = doc(db, "artists", user.uid);
-  const snap = await getDoc(ref);
-  const data = snap.data();
-
-  let services = data.services || [];
-
-  services.splice(index, 1);
-
-  await updateDoc(ref, { services });
-
-  loadMyServices();
-};
-
-window.addService = async () => {
-
-  const name = document.getElementById("serviceName").value.trim();
-  const price = parseFloat(document.getElementById("servicePrice").value);
-
-  if(!name || isNaN(price)){
-    alert("Champs invalides");
-    return;
-  }
-
-  const user = auth.currentUser;
-  if(!user) return;
-
-  const ref = doc(db, "artists", user.uid);
-  const snap = await getDoc(ref);
-  const data = snap.data();
-
-  let services = data.services || [];
-
-  services.push({ name, price });
-
-  await updateDoc(ref, { services });
-
-  loadMyServices();
-};
-
-async function loadComments(artistId){
-
-  const container = document.getElementById(`comments-${artistId}`);
-  if(!container) return;
-
-  const snap = await getDocs(collection(db, "artists", artistId, "comments"));
-
-  container.innerHTML = "";
-
-  snap.forEach(doc => {
-
-    const c = doc.data();
-
-    container.innerHTML += `
-      <div>
-        <strong>${c.nom}</strong>
-        <p>${c.text}</p>
-      </div>
-    `;
-  });
-
-}
-
-/* ================= AUTOCOMPLETE FRANCE ================= */
-
-function initAutocomplete(){
-
-  const input = document.getElementById("artistArr");
-  const box = document.getElementById("arrSuggestions");
-
-  if(!input || !box) return;
-
-  let debounce;
-
-  input.addEventListener("input", () => {
-
-    clearTimeout(debounce);
-
-    const query = input.value.trim();
-
-    if(query.length < 2){
-      box.classList.add("hidden");
-      box.innerHTML = "";
-      return;
-    }
-
-    debounce = setTimeout(async () => {
-
-      try{
-
-        const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=5`);
-        const data = await res.json();
-
-        box.innerHTML = "";
-
-        /* ✅ FIX ICI */
-        if(!data.features || !data.features.length){
-          box.classList.add("hidden");
-          return;
-        }
-
-        data.features.forEach(f => {
-
-          const btn = document.createElement("button");
-          btn.textContent = f.properties.label;
-
-          btn.onclick = () => {
-            input.value = f.properties.label;
-            input.dataset.lat = f.geometry.coordinates[1];
-            input.dataset.lng = f.geometry.coordinates[0];
-            box.classList.add("hidden");
-          };
-
-          box.appendChild(btn);
-        });
-
-        box.classList.remove("hidden");
-
-      } catch(e){
-        console.error("Erreur autocomplete", e);
-      }
-
-    }, 300);
-  });
-}
-
-document.getElementById("geoBtn")?.addEventListener("click", () => {
-
-  if(!navigator.geolocation){
-    alert("Géolocalisation non supportée");
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(async (pos) => {
-
-    const lat = pos.coords.latitude;
-    const lng = pos.coords.longitude;
-
-    try{
-      const res = await fetch(`https://api-adresse.data.gouv.fr/reverse/?lat=${lat}&lon=${lng}`);
-      const data = await res.json();
-
-      if(data.features && data.features.length){
-
-        const input = document.getElementById("artistArr");
-
-        input.value = data.features[0].properties.label;
-        input.dataset.lat = lat;
-        input.dataset.lng = lng;
-      }
-
-    } catch(e){
-      console.error("Erreur géoloc", e);
-    }
-
-  }, () => {
-    alert("Localisation refusée");
-  });
-});
-
-/* ================= DOM READY ================= */
+/* ================= DOM CONTENT ================= */
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  document.getElementById("signupSubmit")?.addEventListener("click", signup);
-  document.getElementById("loginSubmit")?.addEventListener("click", login);
-  document.getElementById("createArtistBtn")?.addEventListener("click", createArtistAccount);
+  /* ===== HELPERS ===== */
+  const $ = (id) => document.getElementById(id);
 
-  const signupBtn = document.getElementById("signupBtn");
-  const loginBtn = document.getElementById("loginBtn");
-  const dropdown = document.getElementById("dropdown");
-  const loginPopup = document.getElementById("loginPopup");
+  $("signupSubmit")?.addEventListener("click", signup);
+  $("loginSubmit")?.addEventListener("click", login);
+  $("createArtistBtn")?.addEventListener("click", createArtistAccount);
 
+  const signupBtn = $("signupBtn");
+  const loginBtn = $("loginBtn");
+  const dropdown = $("dropdown");
+  const loginPopup = $("loginPopup");
+
+  /* ===== SIGNUP DROPDOWN ===== */
   signupBtn?.addEventListener("click", e=>{
     e.stopPropagation();
     dropdown?.classList.toggle("hidden");
   });
 
+  /* ===== LOGIN POPUP ===== */
   loginBtn?.addEventListener("click", e=>{
     e.stopPropagation();
+
+    // ✅ ferme tout avant (évite bugs multiples popups)
+    closePopup();
+
     loginPopup?.classList.remove("hidden");
     loginPopup?.classList.add("active");
   });
 
-  /* MAP */
+  /* ================= MAP ================= */
 
-  const mapEl = document.getElementById("map");
+  const mapEl = $("map");
 
   if(mapEl){
-    map = L.map(mapEl).setView([48.85, 2.35], 6);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+    map = L.map(mapEl);
+
+    // ✅ géolocalisation prioritaire
+    navigator.geolocation?.getCurrentPosition(
+      (pos) => {
+        map.setView([pos.coords.latitude, pos.coords.longitude], 10);
+      },
+      () => {
+        map.setView([48.85, 2.35], 6);
+      }
+    );
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png')
+      .addTo(map);
 
     markerCluster = L.markerClusterGroup();
     map.addLayer(markerCluster);
@@ -556,11 +360,25 @@ document.addEventListener("DOMContentLoaded", () => {
     loadArtists();
   }
 
+  /* ================= AUTOCOMPLETE ================= */
   initAutocomplete();
 
+  /* ===== STOP PROPAGATION POPUP ===== */
   document.querySelectorAll(".popup-content").forEach(el => {
     el.addEventListener("click", e => e.stopPropagation());
   });
+
+  /* ================= PROFILE DROPDOWN (FIX BUG) ================= */
+
+  const profile = $("profile");
+  const profileDropdown = $("profileDropdown");
+
+  if(profile && profileDropdown){
+    profile.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      profileDropdown.classList.toggle("hidden");
+    });
+  }
 
 });
 
@@ -583,6 +401,9 @@ window.selectUser = (type) => {
 
   dropdown?.classList.add("hidden");
 
+  // ✅ ferme tout avant
+  closePopup();
+
   if(type === "client" && popup){
     popup.classList.remove("hidden");
     popup.classList.add("active");
@@ -593,6 +414,8 @@ window.selectUser = (type) => {
     artistPopup.classList.add("active");
   }
 };
+
+/* ================= NAVIGATION ARTIST ================= */
 
 window.openArtistPage = (id) => {
 
@@ -624,7 +447,7 @@ window.addEventListener("click", (e) => {
 /* ================= NAVIGATION ================= */
 
 window.openAccount = function () {
-  window.location.href = "monprofil.html"; // ou moncompte.html
+  window.location.href = "monprofil.html";
 };
 
 window.openReservations = function () {
@@ -636,11 +459,16 @@ window.openFavoris = function () {
 };
 
 window.logout = async function () {
-  await signOut(auth);
-  window.location.href = "index.html";
+  try{
+    await signOut(auth);
+    window.location.href = "index.html";
+  } catch(e){
+    console.error("Logout error:", e);
+  }
 };
 
 /* ================= AUTH STATE ================= */
+
 const profile = document.getElementById("profile");
 const profileDropdown = document.getElementById("profileDropdown");
 
@@ -655,6 +483,7 @@ onAuthStateChanged(auth, async (user) => {
     let prenom = "Utilisateur";
 
     try {
+
       const userRef = doc(db, "users", user.uid);
       const artistRef = doc(db, "artists", user.uid);
 
