@@ -15,7 +15,8 @@ import {
   doc,
   getDoc,
   collection,
-  getDocs
+  getDocs,
+  updateDoc   // ✅ AJOUT
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import {
@@ -176,59 +177,6 @@ window.login = async () => {
   }
 };
 
-/* ================= AUTH STATE ================= */
-const profile = document.getElementById("profile");
-const profileDropdown = document.getElementById("profileDropdown");
-
-onAuthStateChanged(auth, async (user) => {
-
-  const signupBtn = document.getElementById("signupBtn");
-  const loginBtn = document.getElementById("loginBtn");
-  const profileName = document.getElementById("profileName");
-
-  if(user){
-
-    let prenom = "Utilisateur";
-
-    try {
-      const userRef = doc(db, "users", user.uid);
-      const artistRef = doc(db, "artists", user.uid);
-
-      const [userDoc, artistDoc] = await Promise.all([
-        getDoc(userRef),
-        getDoc(artistRef)
-      ]);
-
-      if(userDoc.exists()) prenom = userDoc.data().prenom;
-      if(artistDoc.exists()) prenom = artistDoc.data().prenom;
-
-    } catch(e){
-      console.error("Erreur récupération profil :", e);
-    }
-
-    signupBtn?.classList.add("hidden");
-    loginBtn?.classList.add("hidden");
-    profile?.classList.remove("hidden");
-
-    if(profileName) profileName.textContent = prenom;
-
-  } else {
-
-    signupBtn?.classList.remove("hidden");
-    loginBtn?.classList.remove("hidden");
-    profile?.classList.add("hidden");
-
-  }
-});
-
-/* ================= DROPDOWN ================= */
-
-if(profile && profileDropdown){
-  profile.addEventListener("click", (e)=>{
-    e.stopPropagation();
-    profileDropdown.classList.toggle("hidden");
-  });
-}
 
 /* ================= LOAD ARTISTS ================= */
 
@@ -691,3 +639,57 @@ window.logout = async function () {
   await signOut(auth);
   window.location.href = "index.html";
 };
+
+/* ================= AUTH STATE ================= */
+const profile = document.getElementById("profile");
+const profileDropdown = document.getElementById("profileDropdown");
+
+onAuthStateChanged(auth, async (user) => {
+
+  const signupBtn = document.getElementById("signupBtn");
+  const loginBtn = document.getElementById("loginBtn");
+  const profileName = document.getElementById("profileName");
+
+  if(user){
+
+    let prenom = "Utilisateur";
+
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const artistRef = doc(db, "artists", user.uid);
+
+      const [userDoc, artistDoc] = await Promise.all([
+        getDoc(userRef),
+        getDoc(artistRef)
+      ]);
+
+      if(userDoc.exists()) prenom = userDoc.data().prenom;
+      if(artistDoc.exists()) prenom = artistDoc.data().prenom;
+
+    } catch(e){
+      console.error("Erreur récupération profil :", e);
+    }
+
+    signupBtn?.classList.add("hidden");
+    loginBtn?.classList.add("hidden");
+    profile?.classList.remove("hidden");
+
+    if(profileName) profileName.textContent = prenom;
+
+  } else {
+
+    signupBtn?.classList.remove("hidden");
+    loginBtn?.classList.remove("hidden");
+    profile?.classList.add("hidden");
+
+  }
+});
+
+/* ================= DROPDOWN ================= */
+
+if(profile && profileDropdown){
+  profile.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    profileDropdown.classList.toggle("hidden");
+  });
+}
