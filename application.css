@@ -257,123 +257,171 @@ button {
 }
 
 /* ================= CARD ================= */
+/* ================= BASE ================= */
 
-.card-premium {
+.card-premium,
+.artist-popup {
+  background: #000;
+  color: #fff;
   border-radius: 20px;
-  overflow: hidden;
+  padding: 20px;
+  text-align: center;
   animation: fadeUp 0.3s ease;
+  font-family: Arial, sans-serif;
 }
 
 @keyframes fadeUp {
-  from { transform: translateY(20px); opacity:0; }
-  to { transform: translateY(0); opacity:1; }
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
-.card-premium * {
-  color: white;
-}
+/* ================= HEADER ================= */
 
 .header {
   display: flex;
-  gap: 10px;
   align-items: center;
+  gap: 10px;
 }
 
+.artist-avatar,
+.artist-photo,
 .avatar {
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
-  background-size: cover;
+  object-fit: cover;
+  margin: 10px auto;
+}
+
+/* ================= BADGE ================= */
+
+.artist-badge,
+.tags span {
+  background: #6edc6e;
+  color: #000;
+  padding: 6px 18px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  display: inline-block;
+  margin-top: 8px;
+}
+
+/* ================= RATING ================= */
+
+.artist-rating {
+  margin-top: 10px;
 }
 
 .stars {
+  color: #FFD700;
   font-size: 14px;
 }
 
-.tags span {
-  display: block;
-  background: #7ed957;
-  border-radius: 20px;
-  padding: 5px;
-  margin-top: 5px;
-  font-size: 12px;
-  text-align: center;
-  color: black;
+.rating {
+  margin-left: 5px;
 }
 
-.card-premium h2 {
-  text-align: center;
+/* ================= TITRE ================= */
+
+.card-premium h2,
+.artist-popup h2 {
   margin: 10px 0;
 }
 
-.artist-card{
-  width:280px;
-  background:#000;
-  color:#fff;
-  text-align:center;
+/* ================= DISPO ================= */
+
+.artist-dispo,
+.artist-dispo-box {
+  background: #bfcbd1;
+  color: #000;
+  border-radius: 20px;
+  padding: 12px;
+  margin-top: 15px;
 }
 
-.artist-photo{
-  width:120px;
-  height:120px;
-  border-radius:50%;
-  object-fit:cover;
-  margin:10px auto;
+.dates {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
 }
 
-.artist-badge{
-  background:#6EDC5F;
-  padding:6px 20px;
-  border-radius:20px;
-  margin:10px auto;
-  width:fit-content;
+.dates span {
+  background: #6edc6e;
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-weight: bold;
 }
 
-.artist-rating{
-  margin:10px;
+/* ================= BUTTON ================= */
+
+.calendar-btn {
+  margin-top: 15px;
+  background: #6edc6e;
+  border: none;
+  padding: 12px;
+  border-radius: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
 }
 
-.artist-dispo{
-  background:#ccc;
-  border-radius:20px;
-  padding:10px;
-  margin:10px;
+/* ================= SERVICES ================= */
+
+.artist-services {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
 }
 
-.artist-dispo .dates{
-  display:flex;
-  gap:8px;
-  justify-content:center;
+.artist-services div {
+  flex: 1;
+  background: #bfcbd1;
+  color: #000;
+  padding: 10px;
+  border-radius: 15px;
+  font-size: 12px;
 }
 
-.artist-dispo span{
-  background:#6EDC5F;
-  padding:5px 10px;
-  border-radius:10px;
-}
+/* ================= MEDIA ================= */
 
-.artist-media{
-  display:flex;
-  overflow-x:auto;
-  gap:10px;
-  padding:10px;
+.artist-media {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 10px 0;
 }
 
 .artist-media video,
-.artist-media audio{
-  width:120px;
-  border-radius:10px;
+.artist-media audio {
+  width: 120px;
+  border-radius: 10px;
 }
 
-.artist-comments{
-  max-height:150px;
-  overflow-y:auto;
-  background:#ccc;
-  margin:10px;
-  border-radius:15px;
-  padding:10px;
+/* ================= COMMENTS ================= */
+
+.artist-comments {
+  margin-top: 20px;
+  max-height: 150px;
+  overflow-y: auto;
+  background: #bfcbd1;
+  color: #000;
+  padding: 12px;
+  border-radius: 15px;
 }
 
+.artist-popup {
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.calendar-btn:hover {
+  transform: scale(1.03);
+}
+
+.artist-services div:hover {
+  transform: translateY(-2px);
+}
 /* ================= CTA ================= */
 
 .cta {
