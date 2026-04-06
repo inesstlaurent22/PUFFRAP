@@ -220,7 +220,6 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-const profile = document.getElementById("profile");
 const profileDropdown = document.getElementById("profileDropdown");
 
 if(profile && profileDropdown){
