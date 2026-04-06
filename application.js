@@ -265,56 +265,53 @@ async function loadArtists(){
 
 function generateArtistCard(d, id){
 
-  const photo = d.photo || "https://via.placeholder.com/120";
-  const rating = d.rating || 0;
+  const photo = d.photo || "https://via.placeholder.com/150";
+  const rating = d.rating || 4.8;
 
-  const stars = "★".repeat(Math.round(rating)) + "☆".repeat(5 - Math.round(rating));
+  const starsHTML = `
+    ${"★".repeat(Math.floor(rating))}
+    ${rating % 1 >= 0.5 ? "☆" : ""}
+    ${"☆".repeat(5 - Math.ceil(rating))}
+  `;
 
-  /* ✅ FIX */
   const dispo = Array.isArray(d.disponibilites)
     ? d.disponibilites.slice(0,3)
-    : [];
+    : ["12/02", "13/02", "14/02"];
 
   return `
-<div class="artist-popup-wrapper">
+  <div class="artist-popup">
 
-  <div class="artist-card dark">
+    <div class="artist-header">
 
-    <img src="${photo}" class="artist-photo">
+      <img src="${photo}" class="artist-avatar">
 
-    <div class="artist-badge">${d.produits || "Artiste"}</div>
+      <div class="artist-badge">${d.produits || "DJ"}</div>
 
-    <div class="artist-rating">
-      ${stars} ${rating.toFixed(1)}
+      <div class="artist-rating">
+        <span class="stars">${starsHTML}</span>
+        <span class="rating">${rating.toFixed(1)}</span>
+      </div>
+
+      <h2>${d.prenom || ""} ${d.nom || ""}</h2>
+
     </div>
 
-    <h2>${d.prenom} ${d.nom}</h2>
-
-    <div class="artist-dispo">
+    <div class="artist-dispo-box">
       <p>Prochaine disponibilité</p>
       <div class="dates">
         ${dispo.map(d => `<span>${d}</span>`).join("")}
       </div>
     </div>
 
-    <button onclick="openArtistPage('${id}')">
+    <button class="calendar-btn" onclick="openArtistPage('${id}')">
       Voir le calendrier
     </button>
 
-    <div class="artist-media">
-      ${(d.media || []).map(url => {
-
-        if(url.includes(".mp3")){
-          return `<audio controls src="${url}"></audio>`;
-        }
-
-        if(url.includes(".mp4") || url.includes(".mov")){
-          return `<video src="${url}" controls></video>`;
-        }
-
-        return "";
-
-      }).join("")}
+    <div class="artist-services">
+      <div>Mixage <br><strong>65 €</strong></div>
+      <div>Chant <br><strong>65 €</strong></div>
+      <div>Community Manager <br><strong>55 €</strong></div>
+      <div>Management <br><strong>75 €</strong></div>
     </div>
 
     <div class="artist-comments" id="comments-${id}">
@@ -322,9 +319,7 @@ function generateArtistCard(d, id){
     </div>
 
   </div>
-
-</div>
-`;
+  `;
 }
 
 async function loadComments(artistId){
