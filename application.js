@@ -263,20 +263,31 @@ async function loadArtists(){
   }
 }
 
-function generateArtistCard(d, id){
+function generateArtistCard(d = {}, id){
 
   const photo = d.photo || "https://via.placeholder.com/150";
-  const rating = d.rating || 4.8;
+  const rating = Number(d.rating) || 4.8;
 
-  const starsHTML = `
-    ${"★".repeat(Math.floor(rating))}
-    ${rating % 1 >= 0.5 ? "☆" : ""}
-    ${"☆".repeat(5 - Math.ceil(rating))}
-  `;
+  /* ⭐ étoiles propres */
+  const fullStars = Math.floor(rating);
+  const emptyStars = 5 - fullStars;
 
+  const starsHTML =
+    "★".repeat(fullStars) +
+    "☆".repeat(emptyStars);
+
+  /* 📅 dispo */
   const dispo = Array.isArray(d.disponibilites)
     ? d.disponibilites.slice(0,3)
     : ["12/02", "13/02", "14/02"];
+
+  /* 💰 services dynamiques */
+  const services = d.services || {
+    mixage: 65,
+    chant: 65,
+    cm: 55,
+    management: 75
+  };
 
   return `
   <div class="artist-popup">
@@ -299,7 +310,7 @@ function generateArtistCard(d, id){
     <div class="artist-dispo-box">
       <p>Prochaine disponibilité</p>
       <div class="dates">
-        ${dispo.map(d => `<span>${d}</span>`).join("")}
+        ${dispo.map(date => `<span>${date}</span>`).join("")}
       </div>
     </div>
 
@@ -307,13 +318,24 @@ function generateArtistCard(d, id){
       Voir le calendrier
     </button>
 
-    <div class="artist-services">
-      <div>Mixage <br><strong>65 €</strong></div>
-      <div>Chant <br><strong>65 €</strong></div>
-      <div>Community Manager <br><strong>55 €</strong></div>
-      <div>Management <br><strong>75 €</strong></div>
+    <!-- SERVICES -->
+    <div class="artist-services-wrapper">
+
+      <!-- Community Manager (highlight) -->
+      <div class="service-highlight">
+        Community Manager<br><strong>${services.cm} €</strong>
+      </div>
+
+      <!-- Scroll horizontal -->
+      <div class="artist-services-scroll">
+        <div class="service-card">Mixage<br><strong>${services.mixage} €</strong></div>
+        <div class="service-card">Chant<br><strong>${services.chant} €</strong></div>
+        <div class="service-card">Management<br><strong>${services.management} €</strong></div>
+      </div>
+
     </div>
 
+    <!-- COMMENTAIRES -->
     <div class="artist-comments" id="comments-${id}">
       Chargement...
     </div>
