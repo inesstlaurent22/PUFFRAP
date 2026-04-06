@@ -417,6 +417,27 @@ button {
   text-align: left;
 }
 
+.service-edit {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.service-edit input {
+  flex: 1;
+  padding: 8px;
+  border-radius: 10px;
+  border: none;
+}
+
+.service-edit button {
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 5px 10px;
+}
+
 /* ================= CTA ================= */
 
 .cta {
