@@ -364,27 +364,48 @@ button {
 
 /* ================= SERVICES SCROLL ================= */
 
+/* ================= SERVICES SCROLL ================= */
+
 .artist-services-scroll {
   display: flex;
   gap: 10px;
+
   overflow-x: auto;
+  overflow-y: hidden;
+
+  -webkit-overflow-scrolling: touch; /* 🔥 fluide iOS */
+  scroll-behavior: smooth;
+
+  padding-bottom: 10px;
   margin-top: 20px;
-  padding-bottom: 5px;
+
+  max-width: 100%;
 }
 
+/* cache scrollbar (optionnel) */
 .artist-services-scroll::-webkit-scrollbar {
   display: none;
 }
 
+/* blocs */
 .service-card {
-  min-width: 110px;
+  min-width: 120px; /* 🔥 IMPORTANT sinon pas de scroll */
   flex-shrink: 0;
+
   background: #bfcbd1;
   color: #000;
   padding: 12px;
   border-radius: 15px;
   text-align: center;
   font-size: 12px;
+}
+
+.artist-services-scroll {
+  scroll-snap-type: x mandatory;
+}
+
+.service-card {
+  scroll-snap-align: start;
 }
 
 /* ================= COMMENTS ================= */
