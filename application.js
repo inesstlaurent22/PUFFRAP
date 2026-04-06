@@ -16,7 +16,8 @@ import {
   getDoc,
   collection,
   getDocs,
-  updateDoc
+  updateDoc,
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import {
@@ -201,31 +202,36 @@ async function loadArtists(){
 
   try{
 
-    markerCluster.clearLayers();
+    const artistsRef = collection(db, "artists");
 
-    const snap = await getDocs(collection(db, "artists"));
+    onSnapshot(artistsRef, (snap) => {
 
-    snap.forEach(docSnap => {
+      markerCluster.clearLayers();
 
-      const d = docSnap.data();
+      snap.forEach(docSnap => {
 
-      if(!d || d.lat == null || d.lng == null) return;
+        const d = docSnap.data();
 
-      const lat = Number(d.lat);
-      const lng = Number(d.lng);
+        if(!d || d.lat == null || d.lng == null) return;
 
-      if(isNaN(lat) || isNaN(lng)) return;
+        const lat = Number(d.lat);
+        const lng = Number(d.lng);
 
-      const marker = L.marker([lat, lng]);
+        if(isNaN(lat) || isNaN(lng)) return;
 
-      marker.bindPopup(generateArtistCard(d, docSnap.id));
+        const marker = L.marker([lat, lng]);
 
-      /* ✅ FIX FIABLE */
-      marker.on("popupopen", () => {
-        loadComments(docSnap.id);
+        marker.bindPopup(generateArtistCard(d, docSnap.id));
+
+        marker.on("popupopen", () => {
+          if(typeof loadComments === "function"){
+            loadComments(docSnap.id);
+          }
+        });
+
+        markerCluster.addLayer(marker);
+
       });
-
-      markerCluster.addLayer(marker);
 
     });
 
