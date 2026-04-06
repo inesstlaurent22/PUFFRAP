@@ -1,3 +1,13 @@
+/* ================= IMPORTS FIREBASE (EN HAUT OBLIGATOIRE) ================= */
+
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const auth = getAuth();
+const db = getFirestore();
+
+/* ================= ELEMENTS ================= */
+
 const preview = document.getElementById("profilePreview");
 const inputFile = document.getElementById("profileImage");
 const uploadBtn = document.getElementById("uploadBtn");
@@ -7,24 +17,28 @@ const productsList = document.getElementById("productsList");
 
 let mediaFiles = [];
 
-/* PHOTO */
-uploadBtn.onclick = () => inputFile.click();
+/* ================= PHOTO ================= */
+
+uploadBtn.onclick = () => inputFile?.click();
 
 inputFile.onchange = () => {
-  const file = inputFile.files[0];
+  const file = inputFile.files?.[0];
+  if(!file) return;
+
   const reader = new FileReader();
 
   reader.onload = () => {
-    preview.src = reader.result;
+    if(preview) preview.src = reader.result;
     localStorage.setItem("photo", reader.result);
   };
 
   reader.readAsDataURL(file);
 };
 
-/* MEDIA */
+/* ================= MEDIA ================= */
+
 mediaInput.onchange = () => {
-  const files = Array.from(mediaInput.files);
+  const files = Array.from(mediaInput.files || []);
 
   if (mediaFiles.length + files.length > 5) {
     alert("Max 5 fichiers");
@@ -52,7 +66,8 @@ mediaInput.onchange = () => {
   });
 };
 
-/* PRODUITS */
+/* ================= PRODUITS ================= */
+
 document.getElementById("addProduct").onclick = () => {
   const div = document.createElement("div");
   div.className = "product";
@@ -63,19 +78,23 @@ document.getElementById("addProduct").onclick = () => {
   `;
 
   productsList.appendChild(div);
+
+  // focus UX
+  setTimeout(() => div.querySelector("input")?.focus(), 50);
 };
 
-/* SAVE */
-document.getElementById("saveProfile").onclick = () => {
-
-  /* ===== FIRESTORE SAVE PRODUITS ===== */
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-const auth = getAuth();
-const db = getFirestore();
+/* ================= SAVE ================= */
 
 document.getElementById("saveProfile").onclick = async () => {
+
+  /* ===== INPUTS ===== */
+  const nom = document.getElementById("nom")?.value || "";
+  const prenom = document.getElementById("prenom")?.value || "";
+  const email = document.getElementById("email")?.value || "";
+  const metier = document.getElementById("metier")?.value || "";
+  const instagram = document.getElementById("instagram")?.value || "";
+  const portfolio = document.getElementById("portfolio")?.value || "";
+  const tiktok = document.getElementById("tiktok")?.value || "";
 
   /* ===== RECUP PRODUITS ===== */
   const products = [];
@@ -83,88 +102,76 @@ document.getElementById("saveProfile").onclick = async () => {
   document.querySelectorAll(".product").forEach(p => {
     const inputs = p.querySelectorAll("input");
 
-    const name = inputs[0].value.trim();
-    const price = parseFloat(inputs[1].value);
+    const name = inputs[0]?.value.trim();
+    const price = parseFloat(inputs[1]?.value);
 
     if(name && !isNaN(price)){
       products.push({ name, price });
     }
   });
 
-  /* ===== LOCAL STORAGE (tu gardes) ===== */
+  /* ===== LOCAL STORAGE ===== */
   const data = {
-    nom: nom.value,
-    prenom: prenom.value,
-    email: email.value,
-    metier: metier.value,
-    instagram: instagram.value,
-    portfolio: portfolio.value,
-    tiktok: tiktok.value,
+    nom,
+    prenom,
+    email,
+    metier,
+    instagram,
+    portfolio,
+    tiktok,
     products
   };
 
   localStorage.setItem("profile", JSON.stringify(data));
 
-  /* ===== FIRESTORE (IMPORTANT) ===== */
-  const user = auth.currentUser;
+  /* ===== FIRESTORE ===== */
+/* ===== FIRESTORE SAVE COMPLET ===== */
+const user = auth.currentUser;
 
-  if(user){
-    try{
-      await updateDoc(doc(db, "artists", user.uid), {
-        services: products
-      });
-    } catch(e){
-      console.error("Erreur update Firestore:", e);
-    }
+if(user){
+  try{
+
+    await updateDoc(doc(db, "artists", user.uid), {
+
+      /* IDENTITÉ */
+      nom,
+      prenom,
+      email,
+
+      /* PROFIL */
+      produits: metier, // 🔥 correspond à ton badge actuel
+      metier,           // (optionnel si tu veux garder les deux)
+
+      /* LIENS */
+      instagram,
+      portfolio,
+      tiktok,
+
+      /* SERVICES */
+      services: products,
+
+      /* TIMESTAMP */
+      updatedAt: Date.now()
+
+    });
+
+  } catch(e){
+    console.error("Erreur Firestore:", e);
   }
+}
 
-  alert("Profil enregistré");
-};
+/* ================= LOAD ================= */
 
-  /* ===== RECUP PRODUITS ===== */
-  const products = [];
-
-  document.querySelectorAll(".product").forEach(p => {
-    const inputs = p.querySelectorAll("input");
-
-    const name = inputs[0].value.trim();
-    const price = parseFloat(inputs[1].value);
-
-    if(name && !isNaN(price)){
-      products.push({ name, price });
-    }
-  });
-
-  /* ===== DATA ===== */
-  const data = {
-    nom: nom.value,
-    prenom: prenom.value,
-    email: email.value,
-    metier: metier.value,
-    instagram: instagram.value,
-    portfolio: portfolio.value,
-    tiktok: tiktok.value,
-    products // ✅ AJOUT ICI
-  };
-
-  localStorage.setItem("profile", JSON.stringify(data));
-
-  alert("Profil enregistré");
-};
-
-/* LOAD */
 window.onload = () => {
 
   let data = null;
 
-  /* ===== SAFE PARSE ===== */
   try {
     data = JSON.parse(localStorage.getItem("profile"));
   } catch(e){
     console.error("Erreur parsing localStorage:", e);
   }
 
-  /* ===== INPUTS ===== */
   const nomInput = document.getElementById("nom");
   const prenomInput = document.getElementById("prenom");
   const emailInput = document.getElementById("email");
@@ -183,19 +190,13 @@ window.onload = () => {
     if(tiktokInput) tiktokInput.value = data.tiktok || "";
   }
 
-  /* ===== PHOTO ===== */
+  /* PHOTO */
   const photo = localStorage.getItem("photo");
-  if (photo && preview) {
-    preview.src = photo;
-  }
+  if (photo && preview) preview.src = photo;
 
-  /* ===== PRODUITS ===== */
-  const productsList = document.getElementById("productsList");
-
-  if (data && data.products && productsList) {
-
+  /* PRODUITS */
+  if (data?.products && productsList) {
     data.products.forEach(p => {
-
       const div = document.createElement("div");
       div.className = "product";
 
@@ -207,10 +208,10 @@ window.onload = () => {
       productsList.appendChild(div);
     });
   }
-
 };
 
-/* LOGOUT */
+/* ================= LOGOUT ================= */
+
 document.getElementById("logoutBtn").onclick = () => {
   localStorage.clear();
   window.location.href = "application.html";
