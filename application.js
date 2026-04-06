@@ -268,20 +268,14 @@ function generateArtistCard(d = {}, id){
   const photo = d.photo || "https://via.placeholder.com/150";
   const rating = Number(d.rating) || 4.8;
 
-  /* ⭐ étoiles propres */
-  const fullStars = Math.floor(rating);
-  const emptyStars = 5 - fullStars;
-
   const starsHTML =
-    "★".repeat(fullStars) +
-    "☆".repeat(emptyStars);
+    "★".repeat(Math.floor(rating)) +
+    "☆".repeat(5 - Math.floor(rating));
 
-  /* 📅 dispo */
   const dispo = Array.isArray(d.disponibilites)
     ? d.disponibilites.slice(0,3)
     : ["12/02", "13/02", "14/02"];
 
-  /* 💰 services dynamiques */
   const services = d.services || {
     mixage: 65,
     chant: 65,
@@ -290,54 +284,53 @@ function generateArtistCard(d = {}, id){
   };
 
   return `
-  <div class="artist-popup">
+  <div class="artist-popup-scroll">
 
-    <div class="artist-header">
+    <div class="artist-popup">
 
-      <img src="${photo}" class="artist-avatar">
+      <div class="artist-header">
 
-      <div class="artist-badge">${d.produits || "DJ"}</div>
+        <img src="${photo}" class="artist-avatar">
 
-      <div class="artist-rating">
-        <span class="stars">${starsHTML}</span>
-        <span class="rating">${rating.toFixed(1)}</span>
+        <!-- 🔥 BADGE METIER -->
+        <div class="artist-badge">${d.produits || "DJ"}</div>
+
+        <div class="artist-rating">
+          <span class="stars">${starsHTML}</span>
+          <span class="rating">${rating.toFixed(1)}</span>
+        </div>
+
+        <h2>${d.prenom || ""} ${d.nom || ""}</h2>
+
       </div>
 
-      <h2>${d.prenom || ""} ${d.nom || ""}</h2>
-
-    </div>
-
-    <div class="artist-dispo-box">
-      <p>Prochaine disponibilité</p>
-      <div class="dates">
-        ${dispo.map(date => `<span>${date}</span>`).join("")}
-      </div>
-    </div>
-
-    <button class="calendar-btn" onclick="openArtistPage('${id}')">
-      Voir le calendrier
-    </button>
-
-    <!-- SERVICES -->
-    <div class="artist-services-wrapper">
-
-      <!-- Community Manager (highlight) -->
-      <div class="service-highlight">
-        Community Manager<br><strong>${services.cm} €</strong>
+      <!-- DISPO -->
+      <div class="artist-dispo-box">
+        <p>Prochaine disponibilité</p>
+        <div class="dates">
+          ${dispo.map(date => `<span>${date}</span>`).join("")}
+        </div>
       </div>
 
-      <!-- Scroll horizontal -->
+      <button class="calendar-btn" onclick="openArtistPage('${id}')">
+        Voir le calendrier
+      </button>
+
+      <!-- 🔥 SERVICES SCROLL -->
       <div class="artist-services-scroll">
+
         <div class="service-card">Mixage<br><strong>${services.mixage} €</strong></div>
         <div class="service-card">Chant<br><strong>${services.chant} €</strong></div>
+        <div class="service-card">Community Manager<br><strong>${services.cm} €</strong></div>
         <div class="service-card">Management<br><strong>${services.management} €</strong></div>
+
       </div>
 
-    </div>
+      <!-- 🔥 COMMENTAIRES -->
+      <div class="artist-comments" id="comments-${id}">
+        Chargement...
+      </div>
 
-    <!-- COMMENTAIRES -->
-    <div class="artist-comments" id="comments-${id}">
-      Chargement...
     </div>
 
   </div>
