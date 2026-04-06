@@ -268,20 +268,27 @@ function generateArtistCard(d = {}, id){
   const photo = d.photo || "https://via.placeholder.com/150";
   const rating = Number(d.rating) || 4.8;
 
+  /* ⭐ étoiles */
   const starsHTML =
     "★".repeat(Math.floor(rating)) +
     "☆".repeat(5 - Math.floor(rating));
 
+  /* 📅 disponibilités */
   const dispo = Array.isArray(d.disponibilites)
     ? d.disponibilites.slice(0,3)
     : ["12/02", "13/02", "14/02"];
 
-  const services = d.services || {
-    mixage: 65,
-    chant: 65,
-    cm: 55,
-    management: 75
-  };
+  /* 🔥 SERVICES DYNAMIQUES */
+  const services = Array.isArray(d.services) ? d.services : [];
+
+  const servicesHTML = services.length
+    ? services.map(service => `
+        <div class="service-card">
+          ${service.name || "Service"}<br>
+          <strong>${service.price || 0} €</strong>
+        </div>
+      `).join("")
+    : `<div class="service-card">Aucun service</div>`;
 
   return `
   <div class="artist-popup-scroll">
@@ -292,7 +299,6 @@ function generateArtistCard(d = {}, id){
 
         <img src="${photo}" class="artist-avatar">
 
-        <!-- 🔥 BADGE METIER -->
         <div class="artist-badge">${d.produits || "DJ"}</div>
 
         <div class="artist-rating">
@@ -316,14 +322,9 @@ function generateArtistCard(d = {}, id){
         Voir le calendrier
       </button>
 
-      <!-- 🔥 SERVICES SCROLL -->
+      <!-- 🔥 SERVICES SCROLL DYNAMIQUE -->
       <div class="artist-services-scroll">
-
-        <div class="service-card">Mixage<br><strong>${services.mixage} €</strong></div>
-        <div class="service-card">Chant<br><strong>${services.chant} €</strong></div>
-        <div class="service-card">Community Manager<br><strong>${services.cm} €</strong></div>
-        <div class="service-card">Management<br><strong>${services.management} €</strong></div>
-
+        ${servicesHTML}
       </div>
 
       <!-- 🔥 COMMENTAIRES -->
@@ -336,6 +337,108 @@ function generateArtistCard(d = {}, id){
   </div>
   `;
 }
+
+async function loadMyServices(){
+
+  const user = auth.currentUser;
+  if(!user) return;
+
+  const snap = await getDoc(doc(db, "artists", user.uid));
+  const data = snap.data();
+
+  const container = document.getElementById("servicesList");
+  container.innerHTML = "";
+
+  (data.services || []).forEach((s, index) => {
+
+    container.innerHTML += `
+      <div class="service-edit">
+
+        <input 
+          value="${s.name}" 
+          onchange="updateService(${index}, 'name', this.value)"
+        >
+
+        <input 
+          type="number"
+          value="${s.price}" 
+          onchange="updateService(${index}, 'price', this.value)"
+        >
+
+        <button onclick="deleteService(${index})">❌</button>
+
+      </div>
+    `;
+  });
+}
+
+import { updateDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+window.updateService = async (index, field, value) => {
+
+  const user = auth.currentUser;
+  if(!user) return;
+
+  const ref = doc(db, "artists", user.uid);
+  const snap = await getDoc(ref);
+  const data = snap.data();
+
+  let services = data.services || [];
+
+  if(field === "price"){
+    value = parseFloat(value);
+    if(isNaN(value)) return;
+  }
+
+  services[index][field] = value;
+
+  await updateDoc(ref, { services });
+
+};
+
+window.deleteService = async (index) => {
+
+  const user = auth.currentUser;
+  if(!user) return;
+
+  const ref = doc(db, "artists", user.uid);
+  const snap = await getDoc(ref);
+  const data = snap.data();
+
+  let services = data.services || [];
+
+  services.splice(index, 1);
+
+  await updateDoc(ref, { services });
+
+  loadMyServices();
+};
+
+window.addService = async () => {
+
+  const name = document.getElementById("serviceName").value.trim();
+  const price = parseFloat(document.getElementById("servicePrice").value);
+
+  if(!name || isNaN(price)){
+    alert("Champs invalides");
+    return;
+  }
+
+  const user = auth.currentUser;
+  if(!user) return;
+
+  const ref = doc(db, "artists", user.uid);
+  const snap = await getDoc(ref);
+  const data = snap.data();
+
+  let services = data.services || [];
+
+  services.push({ name, price });
+
+  await updateDoc(ref, { services });
+
+  loadMyServices();
+};
 
 async function loadComments(artistId){
 
