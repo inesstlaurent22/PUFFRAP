@@ -2,13 +2,12 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  background: black;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #0b0b0b;
+  color: #f5f5f5;
   overflow: hidden;
-  color: white;
 }
 
-/* ✅ UNE SEULE DÉFINITION */
 .hidden {
   display: none !important;
 }
@@ -29,117 +28,85 @@ body {
   position: absolute;
   top: 20px;
   left: 0;
-  right: 0; /* 👉 très important */
+  right: 0;
 
   display: flex;
-  justify-content: flex-end; /* 👉 pousse les boutons à droite */
+  justify-content: flex-end;
   gap: 10px;
 
   padding: 0 20px;
   z-index: 1000;
 }
 
-/* ================= BOUTONS ================= */
+/* ================= BUTTONS ================= */
 
 button {
   cursor: pointer;
   border: none;
+  transition: 0.2s;
 }
 
 #signupBtn,
 #loginBtn,
 #profile {
-  background: rgba(0,0,0,0.6);
+  background: rgba(20,20,20,0.7);
   backdrop-filter: blur(12px);
-  color: white;
-  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.1);
   padding: 10px 18px;
   border-radius: 30px;
-  font-weight: bold;
-  box-shadow: 0 0 20px rgba(0,255,100,0.4);
-  transition: all 0.2s ease;
+  font-weight: 500;
 }
 
-#loginBtn {
-  box-shadow: 0 0 20px rgba(0,150,255,0.4);
+#signupBtn:hover,
+#loginBtn:hover,
+#profile:hover {
+  background: rgba(126,217,87,0.1);
+  color: #7ed957;
 }
 
-#signupBtn:active,
-#loginBtn:active,
-#profile:active {
+button:active {
   transform: scale(0.95);
 }
 
 /* ================= DROPDOWN ================= */
 
-.signup-wrapper {
+.signup-wrapper,
+.profile-wrapper {
   position: relative;
 }
 
-.dropdown {
+.dropdown,
+#profileDropdown {
   position: absolute;
-  top: 110%; /* juste sous le bouton */
-  right: 0; /* aligné à droite du bouton */
+  top: 110%;
+  right: 0;
 
-  background: rgba(0,0,0,0.95);
-  backdrop-filter: blur(15px);
-  border-radius: 15px;
+  background: #111;
+  border-radius: 12px;
   padding: 8px;
 
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
 
   min-width: 160px;
   z-index: 3000;
 }
 
-.dropdown button {
-  background: none;
-  color: white;
-  padding: 10px;
-  text-align: left;
-  border-radius: 10px;
-}
-
-.dropdown button:hover {
-  background: rgba(255,255,255,0.1);
-}
-
-
-.profile-wrapper {
-  position: relative;
-  cursor: pointer;
-}
-
-/* dropdown */
-#profileDropdown {
-  position: absolute;
-  top: 40px;
-  right: 0;
-  background: #000;
-  border-radius: 12px;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 180px;
-  z-index: 1000;
-}
-
-/* boutons */
+.dropdown button,
 #profileDropdown button {
   background: transparent;
   color: #fff;
-  border: none;
   padding: 10px;
   text-align: left;
   border-radius: 8px;
-  cursor: pointer;
 }
 
+.dropdown button:hover,
 #profileDropdown button:hover {
-  background: #111;
+  background: rgba(126,217,87,0.15);
+  color: #7ed957;
 }
 
 /* ================= POPUP ================= */
@@ -151,23 +118,18 @@ button {
   display: none;
 }
 
-/* ✅ ACTIVATION PROPRE */
 .popup.active {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* ================= OVERLAY ================= */
-
 .popup-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.65);
-  backdrop-filter: blur(8px);
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(10px);
 }
-
-/* ================= CONTENU POPUP ================= */
 
 .popup-content {
   position: relative;
@@ -182,36 +144,39 @@ button {
   flex-direction: column;
   gap: 12px;
 
-  /* ✅ animation propre */
   transform: translateY(20px) scale(0.95);
   opacity: 0;
-  transition: all 0.25s ease;
+  transition: 0.25s;
 }
 
-/* ✅ animation entrée */
 .popup.active .popup-content {
-  transform: translateY(0) scale(1);
+  transform: translateY(0);
   opacity: 1;
 }
 
-/* ================= INPUTS ================= */
+/* ================= INPUT ================= */
 
-.popup input {
+input {
   padding: 12px;
   border-radius: 12px;
-  border: none;
-  background: #222;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: #0b0b0b;
   color: white;
   outline: none;
 }
 
-/* ================= BOUTONS POPUP ================= */
+input:focus {
+  border: 1px solid #7ed957;
+  box-shadow: 0 0 8px rgba(126,217,87,0.3);
+}
+
+/* ================= POPUP BUTTON ================= */
 
 .popup button {
   padding: 12px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, #0a84ff, #5ac8fa);
-  color: white;
+  border-radius: 25px;
+  background: linear-gradient(135deg, #7ed957, #5bc236);
+  color: black;
   font-weight: bold;
 }
 
@@ -225,217 +190,115 @@ button {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: rgba(0,0,0,0.6);
-  backdrop-filter: blur(12px);
-  color: white;
+  background: rgba(20,20,20,0.8);
+  backdrop-filter: blur(10px);
+  color: #fff;
   font-size: 22px;
-  box-shadow: 0 0 25px rgba(0,255,100,0.6);
 }
 
-#locateBtn:active {
-  transform: scale(0.9);
+#locateBtn:hover {
+  background: rgba(126,217,87,0.2);
 }
 
-/* ================= MARKER ================= */
+/* ================= MARKERS ================= */
+
+.marker-img,
+.marker-premium {
+  border-radius: 50%;
+  background-size: cover;
+  border: 2px solid #7ed957;
+  box-shadow: 0 0 12px rgba(126,217,87,0.6);
+}
 
 .marker-img {
   width: 50px;
   height: 50px;
-  border-radius: 50%;
-  background-size: cover;
-  border: 3px solid white;
-  box-shadow: 0 0 15px rgba(0,255,100,0.9);
 }
 
 .marker-premium {
   width: 60px;
   height: 60px;
-  border-radius: 50%;
-  background-size: cover;
-  border: 3px solid white;
-  box-shadow: 0 0 20px rgba(0,255,150,0.8);
 }
 
-/* ================= BASE ================= */
+/* ================= ARTIST CARD ================= */
 
-.card-premium,
-.artist-popup {
-  background: #000;
+.artist-popup,
+.artist-card.dark {
+  background: #111;
   color: #fff;
   border-radius: 20px;
   padding: 20px;
   text-align: center;
-  font-family: Arial, sans-serif;
-  animation: fadeUp 0.3s ease;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  overflow: hidden; /* 🔥 évite tout débordement */
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
 }
 
-@keyframes fadeUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
+/* PHOTO */
 
-/* ================= HEADER ================= */
-
-/* ================= SCROLL GLOBAL ================= */
-
-.artist-popup-scroll {
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-/* ================= CARD ================= */
-
-.artist-popup {
-  background: #000;
-  color: #fff;
-  border-radius: 20px;
-  padding: 20px;
-  text-align: center;
-  overflow: hidden;
-}
-
-/* ================= HEADER ================= */
-
-.artist-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.artist-avatar {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-/* 🔥 BADGE METIER (VERT) */
-.artist-badge {
-  background: #6edc6e;
-  color: #000;
-  padding: 8px 20px;
-  border-radius: 20px;
-  margin-top: 10px;
-  font-weight: bold;
-}
-
-/* ================= RATING ================= */
-
-.stars {
-  color: #FFD700;
-}
-
-/* ================= DISPO ================= */
-
-.artist-dispo-box {
-  background: #bfcbd1;
-  color: #000;
-  border-radius: 20px;
-  padding: 12px;
-  margin-top: 15px;
-}
-
-.dates {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.dates span {
-  background: #6edc6e;
-  padding: 6px 12px;
-  border-radius: 15px;
-}
-
-/* ================= BUTTON ================= */
-
-.calendar-btn {
-  margin-top: 15px;
-  background: #6edc6e;
-  border: none;
-  padding: 12px;
-  border-radius: 20px;
+.artist-avatar,
+.artist-photo {
   width: 100%;
-  font-weight: bold;
+  max-height: 160px;
+  object-fit: cover;
+  border-radius: 12px;
 }
 
-/* ================= SERVICES SCROLL ================= */
+/* BADGE */
+
+.artist-badge {
+  background: rgba(126,217,87,0.15);
+  color: #7ed957;
+  padding: 6px 14px;
+  border-radius: 20px;
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+/* RATING */
+
+.stars,
+.artist-rating {
+  color: #7ed957;
+}
+
+/* DISPO */
+
+.artist-dispo span {
+  background: rgba(126,217,87,0.15);
+  padding: 5px 10px;
+  border-radius: 10px;
+}
+
+/* SERVICES */
 
 .artist-services-scroll {
   display: flex;
-  flex-wrap: nowrap; /* 🔥 OBLIGATOIRE */
-
   overflow-x: auto;
-  overflow-y: hidden;
-
-  gap: 12px;
-  padding: 10px 0;
-
-  width: 100%;
-
-  -webkit-overflow-scrolling: touch; /* iOS */
+  gap: 10px;
 }
 
-/* IMPORTANT : empêche les blocs de se réduire */
 .service-card {
-  flex: 0 0 auto; /* 🔥 clé du scroll */
-  width: 120px;
-
-  background: #bfcbd1;
-  color: #000;
-  padding: 12px;
-  border-radius: 15px;
-  text-align: center;
-  font-size: 12px;
+  min-width: 120px;
+  background: #1a1a1a;
+  color: white;
+  padding: 10px;
+  border-radius: 12px;
 }
 
-/* cacher scrollbar */
-.artist-services-scroll::-webkit-scrollbar {
-  display: none;
-}
-
-/* ================= COMMENTS ================= */
+/* COMMENTS */
 
 .artist-comments {
-  margin-top: 20px;
-  max-height: 180px;
+  background: #1a1a1a;
+  border-radius: 12px;
+  padding: 10px;
+  max-height: 150px;
   overflow-y: auto;
-  background: #bfcbd1;
-  color: #000;
-  padding: 12px;
-  border-radius: 15px;
 }
 
 .comment {
-  background: #6edc6e;
-  padding: 10px;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  text-align: left;
-}
-
-.service-edit {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.service-edit input {
-  flex: 1;
+  background: rgba(126,217,87,0.15);
   padding: 8px;
   border-radius: 10px;
-  border: none;
-}
-
-.service-edit button {
-  background: red;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  padding: 5px 10px;
+  margin-bottom: 6px;
 }
 
 /* ================= CTA ================= */
@@ -446,231 +309,16 @@ button {
   padding: 14px;
   border-radius: 25px;
   font-weight: bold;
-  color: white;
-  background: linear-gradient(135deg, #7ed957, #5fcf3a);
-}
-
-.cta:active {
-  transform: scale(0.96);
-}
-
-/* ================= SLIDER ================= */
-
-.service-slider {
-  overflow-x: scroll;
-  -webkit-overflow-scrolling: touch;
-}
-
-.service-slider::-webkit-scrollbar {
-  display: none;
-}
-
-.service-track {
-  display: flex;
-  gap: 10px;
-}
-
-.service-card {
-  min-width: 30%;
-  background: #cfd8dc;
-  border-radius: 20px;
-  padding: 15px;
-  text-align: center;
+  background: linear-gradient(135deg, #7ed957, #5bc236);
   color: black;
 }
 
-/* ================= COMMENTS ================= */
-
-.comments-box {
-  background: #cfd8dc;
-  border-radius: 20px;
-  padding: 10px;
-  margin-top: 10px;
-  color: black;
+.cta:hover {
+  box-shadow: 0 0 15px rgba(126,217,87,0.4);
 }
 
-.comment {
-  display: flex;
-  gap: 8px;
-  background: #7ed957;
-  border-radius: 15px;
-  padding: 8px;
-  margin-bottom: 6px;
-  font-size: 12px;
-}
+/* ================= SCROLLBAR ================= */
 
-.mini-avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-}
-
-/* ================= ARRONDISSEMENT ================= */
-
-.location-wrapper {
-  position: relative;
-}
-
-.location-input {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-#artistArr {
-  flex: 1;
-}
-
-#geoBtn {
-  background: #1e90ff;
-  border: none;
-  color: white;
-  border-radius: 8px;
-  padding: 8px 10px;
-  cursor: pointer;
-}
-
-#arrSuggestions {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  background: white;
-  z-index: 9999;
-  border-radius: 10px;
-  margin-top: 5px;
-}
-
-#arrSuggestions button {
-  width: 100%;
-  padding: 10px;
-  border: none;
-  background: white;
-  text-align: left;
-}
-
-#arrSuggestions button:hover {
-  background: #eee;
-}
-
-/* ===== POPUP GLOBAL ===== */
-
-.leaflet-popup-content-wrapper {
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-.leaflet-popup-tip {
+::-webkit-scrollbar {
   display: none;
-}
-
-/* ===== CONTAINER SCROLL ===== */
-
-.artist-popup-wrapper {
-  width: 300px;
-  max-height: 500px;
-  overflow-y: auto;
-  border-radius: 16px;
-}
-
-/* ===== CARD DARK ===== */
-
-.artist-card.dark {
-  background: #000;
-  color: #fff;
-  padding: 16px;
-  border-radius: 16px;
-  font-family: sans-serif;
-}
-
-/* ===== PHOTO ===== */
-
-.artist-photo {
-  width: 100%;
-  height: 160px;
-  object-fit: cover;
-  border-radius: 12px;
-}
-
-/* ===== BADGE ===== */
-
-.artist-badge {
-  background: #111;
-  padding: 6px 10px;
-  border-radius: 20px;
-  display: inline-block;
-  margin-top: 10px;
-  font-size: 12px;
-}
-
-/* ===== RATING ===== */
-
-.artist-rating {
-  margin-top: 8px;
-  color: gold;
-  font-size: 14px;
-}
-
-/* ===== TITRE ===== */
-
-.artist-card h2 {
-  margin: 10px 0;
-  font-size: 18px;
-}
-
-/* ===== DISPO ===== */
-
-.artist-dispo .dates {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.artist-dispo span {
-  background: #222;
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-size: 12px;
-}
-
-/* ===== BUTTON ===== */
-
-.artist-card button {
-  width: 100%;
-  margin: 10px 0;
-  padding: 10px;
-  background: #fff;
-  color: #000;
-  border: none;
-  border-radius: 10px;
-  font-weight: bold;
-}
-
-/* ===== MEDIA SCROLL HORIZONTAL ===== */
-
-.artist-media {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  padding-bottom: 10px;
-}
-
-.artist-media video,
-.artist-media audio {
-  width: 120px;
-  border-radius: 8px;
-}
-
-/* ===== COMMENTS SCROLL ===== */
-
-.artist-comments {
-  max-height: 150px;
-  overflow-y: auto;
-  margin-top: 10px;
-  font-size: 13px;
-}
-
-.artist-comments div {
-  border-bottom: 1px solid #222;
-  padding: 6px 0;
 }
