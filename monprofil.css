@@ -1,8 +1,8 @@
 body {
   margin: 0;
   font-family: Arial;
-  background: black;
-  color: white;
+  background: white; /* ✅ fond blanc */
+  color: black; /* ✅ texte noir */
 }
 
 /* LAYOUT */
@@ -14,6 +14,7 @@ body {
 .sidebar {
   width: 200px;
   padding: 20px;
+  background: #f5f5f5; /* léger fond pour contraste */
 }
 
 .sidebar button {
@@ -23,7 +24,9 @@ body {
   border-radius: 20px;
   border: none;
   background: #7ed957;
+  color: black; /* ✅ texte bouton noir */
   cursor: pointer;
+  font-weight: 500;
 }
 
 .sidebar .active {
@@ -34,6 +37,11 @@ body {
 .content {
   flex: 1;
   padding: 40px;
+}
+
+/* TITRES */
+h1, h2 {
+  color: black; /* ✅ titres noirs */
 }
 
 /* TOP */
@@ -51,8 +59,9 @@ body {
   margin-bottom: 15px;
   padding: 15px;
   border-radius: 20px;
-  border: none;
-  background: #7ed957;
+  border: 1px solid #ddd;
+  background: white; /* ✅ fond blanc */
+  color: black;
 }
 
 /* PHOTO */
@@ -72,6 +81,8 @@ body {
   border-radius: 20px;
   border: none;
   background: #7ed957;
+  color: black; /* ✅ texte noir */
+  cursor: pointer;
 }
 
 /* LINKS */
@@ -85,13 +96,19 @@ body {
   flex: 1;
   padding: 10px;
   border-radius: 20px;
-  border: none;
-  background: #7ed957;
+  border: 1px solid #ddd;
+  background: white;
+  color: black;
 }
 
 /* MEDIA */
 .media-section {
   margin-top: 20px;
+}
+
+/* INPUT FILE */
+.media-section input {
+  margin-bottom: 10px;
 }
 
 #mediaPreview video,
@@ -115,8 +132,20 @@ body {
   flex: 1;
   padding: 10px;
   border-radius: 20px;
+  border: 1px solid #ddd;
+  background: white;
+  color: black;
+}
+
+/* BUTTON ADD PRODUCT */
+#addProduct {
+  margin-top: 10px;
+  padding: 10px 20px;
+  border-radius: 20px;
   border: none;
   background: #7ed957;
+  color: black;
+  cursor: pointer;
 }
 
 /* SAVE */
@@ -127,5 +156,7 @@ body {
   border-radius: 20px;
   border: none;
   background: #5bc236;
+  color: black; /* ✅ texte noir */
   font-weight: bold;
+  cursor: pointer;
 }
