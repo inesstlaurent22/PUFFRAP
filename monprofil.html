@@ -25,83 +25,52 @@
   <!-- CONTENU -->
   <main class="content">
 
-    <button id="backMenu" class="back-btn">← Retour au menu</button>
+    <!-- ✅ BOUTON RETOUR -->
+    <button id="backMenu" class="back-btn">
+      ← Retour au menu
+    </button>
 
     <h1>Mon profil</h1>
 
     <!-- TOP -->
     <section class="top-section">
 
-      <!-- INFOS -->
       <div class="infos">
-
-        <input id="nom" type="text" placeholder="Nom" autocomplete="family-name">
-        <input id="prenom" type="text" placeholder="Prénom" autocomplete="given-name">
-        <input id="email" type="email" placeholder="Email" autocomplete="email">
-
-        <!-- ⚠️ Password séparé (sécurité) -->
-        <input id="password" type="password" placeholder="Nouveau mot de passe" autocomplete="new-password">
-
+        <input id="nom" type="text" placeholder="Nom">
+        <input id="prenom" type="text" placeholder="Prénom">
+        <input id="email" type="email" placeholder="Email">
+        <input id="password" type="password" placeholder="Nouveau mot de passe">
         <input id="metier" type="text" placeholder="Métier">
-
       </div>
 
-      <!-- PHOTO -->
       <div class="photo-section">
-
-        <img 
-          id="profilePreview" 
-          src="https://via.placeholder.com/150" 
-          alt="Photo de profil"
-        >
-
+        <img id="profilePreview" src="https://via.placeholder.com/150">
         <input type="file" id="profileImage" accept="image/*" hidden>
-
-        <button id="uploadBtn" type="button">
-          Télécharger une photo
-        </button>
-
+        <button id="uploadBtn" type="button">Télécharger</button>
       </div>
 
     </section>
 
     <!-- LIENS -->
     <section class="links">
-      <input id="instagram" type="url" placeholder="Lien Instagram">
-      <input id="portfolio" type="url" placeholder="Site / Portfolio">
-      <input id="tiktok" type="url" placeholder="Lien TikTok">
+      <input id="instagram" placeholder="Instagram">
+      <input id="portfolio" placeholder="Portfolio">
+      <input id="tiktok" placeholder="TikTok">
     </section>
 
     <!-- MEDIAS -->
     <section class="media-section">
-
-      <label for="mediaInput">Ajouter des médias (max 5)</label>
-
-      <input 
-        type="file" 
-        id="mediaInput" 
-        multiple 
-        accept="audio/*,video/*"
-      >
-
+      <input type="file" id="mediaInput" multiple accept="audio/*,video/*">
       <div id="mediaPreview"></div>
-
     </section>
 
     <!-- PRODUITS -->
     <section class="products">
-
-      <h2>Produits / Services</h2>
-
+      <h2>Produits</h2>
       <div id="productsList"></div>
-
-      <button id="addProduct" type="button">
-        + Ajouter un produit
-      </button>
-
+      <button id="addProduct" type="button">+ Ajouter</button>
     </section>
 
-    <!-- SAVE -->
     <button id="saveProfile" class="save" type="button">
       Enregistrer
     </button>
@@ -110,8 +79,15 @@
 
 </div>
 
-<!-- ⚠️ IMPORTANT : module pour Firebase -->
+<!-- ✅ SCRIPT MODULE -->
 <script type="module" src="monprofil.js"></script>
+
+<!-- ✅ SCRIPT RETOUR MENU -->
+<script>
+document.getElementById("backMenu").addEventListener("click", () => {
+  window.location.href = "application.html";
+});
+</script>
 
 </body>
 </html>
