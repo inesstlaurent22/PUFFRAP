@@ -3,160 +3,88 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Puff Map</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon Profil</title>
 
-<link rel="stylesheet" href="application.css">
-
-<!-- LEAFLET -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-
-<!-- CLUSTER -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"/>
+<link rel="stylesheet" href="monprofil.css">
 
 </head>
 
 <body>
 
-<!-- ================= MAP ================= -->
-<div id="map"></div>
+  <div id="loader">Chargement...</div>
 
+<div class="layout">
 
-<!-- ================= TOPBAR ================= -->
-<div class="topbar">
+  <!-- MENU -->
+  <aside class="sidebar">
+    <button class="active">Mon compte</button>
+    <button>Réservations</button>
+    <button>Favoris</button>
+    <button id="logoutBtn">Déconnexion</button>
+  </aside>
 
-  <div class="signup-wrapper">
-    <button id="signupBtn" type="button">Inscription</button>
+  <!-- CONTENU -->
+  <main class="content">
 
-    <div id="dropdown" class="dropdown hidden">
-      <button onclick="selectUser('client')" type="button">Client</button>
-      <button onclick="selectUser('artist')" type="button">Artiste</button>
-    </div>
-  </div>
+    <h1>Mon profil</h1>
 
-  <button id="loginBtn" type="button">Connexion</button>
+    <!-- TOP -->
+    <section class="top-section">
 
-  <div id="profile" class="profile-wrapper hidden">
-
-  <span id="profileName"></span>
-
-  <div id="profileDropdown" class="dropdown hidden">
-    <button onclick="openAccount()">Mon compte</button>
-    <button onclick="openReservations()">Mes réservations</button>
-    <button onclick="openFavoris()">Mes favoris</button>
-    <button onclick="logout()">Déconnexion</button>
-  </div>
-
-</div>
-
-</div>
-
-
-<!-- ================= POPUP CLIENT ================= -->
-<div id="popup" class="popup hidden">
-
-  <div class="popup-overlay"></div>
-
-  <div class="popup-content">
-    <h2>Créer un compte client</h2>
-
-    <input id="username" placeholder="Identifiant">
-    <input id="nom" placeholder="Nom">
-    <input id="prenom" placeholder="Prénom">
-    <input id="email" type="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Mot de passe">
-
-    <button id="signupSubmit" type="button">Créer mon compte</button>
-  </div>
-
-</div>
-
-
-<!-- ================= POPUP ARTISTE ================= -->
-<div id="artistPopup" class="popup hidden">
-
-  <div class="popup-overlay"></div>
-
-  <div class="popup-content">
-
-    <h2>Créer un profil artiste</h2>
-
-    <input id="artistNom" placeholder="Nom">
-    <input id="artistPrenom" placeholder="Prénom">
-    <input id="artistEmail" type="email" placeholder="Email">
-    <input id="artistPassword" type="password" placeholder="Mot de passe">
-
-    <!-- LOCALISATION -->
-    <div class="location-wrapper">
-
-      <div class="location-input">
-        <input 
-          id="artistArr"
-          type="text"
-          placeholder="Ville ou code postal"
-          autocomplete="off"
-        >
-        <button id="geoBtn" type="button">📍</button>
+      <div class="infos">
+        <input id="nom" type="text" placeholder="Nom">
+        <input id="prenom" type="text" placeholder="Prénom">
+        <input id="email" type="email" placeholder="Email">
+        <input id="password" type="password" placeholder="Nouveau mot de passe">
+        <input id="metier" type="text" placeholder="Métier">
       </div>
 
-      <div id="arrSuggestions" class="dropdown hidden"></div>
+      <div class="photo-section">
+        <img id="profilePreview" src="https://via.placeholder.com/150">
+        <input type="file" id="profileImage" accept="image/*" hidden>
+        <button id="uploadBtn" type="button">Télécharger</button>
+      </div>
 
-    </div>
+    </section>
+
+    <!-- LIENS -->
+    <section class="links">
+      <input id="instagram" placeholder="Instagram">
+      <input id="portfolio" placeholder="Portfolio">
+      <input id="tiktok" placeholder="TikTok">
+    </section>
+
+    <!-- MEDIAS -->
+    <section class="media-section">
+      <input type="file" id="mediaInput" multiple accept="audio/*,video/*">
+      <div id="mediaPreview"></div>
+    </section>
 
     <!-- PRODUITS -->
-    <select id="artistProduits">
-      <option value="">Choisir un domaine</option>
-      <option>Chant</option>
-      <option>Mixage</option>
-      <option>Community Manager</option>
-      <option>Manager</option>
-      <option>Vidéaste</option>
-      <option>Autre</option>
-    </select>
+    <section class="products">
+      <h2>Produits</h2>
+      <div id="productsList"></div>
+      <button id="addProduct" type="button">+ Ajouter</button>
+    </section>
 
-    <!-- MEDIA MULTIPLE -->
-    <input 
-      id="artistMedia" 
-      type="file" 
-      accept=".mp3,.mp4,.mov"
-      multiple
-    >
-
-    <!-- PREVIEW -->
-    <div id="mediaPreview"></div>
-
-    <button id="createArtistBtn" type="button">
-      Créer mon profil
+    <button id="saveProfile" class="save" type="button">
+      Enregistrer
     </button>
 
-  </div>
+  </main>
+
 </div>
 
+<!-- ✅ SCRIPT MODULE -->
+<script type="module" src="monprofil.js"></script>
 
-<!-- ================= POPUP LOGIN ================= -->
-<div id="loginPopup" class="popup hidden">
-
-  <div class="popup-overlay"></div>
-
-  <div class="popup-content">
-
-    <h2>Connexion</h2>
-
-    <input id="loginEmail" type="email" placeholder="Email">
-    <input id="loginPassword" type="password" placeholder="Mot de passe">
-
-    <button id="loginSubmit" type="button">Se connecter</button>
-
-  </div>
-</div>
-
-<!-- ================= SCRIPTS ================= -->
-
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
-
-<script type="module" src="application.js"></script>
+<!-- ✅ SCRIPT RETOUR MENU -->
+<script>
+document.getElementById("backMenu").addEventListener("click", () => {
+  window.location.href = "application.html";
+});
+</script>
 
 </body>
 </html>
