@@ -1,23 +1,20 @@
-/* ================= IMPORTS ================= */
+/* ================= IMPORTS FIREBASE ================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
 import {
   getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
   onAuthStateChanged,
+  updateEmail,
   signOut
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 import {
   getFirestore,
-  setDoc,
   doc,
-  getDoc,
-  collection,
-  getDocs,
+  setDoc,
   updateDoc,
-  onSnapshot
+  arrayUnion
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import {
@@ -27,499 +24,294 @@ import {
   getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-/* ================= FIREBASE ================= */
+/* ================= CONFIG FIREBASE ================= */
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAHb_jyRobERs677A4ZlGTzOVRCLZaaF3s",
-  authDomain: "puffrap.firebaseapp.com",
-  projectId: "puffrap",
-  storageBucket: "puffrap.appspot.com",
-  messagingSenderId: "555120601762",
-  appId: "1:555120601762:web:796a6681b5841c7bdb85fb"
+  apiKey: "TON_API_KEY",
+  authDomain: "TON_PROJECT.firebaseapp.com",
+  projectId: "TON_PROJECT",
+  storageBucket: "TON_PROJECT.appspot.com",
+  appId: "TON_APP_ID"
 };
 
 const app = initializeApp(firebaseConfig);
+
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-/* ================= GLOBAL ================= */
+/* ================= USER GLOBAL ================= */
 
-let map = null;
-let markerCluster = null;
+let currentUser = null;
 
-/* ================= HELPERS ================= */
+/* ================= ELEMENTS ================= */
 
-const $ = (id) => document.getElementById(id);
+const preview = document.getElementById("profilePreview");
+const inputFile = document.getElementById("profileImage");
+const uploadBtn = document.getElementById("uploadBtn");
+const mediaInput = document.getElementById("mediaInput");
+const mediaPreview = document.getElementById("mediaPreview");
+const productsList = document.getElementById("productsList");
 
-/* ================= SIGNUP CLIENT ================= */
+let mediaFiles = [];
 
-window.signup = async () => {
+document.getElementById("backMenu")?.addEventListener("click", () => {
+  window.location.href = "application.html";
+});
 
-  const username = $("username")?.value.trim();
-  const nom = $("nom")?.value.trim();
-  const prenom = $("prenom")?.value.trim();
-  const email = $("email")?.value.trim();
-  const password = $("password")?.value.trim();
+document.getElementById("loader").style.display = "none";
 
-  if(!username || !nom || !prenom || !email || !password){
-    alert("Remplis tous les champs");
+/* ================= AUTH CHECK ================= */
+
+let authChecked = false;
+
+onAuthStateChanged(auth, (user) => {
+
+  if (user) {
+    currentUser = user;
+    authChecked = true;
     return;
   }
 
-  try{
-    const user = await createUserWithEmailAndPassword(auth, email, password);
-    const uid = user.user.uid;
+  // ⏱️ attendre un peu pour éviter faux null
+  setTimeout(() => {
+    if (!currentUser) {
+      window.location.href = "application.html";
+    }
+  }, 800);
 
-    await setDoc(doc(db, "users", uid), {
-      username,
-      nom,
-      prenom,
-      email,
-      role: "client",
-      createdAt: Date.now()
-    });
+});
 
-    closePopup();
-    alert("Bienvenue " + prenom);
+/* ================= PHOTO ================= */
 
-  } catch(e){
-    console.error("Signup error:", e);
-    alert(e.message);
-  }
-};
+uploadBtn?.addEventListener("click", () => inputFile?.click());
 
-/* ================= SIGNUP ARTIST ================= */
+inputFile?.addEventListener("change", () => {
+  const file = inputFile.files?.[0];
+  if (!file) return;
 
-window.createArtistAccount = async () => {
+  const reader = new FileReader();
 
-  const nom = $("artistNom")?.value.trim();
-  const prenom = $("artistPrenom")?.value.trim();
-  const email = $("artistEmail")?.value.trim();
-  const password = $("artistPassword")?.value.trim();
-  const produits = $("artistProduits")?.value;
-  const files = $("artistMedia")?.files;
-  const locInput = $("artistArr");
+  reader.onload = () => {
+    if (preview) preview.src = reader.result;
+    localStorage.setItem("photo", reader.result);
+  };
 
-  if(!nom || !prenom || !email || !password){
-    alert("Champs obligatoires manquants");
+  reader.readAsDataURL(file);
+});
+
+/* ================= MEDIA ================= */
+
+mediaInput?.addEventListener("change", () => {
+  const files = Array.from(mediaInput.files || []);
+
+  if (mediaFiles.length + files.length > 5) {
+    alert("Max 5 fichiers");
     return;
   }
 
-  const lat = parseFloat(locInput?.dataset.lat);
-  const lng = parseFloat(locInput?.dataset.lng);
-  const localisation = locInput?.value;
+  files.forEach(file => {
+    mediaFiles.push(file);
 
-  if(!locInput || isNaN(lat) || isNaN(lng)){
-    alert("Choisis une localisation valide");
-    return;
-  }
+    const url = URL.createObjectURL(file);
 
-  try{
-
-    const user = await createUserWithEmailAndPassword(auth, email, password);
-    const uid = user.user.uid;
-
-    /* ===== UPLOAD MEDIA OPTIMISÉ (PARALLÈLE) ===== */
-    let mediaUrls = [];
-
-    if(files && files.length){
-      const uploadPromises = Array.from(files).map(async (file) => {
-        const storageRef = ref(storage, `artists/${uid}/${Date.now()}_${file.name}`);
-        await uploadBytes(storageRef, file);
-        return await getDownloadURL(storageRef);
-      });
-
-      mediaUrls = await Promise.all(uploadPromises);
+    if (file.type.includes("video")) {
+      const video = document.createElement("video");
+      video.src = url;
+      video.controls = true;
+      mediaPreview?.appendChild(video);
     }
 
-    /* ===== FIRESTORE ===== */
-    await setDoc(doc(db, "artists", uid), {
-      nom,
-      prenom,
-      email,
-      produits,
-      media: mediaUrls,
-      photo: mediaUrls[0] || "",
-      arrondissement: localisation,
-      lat,
-      lng,
-      createdAt: Date.now()
-    });
-
-    /* ===== MARKER ===== */
-    if(map && markerCluster){
-
-      const marker = L.marker([lat, lng]);
-
-      marker.bindPopup(generateArtistCard({
-        nom,
-        prenom,
-        produits,
-        photo: mediaUrls[0] || "",
-        media: mediaUrls
-      }, uid));
-
-      markerCluster.addLayer(marker);
-      map.setView([lat, lng], 14);
+    if (file.type.includes("audio")) {
+      const audio = document.createElement("audio");
+      audio.src = url;
+      audio.controls = true;
+      mediaPreview?.appendChild(audio);
     }
+  });
+});
 
-    alert("Profil artiste créé !");
-    closePopup();
+/* ================= PRODUITS ================= */
 
-  } catch(e){
-    console.error("Artist signup error:", e);
-    alert(e.message);
-  }
-};
+document.getElementById("addProduct")?.addEventListener("click", () => {
+  const div = document.createElement("div");
+  div.className = "product";
 
-/* ================= LOGIN ================= */
-
-window.login = async () => {
-
-  const email = $("loginEmail")?.value.trim();
-  const password = $("loginPassword")?.value.trim();
-
-  if(!email || !password){
-    alert("Champs requis");
-    return;
-  }
-
-  try{
-    await signInWithEmailAndPassword(auth, email, password);
-    closePopup();
-  } catch(e){
-    console.error("Login error:", e);
-    alert(e.message);
-  }
-};
-
-/* ================= LOAD ARTISTS ================= */
-
-async function loadArtists(){
-
-  if(!markerCluster) return;
-
-  try{
-
-    const artistsRef = collection(db, "artists");
-
-    onSnapshot(artistsRef, (snap) => {
-
-      markerCluster.clearLayers();
-
-      snap.forEach(docSnap => {
-
-        const d = docSnap.data();
-
-        if(!d || d.lat == null || d.lng == null) return;
-
-        const lat = Number(d.lat);
-        const lng = Number(d.lng);
-
-        if(isNaN(lat) || isNaN(lng)) return;
-
-        const marker = L.marker([lat, lng]);
-
-        marker.bindPopup(generateArtistCard(d, docSnap.id));
-
-        marker.on("popupopen", () => {
-          if(typeof loadComments === "function"){
-            loadComments(docSnap.id);
-          }
-        });
-
-        markerCluster.addLayer(marker);
-
-      });
-
-    });
-
-  } catch(e){
-    console.error("Erreur loadArtists :", e);
-  }
-}
-
-function generateArtistCard(d = {}, id){
-
-  const photo = d.photo || "https://via.placeholder.com/300";
-
-  const rating = Number(d.rating) || 4.8;
-
-  const stars =
-    "★".repeat(Math.floor(rating)) +
-    "☆".repeat(5 - Math.floor(rating));
-
-  const services = Array.isArray(d.services)
-    ? d.services.slice(0,3)
-    : [];
-
-  const servicesHTML = services.length
-    ? services.map(s => `
-        <div class="service">
-          ${s?.name || "Service"}
-        </div>
-      `).join("")
-    : `<div class="service">Aucun service</div>`;
-
-  return `
-  <div class="artist-card-premium">
-
-    <!-- IMAGE -->
-    <div class="artist-image">
-      <img src="${photo}">
-      <div class="overlay"></div>
-    </div>
-
-    <!-- INFOS -->
-    <div class="artist-info">
-
-      <h2>${d.prenom || ""} ${d.nom || ""}</h2>
-
-      <span class="badge">
-        ${d.produits || "Artiste"}
-      </span>
-
-      <!-- RATING -->
-      <div class="rating">
-        ${stars} <span>(${rating.toFixed(1)})</span>
-      </div>
-
-      <!-- SERVICES -->
-      <div class="services">
-        ${servicesHTML}
-      </div>
-
-      <!-- CTA -->
-      <button class="cta" onclick="openArtistPage('${id}')">
-        Voir profil
-      </button>
-
-    </div>
-
-  </div>
+  div.innerHTML = `
+    <input placeholder="Nom produit">
+    <input type="number" placeholder="Prix">
   `;
-}
 
-/* ================= DOM CONTENT ================= */
-
-document.addEventListener("DOMContentLoaded", () => {
-
-  /* ===== HELPERS ===== */
-  const $ = (id) => document.getElementById(id);
-
-  $("signupSubmit")?.addEventListener("click", signup);
-  $("loginSubmit")?.addEventListener("click", login);
-  $("createArtistBtn")?.addEventListener("click", createArtistAccount);
-
-  const signupBtn = $("signupBtn");
-  const loginBtn = $("loginBtn");
-  const dropdown = $("dropdown");
-  const loginPopup = $("loginPopup");
-
-  /* ===== SIGNUP DROPDOWN ===== */
-  signupBtn?.addEventListener("click", e=>{
-    e.stopPropagation();
-    dropdown?.classList.toggle("hidden");
-  });
-
-  /* ===== LOGIN POPUP ===== */
-  loginBtn?.addEventListener("click", e=>{
-    e.stopPropagation();
-
-    // ✅ ferme tout avant (évite bugs multiples popups)
-    closePopup();
-
-    loginPopup?.classList.remove("hidden");
-    loginPopup?.classList.add("active");
-  });
-
-  /* ================= MAP ================= */
-
-  const mapEl = $("map");
-
-  if(mapEl){
-
-    map = L.map(mapEl);
-
-    // ✅ géolocalisation prioritaire
-    navigator.geolocation?.getCurrentPosition(
-      (pos) => {
-        map.setView([pos.coords.latitude, pos.coords.longitude], 10);
-      },
-      () => {
-        map.setView([48.85, 2.35], 6);
-      }
-    );
-
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png')
-      .addTo(map);
-
-    markerCluster = L.markerClusterGroup();
-    map.addLayer(markerCluster);
-
-    loadArtists();
-  }
-
-  /* ================= AUTOCOMPLETE ================= */
-  initAutocomplete();
-
-  /* ===== STOP PROPAGATION POPUP ===== */
-  document.querySelectorAll(".popup-content").forEach(el => {
-    el.addEventListener("click", e => e.stopPropagation());
-  });
-
-  /* ================= PROFILE DROPDOWN (FIX BUG) ================= */
-
-  const profile = $("profile");
-  const profileDropdown = $("profileDropdown");
-
-  if(profile && profileDropdown){
-    profile.addEventListener("click", (e)=>{
-      e.stopPropagation();
-      profileDropdown.classList.toggle("hidden");
-    });
-  }
-
+  productsList?.appendChild(div);
 });
 
-/* ================= POPUP ================= */
+/* ================= UPLOAD MEDIA FIREBASE ================= */
 
-window.closePopup = () => {
-  document.querySelectorAll(".popup").forEach(p=>{
-    p.classList.remove("active");
-    p.classList.add("hidden");
-  });
-};
+async function uploadMediaFiles(uid) {
+  for (const file of mediaFiles) {
+    try {
+      const storageRef = ref(storage, `artists/${uid}/${file.name}`);
 
-/* ================= SELECT USER ================= */
+      await uploadBytes(storageRef, file);
 
-window.selectUser = (type) => {
+      const url = await getDownloadURL(storageRef);
 
-  const popup = document.getElementById("popup");
-  const artistPopup = document.getElementById("artistPopup");
-  const dropdown = document.getElementById("dropdown");
+      await updateDoc(doc(db, "users", uid), {
+        media: arrayUnion({
+          name: file.name,
+          url,
+          type: file.type
+        })
+      });
 
-  dropdown?.classList.add("hidden");
-
-  // ✅ ferme tout avant
-  closePopup();
-
-  if(type === "client" && popup){
-    popup.classList.remove("hidden");
-    popup.classList.add("active");
+    } catch (e) {
+      console.error("Erreur upload fichier:", e);
+    }
   }
+}
 
-  if(type === "artist" && artistPopup){
-    artistPopup.classList.remove("hidden");
-    artistPopup.classList.add("active");
-  }
-};
+/* ================= SAVE ================= */
 
-/* ================= NAVIGATION ARTIST ================= */
+document.getElementById("saveProfile")?.addEventListener("click", async () => {
 
-window.openArtistPage = (id) => {
+  const user = currentUser;
 
-  if(!id){
-    console.error("ID artiste manquant");
+  if (!user) {
+    alert("Utilisateur non connecté");
     return;
   }
 
-  window.location.href = `artiste.html?id=${id}`;
-};
+  const nom = document.getElementById("nom")?.value || "";
+  const prenom = document.getElementById("prenom")?.value || "";
+  const email = document.getElementById("email")?.value || "";
+  const metier = document.getElementById("metier")?.value || "";
+  const instagram = document.getElementById("instagram")?.value || "";
+  const portfolio = document.getElementById("portfolio")?.value || "";
+  const tiktok = document.getElementById("tiktok")?.value || "";
 
-/* ================= GLOBAL CLICK ================= */
+  /* ===== PRODUITS ===== */
+  const products = [];
 
-window.addEventListener("click", (e) => {
+  document.querySelectorAll(".product").forEach(p => {
+    const inputs = p.querySelectorAll("input");
 
-  const dropdown = document.getElementById("dropdown");
-  const profileDropdown = document.getElementById("profileDropdown");
+    const name = inputs[0]?.value.trim();
+    const price = parseFloat(inputs[1]?.value);
 
-  if(!e.target.closest(".topbar")){
-    dropdown?.classList.add("hidden");
-    profileDropdown?.classList.add("hidden");
-  }
+    if (name && !isNaN(price)) {
+      products.push({ name, price });
+    }
+  });
 
-  if(e.target.classList.contains("popup-overlay")){
-    closePopup();
-  }
-});
+  /* ===== LOCAL STORAGE ===== */
+  const data = {
+    nom,
+    prenom,
+    email,
+    metier,
+    instagram,
+    portfolio,
+    tiktok,
+    products
+  };
 
-/* ================= NAVIGATION ================= */
+  localStorage.setItem("profile", JSON.stringify(data));
 
-window.openAccount = function () {
-  window.location.href = "monprofil.html";
-};
+  try {
 
-window.openReservations = function () {
-  window.location.href = "reservations.html";
-};
-
-window.openFavoris = function () {
-  window.location.href = "favoris.html";
-};
-
-window.logout = async function () {
-  try{
-    await signOut(auth);
-    window.location.href = "index.html";
-  } catch(e){
-    console.error("Logout error:", e);
-  }
-};
-
-/* ================= AUTH STATE ================= */
-
-const profile = document.getElementById("profile");
-const profileDropdown = document.getElementById("profileDropdown");
-
-onAuthStateChanged(auth, async (user) => {
-
-  const signupBtn = document.getElementById("signupBtn");
-  const loginBtn = document.getElementById("loginBtn");
-  const profileName = document.getElementById("profileName");
-
-  if(user){
-
-    let prenom = "Utilisateur";
-
+    /* 🔐 UPDATE EMAIL */
     try {
-
-      const userRef = doc(db, "users", user.uid);
-      const artistRef = doc(db, "artists", user.uid);
-
-      const [userDoc, artistDoc] = await Promise.all([
-        getDoc(userRef),
-        getDoc(artistRef)
-      ]);
-
-      if(userDoc.exists()) prenom = userDoc.data().prenom;
-      if(artistDoc.exists()) prenom = artistDoc.data().prenom;
-
-    } catch(e){
-      console.error("Erreur récupération profil :", e);
+      if (email && email !== user.email) {
+        await updateEmail(user, email);
+      }
+    } catch (e) {
+      console.warn("Email non modifié :", e.message);
     }
 
-    signupBtn?.classList.add("hidden");
-    loginBtn?.classList.add("hidden");
-    profile?.classList.remove("hidden");
+    /* 🔥 FIRESTORE */
+    await setDoc(doc(db, "users", user.uid), {
+      role: "artist",
+      email,
+      profile: {
+        firstName: prenom,
+        lastName: nom,
+        metier
+      },
+      socialLinks: {
+        instagram,
+        portfolio,
+        tiktok
+      },
+      products,
+      updatedAt: new Date()
+    }, { merge: true });
 
-    if(profileName) profileName.textContent = prenom;
+    /* 🎵 UPLOAD MEDIA */
+    if (mediaFiles.length > 0) {
+      await uploadMediaFiles(user.uid);
+    }
 
-  } else {
+    alert("Profil enregistré ✅");
 
-    signupBtn?.classList.remove("hidden");
-    loginBtn?.classList.remove("hidden");
-    profile?.classList.add("hidden");
+  } catch (e) {
+    console.error("Erreur Firebase:", e);
+    alert("Erreur : " + e.message);
+  }
 
+});
+
+/* ================= LOAD ================= */
+
+window.addEventListener("load", () => {
+
+  let data = null;
+
+  try {
+    data = JSON.parse(localStorage.getItem("profile"));
+  } catch (e) {
+    console.error("Erreur parsing localStorage:", e);
+  }
+
+  const nomInput = document.getElementById("nom");
+  const prenomInput = document.getElementById("prenom");
+  const emailInput = document.getElementById("email");
+  const metierInput = document.getElementById("metier");
+  const instagramInput = document.getElementById("instagram");
+  const portfolioInput = document.getElementById("portfolio");
+  const tiktokInput = document.getElementById("tiktok");
+
+  if (data) {
+    nomInput && (nomInput.value = data.nom || "");
+    prenomInput && (prenomInput.value = data.prenom || "");
+    emailInput && (emailInput.value = data.email || "");
+    metierInput && (metierInput.value = data.metier || "");
+    instagramInput && (instagramInput.value = data.instagram || "");
+    portfolioInput && (portfolioInput.value = data.portfolio || "");
+    tiktokInput && (tiktokInput.value = data.tiktok || "");
+  }
+
+  const photo = localStorage.getItem("photo");
+  if (photo && preview) preview.src = photo;
+
+  if (data?.products && productsList) {
+    data.products.forEach(p => {
+      const div = document.createElement("div");
+      div.className = "product";
+
+      div.innerHTML = `
+        <input value="${p.name || ""}" placeholder="Nom produit">
+        <input type="number" value="${p.price || ""}" placeholder="Prix">
+      `;
+
+      productsList.appendChild(div);
+    });
   }
 });
 
-/* ================= DROPDOWN ================= */
+/* ================= LOGOUT ================= */
 
-if(profile && profileDropdown){
-  profile.addEventListener("click", (e)=>{
-    e.stopPropagation();
-    profileDropdown.classList.toggle("hidden");
-  });
-}
+document.getElementById("logoutBtn")?.addEventListener("click", async () => {
+  localStorage.clear();
+  await signOut(auth);
+  window.location.href = "application.html";
+}); 
