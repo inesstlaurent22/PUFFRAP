@@ -220,101 +220,108 @@ input:focus {
   height: 60px;
 }
 
-/* ================= ARTIST CARD ================= */
+/* ================= CARD PREMIUM ================= */
 
-.artist-popup,
-.artist-card.dark {
-  background: #111;
-  color: #fff;
+.artist-card-premium {
+  width: 280px;
   border-radius: 20px;
-  padding: 20px;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  overflow: hidden;
+  background: #111;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+  animation: fadeUp 0.3s ease;
 }
 
-/* PHOTO */
+/* IMAGE */
 
-.artist-avatar,
-.artist-photo {
+.artist-image {
+  position: relative;
+  height: 140px;
+}
+
+.artist-image img {
   width: 100%;
-  max-height: 160px;
+  height: 100%;
   object-fit: cover;
-  border-radius: 12px;
+}
+
+.artist-image .overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+}
+
+/* INFOS */
+
+.artist-info {
+  padding: 15px;
+  text-align: left;
+}
+
+/* NOM */
+
+.artist-info h2 {
+  margin: 0;
+  font-size: 18px;
 }
 
 /* BADGE */
 
-.artist-badge {
-  background: rgba(126,217,87,0.15);
+.badge {
+  display: inline-block;
+  margin-top: 5px;
+  background: rgba(126,217,87,0.2);
   color: #7ed957;
-  padding: 6px 14px;
+  padding: 5px 12px;
   border-radius: 20px;
-  margin-top: 10px;
-  font-weight: 500;
+  font-size: 12px;
 }
 
 /* RATING */
 
-.stars,
-.artist-rating {
+.rating {
+  margin-top: 8px;
+  font-size: 13px;
   color: #7ed957;
 }
 
-/* DISPO */
-
-.artist-dispo span {
-  background: rgba(126,217,87,0.15);
-  padding: 5px 10px;
-  border-radius: 10px;
+.rating span {
+  color: #aaa;
 }
 
 /* SERVICES */
 
-.artist-services-scroll {
+.services {
   display: flex;
-  overflow-x: auto;
-  gap: 10px;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
 }
 
-.service-card {
-  min-width: 120px;
+.service {
   background: #1a1a1a;
-  color: white;
-  padding: 10px;
-  border-radius: 12px;
-}
-
-/* COMMENTS */
-
-.artist-comments {
-  background: #1a1a1a;
-  border-radius: 12px;
-  padding: 10px;
-  max-height: 150px;
-  overflow-y: auto;
-}
-
-.comment {
-  background: rgba(126,217,87,0.15);
-  padding: 8px;
+  padding: 5px 10px;
   border-radius: 10px;
-  margin-bottom: 6px;
+  font-size: 11px;
 }
 
-/* ================= CTA ================= */
+/* CTA */
 
 .cta {
-  width: 100%;
   margin-top: 12px;
-  padding: 14px;
+  width: 100%;
+  padding: 12px;
   border-radius: 25px;
-  font-weight: bold;
+  border: none;
   background: linear-gradient(135deg, #7ed957, #5bc236);
   color: black;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
 .cta:hover {
-  box-shadow: 0 0 15px rgba(126,217,87,0.4);
+  transform: scale(1.03);
+  box-shadow: 0 0 15px rgba(126,217,87,0.5);
 }
 
 /* ================= SCROLLBAR ================= */
