@@ -240,68 +240,63 @@ async function loadArtists(){
   }
 }
 
-/* ================= CARD ================= */
-
 function generateArtistCard(d = {}, id){
 
-  const photo = d.photo || "https://via.placeholder.com/150";
+  const photo = d.photo || "https://via.placeholder.com/300";
+
   const rating = Number(d.rating) || 4.8;
 
-  const starsHTML =
+  const stars =
     "★".repeat(Math.floor(rating)) +
     "☆".repeat(5 - Math.floor(rating));
 
-  const dispo = Array.isArray(d.disponibilites)
-    ? d.disponibilites.slice(0,3)
-    : ["12/02", "13/02", "14/02"];
-
-  const services = Array.isArray(d.services) ? d.services : [];
+  const services = Array.isArray(d.services)
+    ? d.services.slice(0,3)
+    : [];
 
   const servicesHTML = services.length
-    ? services.map(service => `
-        <div class="service-card">
-          ${service?.name || "Service"}<br>
-          <strong>${service?.price || 0} €</strong>
+    ? services.map(s => `
+        <div class="service">
+          ${s?.name || "Service"}
         </div>
       `).join("")
-    : `<div class="service-card">Aucun service</div>`;
+    : `<div class="service">Aucun service</div>`;
 
   return `
-  <div class="artist-popup-scroll">
-    <div class="artist-popup">
+  <div class="artist-card-premium">
 
-      <div class="artist-header">
-        <img src="${photo}" class="artist-avatar">
-        <div class="artist-badge">${d.produits || "DJ"}</div>
+    <!-- IMAGE -->
+    <div class="artist-image">
+      <img src="${photo}">
+      <div class="overlay"></div>
+    </div>
 
-        <div class="artist-rating">
-          <span class="stars">${starsHTML}</span>
-          <span class="rating">${rating.toFixed(1)}</span>
-        </div>
+    <!-- INFOS -->
+    <div class="artist-info">
 
-        <h2>${d.prenom || ""} ${d.nom || ""}</h2>
+      <h2>${d.prenom || ""} ${d.nom || ""}</h2>
+
+      <span class="badge">
+        ${d.produits || "Artiste"}
+      </span>
+
+      <!-- RATING -->
+      <div class="rating">
+        ${stars} <span>(${rating.toFixed(1)})</span>
       </div>
 
-      <div class="artist-dispo-box">
-        <p>Prochaine disponibilité</p>
-        <div class="dates">
-          ${dispo.map(date => `<span>${date}</span>`).join("")}
-        </div>
-      </div>
-
-      <button class="calendar-btn" onclick="openArtistPage('${id}')">
-        Voir le calendrier
-      </button>
-
-      <div class="artist-services-scroll">
+      <!-- SERVICES -->
+      <div class="services">
         ${servicesHTML}
       </div>
 
-      <div class="artist-comments" id="comments-${id}">
-        Chargement...
-      </div>
+      <!-- CTA -->
+      <button class="cta" onclick="openArtistPage('${id}')">
+        Voir profil
+      </button>
 
     </div>
+
   </div>
   `;
 }
