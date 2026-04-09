@@ -56,17 +56,28 @@ const productsList = document.getElementById("productsList");
 let mediaFiles = [];
 
 document.getElementById("backMenu")?.addEventListener("click", () => {
-  window.location.href = "menu.html"; // adapte si besoin
+  window.location.href = "application.html";
 });
 
 /* ================= AUTH CHECK ================= */
 
+let authChecked = false;
+
 onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.href = "application.html";
-  } else {
+
+  if (user) {
     currentUser = user;
+    authChecked = true;
+    return;
   }
+
+  // ⏱️ attendre un peu pour éviter faux null
+  setTimeout(() => {
+    if (!currentUser) {
+      window.location.href = "application.html";
+    }
+  }, 800);
+
 });
 
 /* ================= PHOTO ================= */
