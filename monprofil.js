@@ -69,16 +69,25 @@ onAuthStateChanged(auth, (user) => {
 
   if (user) {
     currentUser = user;
-    authChecked = true;
-    return;
+    document.getElementById("loader").style.display = "none";
+  } else {
+    window.location.href = "application.html";
   }
 
-  // ⏱️ attendre un peu pour éviter faux null
-  setTimeout(() => {
-    if (!currentUser) {
-      window.location.href = "application.html";
-    }
-  }, 800);
+});
+
+const loader = document.getElementById("loader");
+
+loader.style.display = "flex";
+
+onAuthStateChanged(auth, (user) => {
+
+  if (user) {
+    currentUser = user;
+    loader.style.display = "none";
+  } else {
+    window.location.href = "application.html";
+  }
 
 });
 
