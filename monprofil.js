@@ -55,26 +55,11 @@ const productsList = document.getElementById("productsList");
 
 let mediaFiles = [];
 
-document.getElementById("backMenu")?.addEventListener("click", () => {
-  window.location.href = "application.html";
-});
-
 document.getElementById("loader").style.display = "none";
 
 /* ================= AUTH CHECK ================= */
 
 let authChecked = false;
-
-onAuthStateChanged(auth, (user) => {
-
-  if (user) {
-    currentUser = user;
-    document.getElementById("loader").style.display = "none";
-  } else {
-    window.location.href = "application.html";
-  }
-
-});
 
 const loader = document.getElementById("loader");
 
@@ -82,13 +67,21 @@ loader.style.display = "flex";
 
 onAuthStateChanged(auth, (user) => {
 
+  loader.style.display = "none";
+
   if (user) {
     currentUser = user;
-    loader.style.display = "none";
   } else {
-    window.location.href = "application.html";
+    console.warn("Utilisateur non connecté");
+    
+    // ✅ OPTION : afficher un message
+    alert("Tu n'es pas connecté");
   }
 
+});
+
+document.getElementById("backMenu")?.addEventListener("click", () => {
+  window.location.href = "application.html";
 });
 
 /* ================= PHOTO ================= */
