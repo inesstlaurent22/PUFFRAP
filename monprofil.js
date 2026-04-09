@@ -59,25 +59,6 @@ document.getElementById("loader").style.display = "none";
 
 /* ================= AUTH CHECK ================= */
 
-let authChecked = false;
-
-onAuthStateChanged(auth, (user) => {
-
-  if (user) {
-    currentUser = user;
-    authChecked = true;
-    return;
-  }
-
-  // ⏱️ attendre un peu pour éviter faux null
-  setTimeout(() => {
-    if (!currentUser) {
-      window.location.href = "application.html";
-    }
-  }, 800);
-
-});
-
 document.getElementById("backMenu")?.addEventListener("click", () => {
   window.location.href = "application.html";
 });
