@@ -1,10 +1,12 @@
 /* ================= IMPORTS FIREBASE ================= */
 
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, updateEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 const auth = getAuth();
 const db = getFirestore();
+const storage = getStorage();
 
 /* ================= ELEMENTS ================= */
 
@@ -17,18 +19,26 @@ const productsList = document.getElementById("productsList");
 
 let mediaFiles = [];
 
+/* ================= AUTH CHECK ================= */
+
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = "application.html";
+  }
+});
+
 /* ================= PHOTO ================= */
 
 uploadBtn?.addEventListener("click", () => inputFile?.click());
 
 inputFile?.addEventListener("change", () => {
   const file = inputFile.files?.[0];
-  if(!file) return;
+  if (!file) return;
 
   const reader = new FileReader();
 
   reader.onload = () => {
-    if(preview) preview.src = reader.result;
+    if (preview) preview.src = reader.result;
     localStorage.setItem("photo", reader.result);
   };
 
@@ -82,9 +92,37 @@ document.getElementById("addProduct")?.addEventListener("click", () => {
   setTimeout(() => div.querySelector("input")?.focus(), 50);
 });
 
+/* ================= UPLOAD MEDIA FIREBASE ================= */
+
+async function uploadMediaFiles(uid) {
+  for (const file of mediaFiles) {
+
+    const storageRef = ref(storage, `artists/${uid}/${file.name}`);
+
+    await uploadBytes(storageRef, file);
+
+    const url = await getDownloadURL(storageRef);
+
+    await updateDoc(doc(db, "users", uid), {
+      media: arrayUnion({
+        name: file.name,
+        url,
+        type: file.type
+      })
+    });
+  }
+}
+
 /* ================= SAVE ================= */
 
 document.getElementById("saveProfile")?.addEventListener("click", async () => {
+
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("Utilisateur non connecté");
+    return;
+  }
 
   const nom = document.getElementById("nom")?.value || "";
   const prenom = document.getElementById("prenom")?.value || "";
@@ -103,7 +141,7 @@ document.getElementById("saveProfile")?.addEventListener("click", async () => {
     const name = inputs[0]?.value.trim();
     const price = parseFloat(inputs[1]?.value);
 
-    if(name && !isNaN(price)){
+    if (name && !isNaN(price)) {
       products.push({ name, price });
     }
   });
@@ -122,29 +160,43 @@ document.getElementById("saveProfile")?.addEventListener("click", async () => {
 
   localStorage.setItem("profile", JSON.stringify(data));
 
-  /* ===== FIRESTORE ===== */
-  const user = auth.currentUser;
+  try {
 
-  if(user){
-    try{
-      await updateDoc(doc(db, "artists", user.uid), {
-        nom,
-        prenom,
-        email,
-        produits: metier,
-        metier,
+    /* 🔐 UPDATE EMAIL AUTH */
+    if (email && email !== user.email) {
+      await updateEmail(user, email);
+    }
+
+    /* 🔥 FIRESTORE STRUCTURE PROPRE */
+    await setDoc(doc(db, "users", user.uid), {
+      role: "artist",
+      email,
+      profile: {
+        firstName: prenom,
+        lastName: nom,
+        metier
+      },
+      socialLinks: {
         instagram,
         portfolio,
-        tiktok,
-        services: products,
-        updatedAt: Date.now()
-      });
-    } catch(e){
-      console.error("Erreur Firestore:", e);
+        tiktok
+      },
+      products,
+      updatedAt: new Date()
+    }, { merge: true });
+
+    /* 🎵 UPLOAD MEDIA */
+    if (mediaFiles.length > 0) {
+      await uploadMediaFiles(user.uid);
     }
+
+    alert("Profil enregistré ✅");
+
+  } catch (e) {
+    console.error("Erreur Firebase:", e);
+    alert("Erreur : " + e.message);
   }
 
-  alert("Profil enregistré");
 });
 
 /* ================= LOAD ================= */
@@ -155,7 +207,7 @@ window.addEventListener("load", () => {
 
   try {
     data = JSON.parse(localStorage.getItem("profile"));
-  } catch(e){
+  } catch (e) {
     console.error("Erreur parsing localStorage:", e);
   }
 
@@ -168,13 +220,13 @@ window.addEventListener("load", () => {
   const tiktokInput = document.getElementById("tiktok");
 
   if (data) {
-    if(nomInput) nomInput.value = data.nom || "";
-    if(prenomInput) prenomInput.value = data.prenom || "";
-    if(emailInput) emailInput.value = data.email || "";
-    if(metierInput) metierInput.value = data.metier || "";
-    if(instagramInput) instagramInput.value = data.instagram || "";
-    if(portfolioInput) portfolioInput.value = data.portfolio || "";
-    if(tiktokInput) tiktokInput.value = data.tiktok || "";
+    if (nomInput) nomInput.value = data.nom || "";
+    if (prenomInput) prenomInput.value = data.prenom || "";
+    if (emailInput) emailInput.value = data.email || "";
+    if (metierInput) metierInput.value = data.metier || "";
+    if (instagramInput) instagramInput.value = data.instagram || "";
+    if (portfolioInput) portfolioInput.value = data.portfolio || "";
+    if (tiktokInput) tiktokInput.value = data.tiktok || "";
   }
 
   /* PHOTO */
@@ -201,5 +253,6 @@ window.addEventListener("load", () => {
 
 document.getElementById("logoutBtn")?.addEventListener("click", () => {
   localStorage.clear();
+  auth.signOut();
   window.location.href = "application.html";
 });
