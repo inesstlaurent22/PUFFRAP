@@ -61,22 +61,20 @@ document.getElementById("loader").style.display = "none";
 
 let authChecked = false;
 
-const loader = document.getElementById("loader");
-
-loader.style.display = "flex";
-
 onAuthStateChanged(auth, (user) => {
-
-  loader.style.display = "none";
 
   if (user) {
     currentUser = user;
-  } else {
-    console.warn("Utilisateur non connecté");
-    
-    // ✅ OPTION : afficher un message
-    alert("Tu n'es pas connecté");
+    authChecked = true;
+    return;
   }
+
+  // ⏱️ attendre un peu pour éviter faux null
+  setTimeout(() => {
+    if (!currentUser) {
+      window.location.href = "application.html";
+    }
+  }, 800);
 
 });
 
