@@ -1,125 +1,172 @@
+/* ================= BASE ================= */
+
 body {
   margin: 0;
-  font-family: Arial;
-  background: white; /* ✅ fond blanc */
-  color: black; /* ✅ texte noir */
+  font-family: 'Inter', Arial, sans-serif;
+  background: #0b0b0b;
+  color: #f5f5f5;
 }
 
-/* LAYOUT */
+/* ================= LAYOUT ================= */
+
 .layout {
   display: flex;
+  min-height: 100vh;
 }
 
-/* SIDEBAR */
+/* ================= SIDEBAR ================= */
+
 .sidebar {
-  width: 200px;
-  padding: 20px;
-  background: #f5f5f5; /* léger fond pour contraste */
+  width: 220px;
+  padding: 30px 20px;
+  background: #111;
+  border-right: 1px solid rgba(255,255,255,0.05);
 }
 
 .sidebar button {
   width: 100%;
-  margin-bottom: 10px;
-  padding: 12px;
-  border-radius: 20px;
+  margin-bottom: 12px;
+  padding: 14px;
+  border-radius: 12px;
   border: none;
-  background: #7ed957;
-  color: black; /* ✅ texte bouton noir */
+  background: transparent;
+  color: #aaa;
+  text-align: left;
   cursor: pointer;
-  font-weight: 500;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.sidebar button:hover {
+  background: rgba(212, 175, 55, 0.1);
+  color: #d4af37;
 }
 
 .sidebar .active {
-  background: #5bc236;
+  background: rgba(212, 175, 55, 0.15);
+  color: #d4af37;
+  font-weight: 600;
 }
 
-/* CONTENT */
+/* ================= CONTENT ================= */
+
 .content {
   flex: 1;
-  padding: 40px;
+  padding: 50px;
 }
 
-/* TITRES */
-h1, h2 {
-  color: black; /* ✅ titres noirs */
+/* ================= TITRES ================= */
+
+h1 {
+  font-size: 32px;
+  margin-bottom: 30px;
+  font-weight: 600;
 }
 
-/* TOP */
+h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #d4af37;
+}
+
+/* ================= TOP ================= */
+
 .top-section {
   display: flex;
   justify-content: space-between;
+  gap: 40px;
 }
 
 .infos {
   width: 60%;
 }
 
-.infos input {
+/* ================= INPUT ================= */
+
+input {
   width: 100%;
   margin-bottom: 15px;
-  padding: 15px;
-  border-radius: 20px;
-  border: 1px solid #ddd;
-  background: white; /* ✅ fond blanc */
-  color: black;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: #111;
+  color: white;
+  outline: none;
+  transition: 0.2s;
 }
 
-/* PHOTO */
+input:focus {
+  border: 1px solid #d4af37;
+  box-shadow: 0 0 10px rgba(212,175,55,0.2);
+}
+
+/* ================= PHOTO ================= */
+
 .photo-section {
   text-align: center;
 }
 
 .photo-section img {
-  width: 150px;
-  height: 150px;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
+  border: 2px solid #d4af37;
+  object-fit: cover;
 }
 
 .photo-section button {
-  margin-top: 10px;
+  margin-top: 15px;
   padding: 10px 20px;
-  border-radius: 20px;
+  border-radius: 30px;
   border: none;
-  background: #7ed957;
-  color: black; /* ✅ texte noir */
+  background: linear-gradient(135deg, #d4af37, #f1d77a);
+  color: black;
+  font-weight: 600;
   cursor: pointer;
+  transition: 0.3s;
 }
 
-/* LINKS */
+.photo-section button:hover {
+  transform: scale(1.05);
+}
+
+/* ================= LINKS ================= */
+
 .links {
   display: flex;
-  gap: 10px;
+  gap: 15px;
+  margin-top: 40px;
+}
+
+/* ================= MEDIA ================= */
+
+.media-section {
   margin-top: 30px;
 }
 
-.links input {
-  flex: 1;
-  padding: 10px;
-  border-radius: 20px;
-  border: 1px solid #ddd;
-  background: white;
-  color: black;
-}
-
-/* MEDIA */
-.media-section {
-  margin-top: 20px;
-}
-
-/* INPUT FILE */
 .media-section input {
-  margin-bottom: 10px;
+  background: #111;
+  border: 1px dashed rgba(255,255,255,0.2);
+  cursor: pointer;
+}
+
+#mediaPreview {
+  display: flex;
+  flex-wrap: wrap;
 }
 
 #mediaPreview video,
 #mediaPreview audio {
-  width: 120px;
+  width: 130px;
   margin: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
-/* PRODUCTS */
+/* ================= PRODUCTS ================= */
+
 .products {
-  margin-top: 30px;
+  margin-top: 40px;
 }
 
 .product {
@@ -128,35 +175,40 @@ h1, h2 {
   margin-bottom: 10px;
 }
 
-.product input {
-  flex: 1;
-  padding: 10px;
-  border-radius: 20px;
-  border: 1px solid #ddd;
-  background: white;
-  color: black;
-}
+/* ADD PRODUCT BUTTON */
 
-/* BUTTON ADD PRODUCT */
 #addProduct {
   margin-top: 10px;
   padding: 10px 20px;
-  border-radius: 20px;
+  border-radius: 30px;
   border: none;
-  background: #7ed957;
-  color: black;
+  background: rgba(212, 175, 55, 0.15);
+  color: #d4af37;
   cursor: pointer;
+  transition: 0.3s;
 }
 
-/* SAVE */
+#addProduct:hover {
+  background: rgba(212, 175, 55, 0.3);
+}
+
+/* ================= SAVE ================= */
+
 .save {
-  margin-top: 30px;
-  padding: 15px;
+  margin-top: 40px;
+  padding: 16px;
   width: 100%;
-  border-radius: 20px;
+  border-radius: 40px;
   border: none;
-  background: #5bc236;
-  color: black; /* ✅ texte noir */
+  background: linear-gradient(135deg, #d4af37, #f1d77a);
+  color: black;
+  font-size: 16px;
   font-weight: bold;
   cursor: pointer;
+  transition: 0.3s;
+}
+
+.save:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 20px rgba(212,175,55,0.3);
 }
