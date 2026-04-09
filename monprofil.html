@@ -15,74 +15,101 @@
 <div class="layout">
 
   <!-- MENU -->
-  <div class="sidebar">
+  <aside class="sidebar">
     <button class="active">Mon compte</button>
     <button>Réservations</button>
     <button>Favoris</button>
     <button id="logoutBtn">Déconnexion</button>
-  </div>
+  </aside>
 
   <!-- CONTENU -->
-  <div class="content">
+  <main class="content">
 
     <h1>Mon profil</h1>
 
     <!-- TOP -->
-    <div class="top-section">
+    <section class="top-section">
 
       <!-- INFOS -->
       <div class="infos">
 
-        <input id="nom" placeholder="Nom">
-        <input id="prenom" placeholder="Prénom">
-        <input id="email" placeholder="Email">
-        <input id="password" type="password" placeholder="Nouveau mot de passe">
-        <input id="metier" placeholder="Métier">
+        <input id="nom" type="text" placeholder="Nom" autocomplete="family-name">
+        <input id="prenom" type="text" placeholder="Prénom" autocomplete="given-name">
+        <input id="email" type="email" placeholder="Email" autocomplete="email">
+
+        <!-- ⚠️ Password séparé (sécurité) -->
+        <input id="password" type="password" placeholder="Nouveau mot de passe" autocomplete="new-password">
+
+        <input id="metier" type="text" placeholder="Métier">
 
       </div>
 
       <!-- PHOTO -->
       <div class="photo-section">
 
-        <img id="profilePreview" src="https://via.placeholder.com/150">
+        <img 
+          id="profilePreview" 
+          src="https://via.placeholder.com/150" 
+          alt="Photo de profil"
+        >
 
-        <input type="file" id="profileImage" hidden>
-        <button id="uploadBtn">Télécharger</button>
+        <input type="file" id="profileImage" accept="image/*" hidden>
+
+        <button id="uploadBtn" type="button">
+          Télécharger une photo
+        </button>
 
       </div>
 
-    </div>
+    </section>
 
     <!-- LIENS -->
-    <div class="links">
-      <input id="instagram" placeholder="Instagram">
-      <input id="portfolio" placeholder="Portfolio">
-      <input id="tiktok" placeholder="TikTok">
-    </div>
+    <section class="links">
+      <input id="instagram" type="url" placeholder="Lien Instagram">
+      <input id="portfolio" type="url" placeholder="Site / Portfolio">
+      <input id="tiktok" type="url" placeholder="Lien TikTok">
+    </section>
 
     <!-- MEDIAS -->
-    <div class="media-section">
-      <input type="file" id="mediaInput" multiple accept=".mp3,.mp4,.mov">
+    <section class="media-section">
+
+      <label for="mediaInput">Ajouter des médias (max 5)</label>
+
+      <input 
+        type="file" 
+        id="mediaInput" 
+        multiple 
+        accept="audio/*,video/*"
+      >
+
       <div id="mediaPreview"></div>
-    </div>
+
+    </section>
 
     <!-- PRODUITS -->
-    <div class="products">
-      <h2>Produits</h2>
+    <section class="products">
+
+      <h2>Produits / Services</h2>
 
       <div id="productsList"></div>
 
-      <button id="addProduct">+ Ajouter</button>
-    </div>
+      <button id="addProduct" type="button">
+        + Ajouter un produit
+      </button>
+
+    </section>
 
     <!-- SAVE -->
-    <button id="saveProfile" class="save">Enregistrer</button>
+    <button id="saveProfile" class="save" type="button">
+      Enregistrer
+    </button>
 
-  </div>
+  </main>
 
 </div>
 
-<script src="monprofil.js"></script>
+<!-- ⚠️ IMPORTANT : module pour Firebase -->
+<script type="module" src="monprofil.js"></script>
 
 </body>
 </html>
