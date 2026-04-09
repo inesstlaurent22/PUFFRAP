@@ -1,12 +1,48 @@
 /* ================= IMPORTS FIREBASE ================= */
 
-import { getAuth, onAuthStateChanged, updateEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 
-const auth = getAuth();
-const db = getFirestore();
-const storage = getStorage();
+import {
+  getAuth,
+  onAuthStateChanged,
+  updateEmail,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  updateDoc,
+  arrayUnion
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+/* ================= CONFIG FIREBASE ================= */
+
+const firebaseConfig = {
+  apiKey: "TON_API_KEY",
+  authDomain: "TON_PROJECT.firebaseapp.com",
+  projectId: "TON_PROJECT",
+  storageBucket: "TON_PROJECT.appspot.com",
+  appId: "TON_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+/* ================= USER GLOBAL ================= */
+
+let currentUser = null;
 
 /* ================= ELEMENTS ================= */
 
@@ -24,6 +60,8 @@ let mediaFiles = [];
 onAuthStateChanged(auth, (user) => {
   if (!user) {
     window.location.href = "application.html";
+  } else {
+    currentUser = user;
   }
 });
 
@@ -88,28 +126,30 @@ document.getElementById("addProduct")?.addEventListener("click", () => {
   `;
 
   productsList?.appendChild(div);
-
-  setTimeout(() => div.querySelector("input")?.focus(), 50);
 });
 
 /* ================= UPLOAD MEDIA FIREBASE ================= */
 
 async function uploadMediaFiles(uid) {
   for (const file of mediaFiles) {
+    try {
+      const storageRef = ref(storage, `artists/${uid}/${file.name}`);
 
-    const storageRef = ref(storage, `artists/${uid}/${file.name}`);
+      await uploadBytes(storageRef, file);
 
-    await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
 
-    const url = await getDownloadURL(storageRef);
+      await updateDoc(doc(db, "users", uid), {
+        media: arrayUnion({
+          name: file.name,
+          url,
+          type: file.type
+        })
+      });
 
-    await updateDoc(doc(db, "users", uid), {
-      media: arrayUnion({
-        name: file.name,
-        url,
-        type: file.type
-      })
-    });
+    } catch (e) {
+      console.error("Erreur upload fichier:", e);
+    }
   }
 }
 
@@ -117,7 +157,7 @@ async function uploadMediaFiles(uid) {
 
 document.getElementById("saveProfile")?.addEventListener("click", async () => {
 
-  const user = auth.currentUser;
+  const user = currentUser;
 
   if (!user) {
     alert("Utilisateur non connecté");
@@ -162,12 +202,16 @@ document.getElementById("saveProfile")?.addEventListener("click", async () => {
 
   try {
 
-    /* 🔐 UPDATE EMAIL AUTH */
-    if (email && email !== user.email) {
-      await updateEmail(user, email);
+    /* 🔐 UPDATE EMAIL */
+    try {
+      if (email && email !== user.email) {
+        await updateEmail(user, email);
+      }
+    } catch (e) {
+      console.warn("Email non modifié :", e.message);
     }
 
-    /* 🔥 FIRESTORE STRUCTURE PROPRE */
+    /* 🔥 FIRESTORE */
     await setDoc(doc(db, "users", user.uid), {
       role: "artist",
       email,
@@ -220,20 +264,18 @@ window.addEventListener("load", () => {
   const tiktokInput = document.getElementById("tiktok");
 
   if (data) {
-    if (nomInput) nomInput.value = data.nom || "";
-    if (prenomInput) prenomInput.value = data.prenom || "";
-    if (emailInput) emailInput.value = data.email || "";
-    if (metierInput) metierInput.value = data.metier || "";
-    if (instagramInput) instagramInput.value = data.instagram || "";
-    if (portfolioInput) portfolioInput.value = data.portfolio || "";
-    if (tiktokInput) tiktokInput.value = data.tiktok || "";
+    nomInput && (nomInput.value = data.nom || "");
+    prenomInput && (prenomInput.value = data.prenom || "");
+    emailInput && (emailInput.value = data.email || "");
+    metierInput && (metierInput.value = data.metier || "");
+    instagramInput && (instagramInput.value = data.instagram || "");
+    portfolioInput && (portfolioInput.value = data.portfolio || "");
+    tiktokInput && (tiktokInput.value = data.tiktok || "");
   }
 
-  /* PHOTO */
   const photo = localStorage.getItem("photo");
   if (photo && preview) preview.src = photo;
 
-  /* PRODUITS */
   if (data?.products && productsList) {
     data.products.forEach(p => {
       const div = document.createElement("div");
@@ -251,8 +293,8 @@ window.addEventListener("load", () => {
 
 /* ================= LOGOUT ================= */
 
-document.getElementById("logoutBtn")?.addEventListener("click", () => {
+document.getElementById("logoutBtn")?.addEventListener("click", async () => {
   localStorage.clear();
-  auth.signOut();
+  await signOut(auth);
   window.location.href = "application.html";
 });
