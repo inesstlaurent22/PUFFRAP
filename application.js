@@ -57,12 +57,6 @@ const productsList = document.getElementById("productsList");
 
 let mediaFiles = [];
 
-document.getElementById("backMenu")?.addEventListener("click", () => {
-  window.location.href = "application.html";
-});
-
-document.getElementById("loader").style.display = "none";
-
 /* ================= AUTH CHECK ================= */
 
 let authChecked = false;
