@@ -48,3 +48,45 @@ button {
   border-radius: 8px;
   cursor: pointer;
 }
+
+/* SECTION ARTISTES */
+.artists-section {
+  padding: 40px;
+}
+
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+/* CARD */
+.card {
+  background: #111;
+  padding: 20px;
+  border-radius: 15px;
+  border: 1px solid #222;
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: scale(1.05);
+  border-color: #D4AF37;
+}
+
+.profile-img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.card h2 {
+  color: #D4AF37;
+}
+
+.card p {
+  font-size: 14px;
+  color: #ccc;
+}
