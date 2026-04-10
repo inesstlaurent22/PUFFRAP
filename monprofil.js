@@ -243,7 +243,14 @@ document.getElementById("saveProfile")?.addEventListener("click", async () => {
 
 /* ================= LOAD ================= */
 
+/* ================= LOAD ================= */
+
 window.addEventListener("load", () => {
+
+  // ✅ BOUTON RETOUR MENU
+  document.getElementById("backMenu")?.addEventListener("click", () => {
+    window.location.href = "application.html";
+  });
 
   let data = null;
 
