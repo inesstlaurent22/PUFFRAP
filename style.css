@@ -1,78 +1,50 @@
-/* RESET */
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  background: black;
+  font-family: 'Inter', sans-serif;
+  background: #0B0B0B;
   color: white;
-  height: 100vh;
 }
 
-/* WRAPPER */
-.wrapper {
+/* NAVBAR */
+.navbar {
   display: flex;
-  justify-content: center;
-  height: 100vh;
-}
-
-/* CONTENU */
-.content {
-  width: 100%;
-  max-width: 380px;
-
-  display: flex;
-  flex-direction: column;
-
+  justify-content: space-between;
   padding: 20px;
-  height: 100%;
 }
 
-/* TOP CONTENT */
-h1 {
-  font-size: 22px;
-  margin-bottom: 15px;
-  text-align: center;
+.logo {
+  color: #D4AF37;
 }
 
-p {
-  font-size: 14px;
-  color: #ccc;
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-/* BUTTONS */
-.buttons {
+/* HERO */
+.hero {
+  height: 90vh;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 20px;
+  justify-content: center;
+  align-items: center;
+  background: url("images/city-night.jpg") center/cover;
+  text-align: center;
 }
 
-.buttons button {
-  background: #7ed957;
+.hero h2 {
+  font-size: 40px;
+}
+
+input {
+  padding: 15px;
+  width: 300px;
+  margin: 20px 0;
+  border-radius: 10px;
   border: none;
-  padding: 14px;
-  border-radius: 25px;
-  color: white;
-  font-weight: bold;
 }
 
-/* ================= SLIDER FULL HEIGHT ================= */
-
-.slider {
-  flex: 1; /* 🔥 prend tout l'espace restant */
-  overflow: hidden;
-  border-radius: 15px;
-}
-
-.slides {
-  display: flex;
-  height: 100%;
-  transition: transform 0.4s ease;
-}
-
-.slide {
-  min-width: 100%;
-  height: 100%;
-  object-fit: cover;
+button {
+  padding: 12px 20px;
+  margin: 10px;
+  background: #D4AF37;
+  border: none;
+  color: black;
+  border-radius: 8px;
+  cursor: pointer;
 }
