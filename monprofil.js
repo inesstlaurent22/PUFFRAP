@@ -1,381 +1,78 @@
-/* ================= IMPORTS FIREBASE ================= */
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-
-import {
-  getAuth,
-  onAuthStateChanged,
-  updateEmail,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 import {
   getFirestore,
   doc,
-  setDoc,
-  updateDoc,
-  arrayUnion
+  getDoc,
+  collection,
+  getDocs
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-import {
-  getStorage,
-  ref,
-  uploadBytes,
-  getDownloadURL
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-
-import { getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-/* ================= CONFIG FIREBASE ================= */
-
+/* CONFIG FIREBASE */
 const firebaseConfig = {
-  apiKey: "TON_API_KEY",
-  authDomain: "TON_PROJECT.firebaseapp.com",
-  projectId: "TON_PROJECT",
-  storageBucket: "TON_PROJECT.appspot.com",
-  appId: "TON_APP_ID"
+  apiKey: "XXX",
+  authDomain: "XXX",
+  projectId: "XXX",
 };
 
 const app = initializeApp(firebaseConfig);
-
-const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
 
-/* ================= AUTH STATE ================= */
+/* 🔥 RÉCUPÉRER ID */
+const params = new URLSearchParams(window.location.search);
+const artistId = params.get("id");
 
-onAuthStateChanged(auth, (user) => {
+/* 🔥 LOAD PROFIL */
+async function loadProfile() {
 
-  if (user) {
-    currentUser = user;
-    console.log("Utilisateur connecté :", user.email);
-  } else {
-    currentUser = null;
-    console.log("Aucun utilisateur");
-  }
+  const docRef = doc(db, "artists", artistId);
+  const docSnap = await getDoc(docRef);
 
-});
+  if (docSnap.exists()) {
 
-document.getElementById("saveProfile")?.addEventListener("click", async () => {
+    const artist = docSnap.data();
 
-  if (!currentUser) {
-    alert("Chargement utilisateur... réessaie dans 1 seconde");
-    return;
-  }
+    document.getElementById("profileImage").src =
+      artist.profileImage || "https://via.placeholder.com/150";
 
-  const user = currentUser;
+    document.getElementById("username").innerText = artist.username;
+    document.getElementById("city").innerText = artist.city;
+    document.getElementById("description").innerText = artist.description;
+    document.getElementById("rating").innerText = "⭐ " + artist.rating;
 
-  ...
-});
-
-const saveBtn = document.getElementById("saveProfile");
-
-saveBtn.disabled = true;
-
-onAuthStateChanged(auth, (user) => {
-
-  if (user) {
-    currentUser = user;
-    saveBtn.disabled = false;
-  }
-
-});
-
-/* ================= USER GLOBAL ================= */
-
-let currentUser = null;
-
-/* ================= ELEMENTS ================= */
-
-const preview = document.getElementById("profilePreview");
-const inputFile = document.getElementById("profileImage");
-const uploadBtn = document.getElementById("uploadBtn");
-const mediaInput = document.getElementById("mediaInput");
-const mediaPreview = document.getElementById("mediaPreview");
-const productsList = document.getElementById("productsList");
-
-let mediaFiles = [];
-
-document.getElementById("loader").style.display = "none";
-
-/* ================= AUTH CHECK ================= */
-
-document.getElementById("backMenu")?.addEventListener("click", () => {
-  window.location.href = "application.html";
-});
-
-/* ================= PHOTO FIREBASE ================= */
-
-uploadBtn?.addEventListener("click", () => inputFile?.click());
-
-inputFile?.addEventListener("change", async () => {
-
-  const file = inputFile.files?.[0];
-  if (!file || !currentUser) return;
-
-  try {
-    const storageRef = ref(storage, `profileImages/${currentUser.uid}`);
-
-    // upload
-    await uploadBytes(storageRef, file);
-
-    // récupérer URL
-    const url = await getDownloadURL(storageRef);
-
-    // afficher direct
-    if (preview) preview.src = url;
-
-    // sauvegarder dans Firestore
-    await setDoc(doc(db, "users", currentUser.uid), {
-      photoURL: url
-    }, { merge: true });
-
-    console.log("Photo sauvegardée :", url);
-
-  } catch (e) {
-    console.error("Erreur upload photo :", e);
-  }
-
-});
-
-/* ================= LOAD PHOTO FIREBASE ================= */
-
-onAuthStateChanged(auth, async (user) => {
-
-  if (!user) return;
-
-  const docRef = doc(db, "users", user.uid);
-
-  const snap = await getDoc(docRef);
-
-  if (snap.exists()) {
-    const data = snap.data();
-
-    if (data.photoURL && preview) {
-      preview.src = data.photoURL;
-    }
-  }
-
-});
-
-
-/* ================= MEDIA ================= */
-
-mediaInput?.addEventListener("change", () => {
-  const files = Array.from(mediaInput.files || []);
-
-  if (mediaFiles.length + files.length > 5) {
-    alert("Max 5 fichiers");
-    return;
-  }
-
-  files.forEach(file => {
-    mediaFiles.push(file);
-
-    const url = URL.createObjectURL(file);
-
-    if (file.type.includes("video")) {
-      const video = document.createElement("video");
-      video.src = url;
-      video.controls = true;
-      mediaPreview?.appendChild(video);
-    }
-
-    if (file.type.includes("audio")) {
-      const audio = document.createElement("audio");
-      audio.src = url;
-      audio.controls = true;
-      mediaPreview?.appendChild(audio);
-    }
-  });
-});
-
-/* ================= PRODUITS ================= */
-
-document.getElementById("addProduct")?.addEventListener("click", () => {
-  const div = document.createElement("div");
-  div.className = "product";
-
-  div.innerHTML = `
-    <input placeholder="Nom produit">
-    <input type="number" placeholder="Prix">
-  `;
-
-  productsList?.appendChild(div);
-});
-
-/* ================= UPLOAD MEDIA FIREBASE ================= */
-
-async function uploadMediaFiles(uid) {
-  for (const file of mediaFiles) {
-    try {
-      const storageRef = ref(storage, `artists/${uid}/${file.name}`);
-
-      await uploadBytes(storageRef, file);
-
-      const url = await getDownloadURL(storageRef);
-
-      await updateDoc(doc(db, "users", uid), {
-        media: arrayUnion({
-          name: file.name,
-          url,
-          type: file.type
-        })
-      });
-
-    } catch (e) {
-      console.error("Erreur upload fichier:", e);
-    }
   }
 }
 
-/* ================= SAVE ================= */
+/* 🔥 LOAD PORTFOLIO */
+async function loadPortfolio() {
 
-document.getElementById("saveProfile")?.addEventListener("click", async () => {
+  const container = document.getElementById("portfolioContainer");
 
-  const user = currentUser;
+  const snapshot = await getDocs(collection(db, "artists", artistId, "portfolio"));
 
-  if (!user) {
-    alert("Utilisateur non connecté");
-    return;
-  }
+  snapshot.forEach(doc => {
 
-  const nom = document.getElementById("nom")?.value || "";
-  const prenom = document.getElementById("prenom")?.value || "";
-  const email = document.getElementById("email")?.value || "";
-  const metier = document.getElementById("metier")?.value || "";
-  const instagram = document.getElementById("instagram")?.value || "";
-  const portfolio = document.getElementById("portfolio")?.value || "";
-  const tiktok = document.getElementById("tiktok")?.value || "";
+    const item = doc.data();
 
-  /* ===== PRODUITS ===== */
-  const products = [];
+    let media = "";
 
-  document.querySelectorAll(".product").forEach(p => {
-    const inputs = p.querySelectorAll("input");
-
-    const name = inputs[0]?.value.trim();
-    const price = parseFloat(inputs[1]?.value);
-
-    if (name && !isNaN(price)) {
-      products.push({ name, price });
+    if (item.type === "audio") {
+      media = `<audio controls src="${item.fileURL}"></audio>`;
     }
+
+    if (item.type === "video") {
+      media = `<video controls src="${item.fileURL}"></video>`;
+    }
+
+    container.innerHTML += `
+      <div class="card">
+        <h4>${item.title}</h4>
+        ${media}
+      </div>
+    `;
   });
+}
 
-  /* ===== LOCAL STORAGE ===== */
-  const data = {
-    nom,
-    prenom,
-    email,
-    metier,
-    instagram,
-    portfolio,
-    tiktok,
-    products
-  };
-
-  localStorage.setItem("profile", JSON.stringify(data));
-
-  try {
-
-    /* 🔐 UPDATE EMAIL */
-    try {
-      if (email && email !== user.email) {
-        await updateEmail(user, email);
-      }
-    } catch (e) {
-      console.warn("Email non modifié :", e.message);
-    }
-
-    /* 🔥 FIRESTORE */
-    await setDoc(doc(db, "users", user.uid), {
-      role: "artist",
-      email,
-      profile: {
-        firstName: prenom,
-        lastName: nom,
-        metier
-      },
-      socialLinks: {
-        instagram,
-        portfolio,
-        tiktok
-      },
-      products,
-      updatedAt: new Date()
-    }, { merge: true });
-
-    /* 🎵 UPLOAD MEDIA */
-    if (mediaFiles.length > 0) {
-      await uploadMediaFiles(user.uid);
-    }
-
-    alert("Profil enregistré ✅");
-
-  } catch (e) {
-    console.error("Erreur Firebase:", e);
-    alert("Erreur : " + e.message);
-  }
-
-});
-
-/* ================= LOAD ================= */
-
-window.addEventListener("load", () => {
-
-  // ✅ BOUTON RETOUR MENU
-  document.getElementById("backMenu")?.addEventListener("click", () => {
-    window.location.href = "application.html";
-  });
-
-  let data = null;
-
-  try {
-    data = JSON.parse(localStorage.getItem("profile"));
-  } catch (e) {
-    console.error("Erreur parsing localStorage:", e);
-  }
-
-  const nomInput = document.getElementById("nom");
-  const prenomInput = document.getElementById("prenom");
-  const emailInput = document.getElementById("email");
-  const metierInput = document.getElementById("metier");
-  const instagramInput = document.getElementById("instagram");
-  const portfolioInput = document.getElementById("portfolio");
-  const tiktokInput = document.getElementById("tiktok");
-
-  if (data) {
-    nomInput && (nomInput.value = data.nom || "");
-    prenomInput && (prenomInput.value = data.prenom || "");
-    emailInput && (emailInput.value = data.email || "");
-    metierInput && (metierInput.value = data.metier || "");
-    instagramInput && (instagramInput.value = data.instagram || "");
-    portfolioInput && (portfolioInput.value = data.portfolio || "");
-    tiktokInput && (tiktokInput.value = data.tiktok || "");
-  }
-
-  const photo = localStorage.getItem("photo");
-  if (photo && preview) preview.src = photo;
-
-  if (data?.products && productsList) {
-    data.products.forEach(p => {
-      const div = document.createElement("div");
-      div.className = "product";
-
-      div.innerHTML = `
-        <input value="${p.name || ""}" placeholder="Nom produit">
-        <input type="number" value="${p.price || ""}" placeholder="Prix">
-      `;
-
-      productsList.appendChild(div);
-    });
-  }
-});
-
-/* ================= LOGOUT ================= */
-
-document.getElementById("logoutBtn")?.addEventListener("click", async () => {
-  localStorage.clear();
-  await signOut(auth);
-  window.location.href = "application.html";
-});
+/* 🔥 INIT */
+loadProfile();
+loadPortfolio();
