@@ -24,6 +24,28 @@ import {
   getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
+
+/* ================= Recuperation données moncompte  ================= */
+
+import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const querySnapshot = await getDocs(collection(db, "users"));
+
+querySnapshot.forEach((docSnap) => {
+  const data = docSnap.data();
+
+  if (data.location && data.photoURL) {
+
+    const marker = new mapboxgl.Marker({
+      element: createCustomMarker(data.photoURL)
+    })
+    .setLngLat([data.location.lng, data.location.lat])
+    .addTo(map);
+
+  }
+
+});
+
 /* ================= CONFIG FIREBASE ================= */
 
 const firebaseConfig = {
