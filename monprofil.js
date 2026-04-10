@@ -40,6 +40,45 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
+/* ================= AUTH STATE ================= */
+
+onAuthStateChanged(auth, (user) => {
+
+  if (user) {
+    currentUser = user;
+    console.log("Utilisateur connecté :", user.email);
+  } else {
+    currentUser = null;
+    console.log("Aucun utilisateur");
+  }
+
+});
+
+document.getElementById("saveProfile")?.addEventListener("click", async () => {
+
+  if (!currentUser) {
+    alert("Chargement utilisateur... réessaie dans 1 seconde");
+    return;
+  }
+
+  const user = currentUser;
+
+  ...
+});
+
+const saveBtn = document.getElementById("saveProfile");
+
+saveBtn.disabled = true;
+
+onAuthStateChanged(auth, (user) => {
+
+  if (user) {
+    currentUser = user;
+    saveBtn.disabled = false;
+  }
+
+});
+
 /* ================= USER GLOBAL ================= */
 
 let currentUser = null;
