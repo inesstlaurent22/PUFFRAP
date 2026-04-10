@@ -24,6 +24,8 @@ import {
   getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
+import { getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
 /* ================= CONFIG FIREBASE ================= */
 
 const firebaseConfig = {
@@ -102,23 +104,60 @@ document.getElementById("backMenu")?.addEventListener("click", () => {
   window.location.href = "application.html";
 });
 
-/* ================= PHOTO ================= */
+/* ================= PHOTO FIREBASE ================= */
 
 uploadBtn?.addEventListener("click", () => inputFile?.click());
 
-inputFile?.addEventListener("change", () => {
+inputFile?.addEventListener("change", async () => {
+
   const file = inputFile.files?.[0];
-  if (!file) return;
+  if (!file || !currentUser) return;
 
-  const reader = new FileReader();
+  try {
+    const storageRef = ref(storage, `profileImages/${currentUser.uid}`);
 
-  reader.onload = () => {
-    if (preview) preview.src = reader.result;
-    localStorage.setItem("photo", reader.result);
-  };
+    // upload
+    await uploadBytes(storageRef, file);
 
-  reader.readAsDataURL(file);
+    // récupérer URL
+    const url = await getDownloadURL(storageRef);
+
+    // afficher direct
+    if (preview) preview.src = url;
+
+    // sauvegarder dans Firestore
+    await setDoc(doc(db, "users", currentUser.uid), {
+      photoURL: url
+    }, { merge: true });
+
+    console.log("Photo sauvegardée :", url);
+
+  } catch (e) {
+    console.error("Erreur upload photo :", e);
+  }
+
 });
+
+/* ================= LOAD PHOTO FIREBASE ================= */
+
+onAuthStateChanged(auth, async (user) => {
+
+  if (!user) return;
+
+  const docRef = doc(db, "users", user.uid);
+
+  const snap = await getDoc(docRef);
+
+  if (snap.exists()) {
+    const data = snap.data();
+
+    if (data.photoURL && preview) {
+      preview.src = data.photoURL;
+    }
+  }
+
+});
+
 
 /* ================= MEDIA ================= */
 
@@ -279,8 +318,6 @@ document.getElementById("saveProfile")?.addEventListener("click", async () => {
   }
 
 });
-
-/* ================= LOAD ================= */
 
 /* ================= LOAD ================= */
 
