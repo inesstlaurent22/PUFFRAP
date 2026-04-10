@@ -10,9 +10,13 @@ import {
 
 /* CONFIG FIREBASE */
 const firebaseConfig = {
-  apiKey: "XXX",
-  authDomain: "XXX",
-  projectId: "XXX",
+  apiKey: "AIzaSyA4IF_NqUVXXQxMWz3F1SM32NN5vLUpRoI",
+  authDomain: "puffrap-46658.firebaseapp.com",
+  projectId: "puffrap-46658",
+  storageBucket: "puffrap-46658.firebasestorage.app",
+  messagingSenderId: "217849878785",
+  appId: "1:217849878785:web:e4e7d90ae3b77a19e76300",
+  measurementId: "G-5LBQ1595QF"
 };
 
 const app = initializeApp(firebaseConfig);
