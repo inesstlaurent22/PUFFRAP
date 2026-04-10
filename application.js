@@ -24,27 +24,7 @@ import {
   getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-
-/* ================= Recuperation données moncompte  ================= */
-
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-const querySnapshot = await getDocs(collection(db, "users"));
-
-querySnapshot.forEach((docSnap) => {
-  const data = docSnap.data();
-
-  if (data.location && data.photoURL) {
-
-    const marker = new mapboxgl.Marker({
-      element: createCustomMarker(data.photoURL)
-    })
-    .setLngLat([data.location.lng, data.location.lat])
-    .addTo(map);
-
-  }
-
-});
 
 /* ================= CONFIG FIREBASE ================= */
 
@@ -329,6 +309,46 @@ window.addEventListener("load", () => {
     });
   }
 });
+
+/* ================= MARKER ================= */
+
+function createCustomMarker(photoURL) {
+  const el = document.createElement("div");
+
+  el.style.width = "50px";
+  el.style.height = "50px";
+  el.style.borderRadius = "50%";
+  el.style.backgroundImage = `url(${photoURL})`;
+  el.style.backgroundSize = "cover";
+  el.style.border = "2px solid #7ed957";
+  el.style.boxShadow = "0 0 10px rgba(126,217,87,0.5)";
+
+  return el;
+}
+
+/* ================= LOAD USERS MAP ================= */
+
+async function loadUsersOnMap() {
+
+  const querySnapshot = await getDocs(collection(db, "users"));
+
+  querySnapshot.forEach((docSnap) => {
+
+    const data = docSnap.data();
+
+    if (data.location && data.photoURL) {
+
+      new mapboxgl.Marker({
+        element: createCustomMarker(data.photoURL)
+      })
+      .setLngLat([data.location.lng, data.location.lat])
+      .addTo(map);
+
+    }
+
+  });
+
+}
 
 /* ================= LOGOUT ================= */
 
