@@ -16,6 +16,13 @@ import {
   getDocs
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
 /* CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyA4IF_NqUVXXQxMWz3F1SM32NN5vLUpRoI",
@@ -30,6 +37,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 /* ================= MODALS ================= */
 
@@ -46,6 +54,15 @@ document.getElementById("signupBtn").onclick = () => {
 window.onclick = (e) => {
   if (e.target.classList.contains("modal")) {
     e.target.style.display = "none";
+  }
+};
+
+/* ================= PREVIEW IMAGE ================= */
+
+document.getElementById("profileImageInput").onchange = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    document.getElementById("previewImage").src = URL.createObjectURL(file);
   }
 };
 
@@ -66,56 +83,36 @@ document.getElementById("loginSubmit").onclick = async () => {
   }
 };
 
-/* ================= SIGNUP (CLIENT) ================= */
+/* ================= SIGNUP ARTISTE AVEC PHOTO ================= */
 
 document.getElementById("signupSubmit").onclick = async () => {
   try {
+
     const email = document.getElementById("signupEmail").value;
     const password = document.getElementById("signupPassword").value;
+    const file = document.getElementById("profileImageInput").files[0];
 
+    /* CREATE USER */
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    await setDoc(doc(db, "users", user.uid), {
-      email: email,
-      role: "client",
-      createdAt: new Date()
-    });
+    let imageUrl = "";
 
-    alert("Compte créé !");
-    window.location.href = "index.html";
+    /* UPLOAD IMAGE */
+    if (file) {
+      const storageRef = ref(storage, `artists/${user.uid}/profile.jpg`);
+      await uploadBytes(storageRef, file);
+      imageUrl = await getDownloadURL(storageRef);
+    }
 
-  } catch (error) {
-    alert("Erreur : " + error.message);
-  }
-};
-
-/* ================= BOUTONS HERO ================= */
-
-/* CLIENT → voir artistes */
-document.getElementById("clientBtn").onclick = () => {
-  document.getElementById("artistsContainer").scrollIntoView({
-    behavior: "smooth"
-  });
-};
-
-/* ARTIST → inscription artiste */
-document.getElementById("artistBtn").onclick = async () => {
-  try {
-    const email = prompt("Email artiste");
-    const password = prompt("Mot de passe");
-
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-
-    /* USER */
+    /* USERS */
     await setDoc(doc(db, "users", user.uid), {
       email: email,
       role: "artist",
       createdAt: new Date()
     });
 
-    /* ARTIST */
+    /* ARTIST PROFILE */
     await setDoc(doc(db, "artists", user.uid), {
       userId: user.uid,
       username: "New Artist",
@@ -123,7 +120,7 @@ document.getElementById("artistBtn").onclick = async () => {
       city: "",
       description: "",
       skills: [],
-      profileImage: "",
+      profileImage: imageUrl,
       rating: 0,
       reviewsCount: 0,
       isAvailable: true,
@@ -140,6 +137,14 @@ document.getElementById("artistBtn").onclick = async () => {
   } catch (error) {
     alert("Erreur : " + error.message);
   }
+};
+
+/* ================= HERO BUTTON ================= */
+
+document.getElementById("clientBtn").onclick = () => {
+  document.getElementById("artistsContainer").scrollIntoView({
+    behavior: "smooth"
+  });
 };
 
 /* ================= AFFICHAGE ARTISTES ================= */
