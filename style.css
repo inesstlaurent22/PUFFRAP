@@ -1,3 +1,5 @@
+/* ================= GLOBAL ================= */
+
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
@@ -5,18 +7,56 @@ body {
   color: white;
 }
 
-/* NAVBAR */
+/* ================= NAVBAR ================= */
+
 .navbar {
   display: flex;
   justify-content: space-between;
-  padding: 20px;
+  padding: 20px 40px;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #222;
 }
 
 .logo {
   color: #D4AF37;
+  font-weight: bold;
+  letter-spacing: 2px;
 }
 
-/* HERO */
+/* ================= BUTTONS ================= */
+
+button {
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 12px 20px;
+  transition: 0.3s;
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, #D4AF37, #FFD700);
+  border: none;
+  color: black;
+  font-weight: bold;
+}
+
+.btn-gold:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(212,175,55,0.5);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid #D4AF37;
+  color: #D4AF37;
+}
+
+.btn-outline:hover {
+  background: rgba(212,175,55,0.1);
+}
+
+/* ================= HERO ================= */
+
 .hero {
   height: 90vh;
   display: flex;
@@ -28,70 +68,25 @@ body {
 }
 
 .hero h2 {
-  font-size: 40px;
+  font-size: 42px;
+  max-width: 600px;
 }
+
+/* INPUT */
 
 input {
   padding: 15px;
-  width: 300px;
+  width: 320px;
   margin: 20px 0;
-  border-radius: 10px;
+  border-radius: 12px;
   border: none;
-}
-
-button {
-  padding: 12px 20px;
-  margin: 10px;
-  background: #D4AF37;
-  border: none;
-  color: black;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-/* SECTION ARTISTES */
-.artists-section {
-  padding: 40px;
-}
-
-/* GRID */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-}
-
-/* CARD */
-.card {
+  outline: none;
   background: #111;
-  padding: 20px;
-  border-radius: 15px;
-  border: 1px solid #222;
-  transition: 0.3s;
+  color: white;
 }
 
-.card:hover {
-  transform: scale(1.05);
-  border-color: #D4AF37;
-}
+/* ================= MODALS ================= */
 
-.profile-img {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  border-radius: 10px;
-}
-
-.card h2 {
-  color: #D4AF37;
-}
-
-.card p {
-  font-size: 14px;
-  color: #ccc;
-}
-
-/* MODAL */
 .modal {
   position: fixed;
   top: 0;
@@ -102,30 +97,90 @@ button {
   display: none;
   justify-content: center;
   align-items: center;
+  animation: fadeIn 0.3s ease;
 }
 
 .modal-content {
-  background: #111;
+  background: rgba(20,20,20,0.95);
   padding: 30px;
-  border-radius: 15px;
-  width: 300px;
+  border-radius: 20px;
+  width: 320px;
   text-align: center;
-  border: 1px solid #D4AF37;
+  border: 1px solid rgba(212,175,55,0.3);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 0 40px rgba(0,0,0,0.8);
 }
 
 .modal-content h2 {
   color: #D4AF37;
 }
 
-.modal-content input {
-  width: 100%;
-  margin: 10px 0;
-  padding: 12px;
-  border-radius: 8px;
-  border: none;
+/* ================= ARTISTS ================= */
+
+.artists-section {
+  padding: 60px 40px;
 }
 
-.modal-content button {
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 25px;
+}
+
+/* ================= CARD ================= */
+
+.card {
+  background: rgba(20,20,20,0.9);
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid #222;
+  transition: 0.4s;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-10px) scale(1.02);
+  border-color: #D4AF37;
+  box-shadow: 0 10px 40px rgba(212,175,55,0.2);
+}
+
+/* IMAGE */
+
+.card-img img {
   width: 100%;
-  background: #D4AF37;
+  height: 180px;
+  object-fit: cover;
+}
+
+/* CONTENT */
+
+.card-content {
+  padding: 15px;
+}
+
+.card-content h2 {
+  color: #D4AF37;
+  margin: 5px 0;
+}
+
+.city {
+  font-size: 13px;
+  color: #aaa;
+}
+
+.desc {
+  font-size: 14px;
+  color: #ccc;
+  margin: 10px 0;
+}
+
+.rating {
+  font-weight: bold;
+}
+
+/* ================= ANIMATIONS ================= */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
