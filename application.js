@@ -75,13 +75,6 @@ onAuthStateChanged(auth, (user) => {
     return;
   }
 
-  // ⏱️ attendre un peu pour éviter faux null
-  setTimeout(() => {
-    if (!currentUser) {
-      window.location.href = "application.html";
-    }
-  }, 800);
-
 });
 
 /* ================= PHOTO ================= */
