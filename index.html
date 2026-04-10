@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Creative Finder</title>
+  <title>PUFFRAP</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -11,9 +11,9 @@
 <!-- NAVBAR -->
 <header class="navbar">
   <h1 class="logo">PUFFRAP</h1>
-  <div>
-    <button id="loginBtn">Connexion</button>
-    <button id="signupBtn">Inscription</button>
+  <div class="nav-buttons">
+    <button id="loginBtn" class="btn-outline">Connexion</button>
+    <button id="signupBtn" class="btn-gold">Inscription</button>
   </div>
 </header>
 
@@ -24,37 +24,46 @@
   <input type="text" placeholder="Ville ou métier..." />
 
   <div class="buttons">
-    <button id="clientBtn">Je cherche</button>
-    <button id="artistBtn">Je propose mes services</button>
+    <button id="clientBtn" class="btn-outline">Je cherche</button>
+    <button id="artistBtn" class="btn-gold">Je propose mes services</button>
   </div>
 </section>
 
-  <!-- MODAL LOGIN -->
+<!-- ================= MODAL LOGIN ================= -->
 <div id="loginModal" class="modal">
   <div class="modal-content">
+
     <h2>Connexion</h2>
+
     <input type="email" id="loginEmail" placeholder="Email">
     <input type="password" id="loginPassword" placeholder="Mot de passe">
-    <button id="loginSubmit">Se connecter</button>
+
+    <button id="loginSubmit" class="btn-gold">Se connecter</button>
+
   </div>
 </div>
 
-  <!-- MODAL SIGNUP -->
+<!-- ================= MODAL SIGNUP ================= -->
 <div id="signupModal" class="modal">
   <div class="modal-content">
-    <h2>Inscription</h2>
+
+    <h2>Inscription Artiste</h2>
 
     <input type="email" id="signupEmail" placeholder="Email">
     <input type="password" id="signupPassword" placeholder="Mot de passe">
 
-    <!-- 🔥 PHOTO -->
+    <!-- 📸 PHOTO -->
     <input type="file" id="profileImageInput" accept="image/*">
 
-    <button id="signupSubmit">Créer un compte</button>
+    <!-- PREVIEW IMAGE -->
+    <img id="previewImage" style="width:100px; margin-top:10px; border-radius:50%; display:block; margin-left:auto; margin-right:auto;" />
+
+    <button id="signupSubmit" class="btn-gold">Créer un compte</button>
+
   </div>
 </div>
 
-  <!-- SECTION ARTISTES -->
+<!-- ================= SECTION ARTISTES ================= -->
 <section class="artists-section">
   <h3>Artistes disponibles</h3>
   <div id="artistsContainer" class="grid"></div>
