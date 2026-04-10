@@ -1,0 +1,53 @@
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: #0B0B0B;
+  color: white;
+}
+
+/* NAVBAR */
+.navbar {
+  padding: 20px;
+  border-bottom: 1px solid #222;
+}
+
+.logo {
+  color: #D4AF37;
+}
+
+/* PROFILE */
+.profile {
+  text-align: center;
+  padding: 40px;
+}
+
+.profile-img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 20px;
+}
+
+/* PORTFOLIO */
+.portfolio-section {
+  padding: 40px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: #111;
+  padding: 20px;
+  border-radius: 15px;
+  border: 1px solid #222;
+}
+
+audio, video {
+  width: 100%;
+  margin-top: 10px;
+}
