@@ -8,14 +8,17 @@
 
 <body>
 
-<!-- ================= NAVBAR ================= -->
+<!-- 🗺️ MAP BACKGROUND -->
+<div id="map"></div>
+
+<!-- 🔝 NAVBAR FLOAT -->
 <header class="navbar">
+
   <h1 class="logo">PUFFRAP</h1>
 
   <div class="nav-buttons">
     <button id="loginBtn" class="btn-outline">Connexion</button>
 
-    <!-- 🔥 DROPDOWN INSCRIPTION -->
     <div class="dropdown">
       <button class="btn-gold">Inscription</button>
 
@@ -25,34 +28,18 @@
       </div>
     </div>
   </div>
+
 </header>
 
-<!-- ================= HERO ================= -->
-<section class="hero">
-  <h2>Trouvez les meilleurs créatifs près de vous</h2>
-
-  <!-- 🔥 CODE POSTAL -->
-  <input type="text" id="searchInput" placeholder="Entrez un code postal..." />
-
-  <div class="buttons">
-    <button id="clientBtn" class="btn-outline">Je cherche</button>
-  </div>
-</section>
-
-<!-- ================= MAP ================= -->
-<div id="map" style="height:500px; display:none;"></div>
-
-<!-- ================= MODAL LOGIN ================= -->
+<!-- ================= LOGIN ================= -->
 <div id="loginModal" class="modal">
   <div class="modal-content">
-
     <h2>Connexion</h2>
 
-    <input type="email" id="loginEmail" placeholder="Email">
-    <input type="password" id="loginPassword" placeholder="Mot de passe">
+    <input type="email" id="loginEmail" placeholder="Email" autocomplete="off">
+    <input type="password" id="loginPassword" placeholder="Mot de passe" autocomplete="new-password">
 
     <button id="loginSubmit" class="btn-gold">Se connecter</button>
-
   </div>
 </div>
 
@@ -62,42 +49,31 @@
 
     <h2>Inscription Client</h2>
 
-    <input type="email" id="clientEmail" placeholder="Email">
-    <input type="password" id="clientPassword" placeholder="Mot de passe">
+    <input type="text" placeholder="Identifiant" autocomplete="off">
+    <input type="email" id="clientEmail" placeholder="Email" autocomplete="off">
+    <input type="password" id="clientPassword" placeholder="Mot de passe" autocomplete="new-password">
 
     <button id="createClient" class="btn-gold">Créer compte</button>
-
   </div>
 </div>
 
-<!-- ================= SIGNUP ARTIST STEP 1 ================= -->
-<div id="signupArtistStep1" class="modal">
+<!-- ================= SIGNUP ARTIST ================= -->
+<div id="signupArtistModal" class="modal">
   <div class="modal-content">
 
-    <h2>Créer un compte artiste</h2>
+    <h2>Créer un profil artiste</h2>
 
-    <input type="email" id="artistEmail" placeholder="Email">
-    <input type="password" id="artistPassword" placeholder="Mot de passe">
-
-    <button id="goStep2" class="btn-gold">Continuer</button>
-
-  </div>
-</div>
-
-<!-- ================= SIGNUP ARTIST STEP 2 ================= -->
-<div id="signupArtistStep2" class="modal">
-  <div class="modal-content">
-
-    <h2>Profil artiste</h2>
-
-    <input type="file" id="artistImage" accept="image/*">
+    <input type="file" id="artistImage">
 
     <input type="text" id="artistName" placeholder="Nom">
     <input type="text" id="artistFirstname" placeholder="Prénom">
 
+    <input type="email" id="artistEmail" placeholder="Email" autocomplete="off">
+    <input type="password" id="artistPassword" placeholder="Mot de passe" autocomplete="new-password">
+
     <input type="text" id="artistCity" placeholder="Ville / Code postal">
 
-    <input type="text" id="artistSkills" placeholder="Ex: Beatmaker, Vidéaste">
+    <input type="text" id="artistSkills" placeholder="Compétences (Beatmaker, Vidéaste...)">
 
     <input type="text" id="artistPortfolio" placeholder="Lien portfolio">
 
@@ -108,15 +84,7 @@
   </div>
 </div>
 
-<!-- ================= SECTION ARTISTES ================= -->
-<section class="artists-section">
-  <h3>Artistes disponibles</h3>
-  <div id="artistsContainer" class="grid"></div>
-</section>
-
-<!-- ================= GOOGLE MAP SCRIPT ================= -->
 <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
-
 <script type="module" src="script.js"></script>
 
 </body>
