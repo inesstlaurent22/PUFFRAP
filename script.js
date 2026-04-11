@@ -45,8 +45,9 @@ const closeModal = (id) => document.getElementById(id).style.display = "none";
 document.getElementById("loginBtn").onclick = () => openModal("loginModal");
 
 document.getElementById("signupClient").onclick = () => openModal("signupClientModal");
-document.getElementById("signupArtist").onclick = () => openModal("signupArtistStep1");
+document.getElementById("signupArtist").onclick = () => openModal("signupArtistModal");
 
+/* fermer modal */
 window.onclick = (e) => {
   if (e.target.classList.contains("modal")) {
     e.target.style.display = "none";
@@ -63,7 +64,6 @@ document.getElementById("loginSubmit").onclick = async () => {
     await signInWithEmailAndPassword(auth, email, password);
 
     alert("Connexion réussie ✨");
-    window.location.reload();
 
   } catch (error) {
     alert(error.message);
@@ -74,6 +74,7 @@ document.getElementById("loginSubmit").onclick = async () => {
 
 document.getElementById("createClient").onclick = async () => {
   try {
+
     const email = document.getElementById("clientEmail").value;
     const password = document.getElementById("clientPassword").value;
 
@@ -94,30 +95,16 @@ document.getElementById("createClient").onclick = async () => {
   }
 };
 
-/* ================= SIGNUP ARTIST STEP 1 ================= */
-
-let tempArtist = {};
-
-document.getElementById("goStep2").onclick = () => {
-  tempArtist.email = document.getElementById("artistEmail").value;
-  tempArtist.password = document.getElementById("artistPassword").value;
-
-  closeModal("signupArtistStep1");
-  openModal("signupArtistStep2");
-};
-
-/* ================= SIGNUP ARTIST FINAL ================= */
+/* ================= SIGNUP ARTIST ================= */
 
 document.getElementById("createArtistFinal").onclick = async () => {
   try {
+
+    const email = document.getElementById("artistEmail").value;
+    const password = document.getElementById("artistPassword").value;
     const file = document.getElementById("artistImage").files[0];
 
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      tempArtist.email,
-      tempArtist.password
-    );
-
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
     let imageUrl = "";
@@ -129,14 +116,14 @@ document.getElementById("createArtistFinal").onclick = async () => {
       imageUrl = await getDownloadURL(storageRef);
     }
 
-    /* SAVE USER */
+    /* USERS */
     await setDoc(doc(db, "users", user.uid), {
-      email: tempArtist.email,
+      email,
       role: "artist",
       createdAt: new Date()
     });
 
-    /* SAVE ARTIST */
+    /* ARTIST */
     await setDoc(doc(db, "artists", user.uid), {
       userId: user.uid,
       username: document.getElementById("artistName").value,
@@ -151,12 +138,18 @@ document.getElementById("createArtistFinal").onclick = async () => {
       rating: 0,
       reviewsCount: 0,
       isAvailable: true,
-      location: { lat: 48.85, lng: 2.35 }, // temporaire
+
+      /* ⚠️ temporaire (tu amélioreras après) */
+      location: {
+        lat: 48.85,
+        lng: 2.35
+      },
+
       createdAt: new Date()
     });
 
     alert("Artiste créé 🚀");
-    window.location.reload();
+    closeModal("signupArtistModal");
 
   } catch (error) {
     alert(error.message);
@@ -167,74 +160,54 @@ document.getElementById("createArtistFinal").onclick = async () => {
 
 let map;
 
-async function loadMap() {
+function initMap() {
 
-  document.getElementById("map").style.display = "block";
+  navigator.geolocation.getCurrentPosition(async (position) => {
 
-  map = new google.maps.Map(document.getElementById("map"), {
-    center: { lat: 48.85, lng: 2.35 },
-    zoom: 10
-  });
+    const userLocation = {
+      lat: position.coords.latitude,
+      lng: position.coords.longitude
+    };
 
-  const snapshot = await getDocs(collection(db, "artists"));
+    map = new google.maps.Map(document.getElementById("map"), {
+      center: userLocation,
+      zoom: 12,
+      styles: [
+        { elementType: "geometry", stylers: [{ color: "#0B0B0B" }] },
+        { elementType: "labels.text.fill", stylers: [{ color: "#ffffff" }] }
+      ]
+    });
 
-  snapshot.forEach(docSnap => {
-
-    const artist = docSnap.data();
-
-    if (!artist.location) return;
-
+    /* USER MARKER */
     new google.maps.Marker({
-      position: {
-        lat: artist.location.lat,
-        lng: artist.location.lng
-      },
+      position: userLocation,
       map,
-      title: artist.username
+      title: "Vous êtes ici"
+    });
+
+    /* ARTISTS MARKERS */
+    const snapshot = await getDocs(collection(db, "artists"));
+
+    snapshot.forEach(docSnap => {
+
+      const artist = docSnap.data();
+
+      if (!artist.location) return;
+
+      new google.maps.Marker({
+        position: {
+          lat: artist.location.lat,
+          lng: artist.location.lng
+        },
+        map,
+        title: artist.username
+      });
+
     });
 
   });
 }
 
-/* ================= SEARCH ================= */
-
-document.getElementById("clientBtn").onclick = () => {
-  loadMap();
-};
-
-/* ================= DISPLAY ARTISTS ================= */
-
-async function displayArtists() {
-
-  const container = document.getElementById("artistsContainer");
-  if (!container) return;
-
-  container.innerHTML = "";
-
-  const snapshot = await getDocs(collection(db, "artists"));
-
-  snapshot.forEach(docSnap => {
-
-    const artist = docSnap.data();
-
-    container.innerHTML += `
-      <div class="card" onclick="window.location.href='profil.html?id=${docSnap.id}'">
-
-        <img src="${artist.profileImage || 'https://via.placeholder.com/300'}" class="profile-img"/>
-
-        <h2>${artist.username || "Artiste"}</h2>
-
-        <p>${artist.city || ""}</p>
-
-        <p>${artist.description || ""}</p>
-
-        <p>⭐ ${artist.rating || 0}</p>
-
-      </div>
-    `;
-  });
-}
-
 /* ================= INIT ================= */
 
-displayArtists();
+initMap();
