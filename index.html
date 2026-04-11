@@ -3,22 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <title>PUFFRAP</title>
+
+  <!-- CSS -->
   <link rel="stylesheet" href="style.css">
+
+  <!-- ✅ LEAFLET (MAP GRATUITE) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 </head>
 
 <body>
 
-<!-- 🗺️ MAP BACKGROUND -->
+<!-- ================= MAP BACKGROUND ================= -->
 <div id="map"></div>
 
-<!-- 🔝 NAVBAR FLOAT -->
+<!-- ================= NAVBAR ================= -->
 <header class="navbar">
 
   <h1 class="logo">PUFFRAP</h1>
 
   <div class="nav-buttons">
+
+    <!-- LOGIN -->
     <button id="loginBtn" class="btn-outline">Connexion</button>
 
+    <!-- SIGNUP DROPDOWN -->
     <div class="dropdown">
       <button class="btn-gold">Inscription</button>
 
@@ -27,19 +37,28 @@
         <button id="signupArtist">Artiste</button>
       </div>
     </div>
+
   </div>
 
 </header>
 
-<!-- ================= LOGIN ================= -->
+<!-- ================= SEARCH BAR ================= -->
+<div class="search-box">
+  <input type="text" id="searchInput" placeholder="Code postal..." />
+  <button id="searchBtn" class="btn-gold">Je cherche</button>
+</div>
+
+<!-- ================= LOGIN MODAL ================= -->
 <div id="loginModal" class="modal">
   <div class="modal-content">
+
     <h2>Connexion</h2>
 
     <input type="email" id="loginEmail" placeholder="Email" autocomplete="off">
     <input type="password" id="loginPassword" placeholder="Mot de passe" autocomplete="new-password">
 
     <button id="loginSubmit" class="btn-gold">Se connecter</button>
+
   </div>
 </div>
 
@@ -49,11 +68,12 @@
 
     <h2>Inscription Client</h2>
 
-    <input type="text" placeholder="Identifiant" autocomplete="off">
+    <input type="text" id="clientUsername" placeholder="Identifiant">
     <input type="email" id="clientEmail" placeholder="Email" autocomplete="off">
     <input type="password" id="clientPassword" placeholder="Mot de passe" autocomplete="new-password">
 
     <button id="createClient" class="btn-gold">Créer compte</button>
+
   </div>
 </div>
 
@@ -63,28 +83,40 @@
 
     <h2>Créer un profil artiste</h2>
 
-    <input type="file" id="artistImage">
+    <!-- PHOTO -->
+    <input type="file" id="artistImage" accept="image/*">
 
-    <input type="text" id="artistName" placeholder="Nom">
+    <!-- PREVIEW -->
+    <img id="previewImage"
+         style="width:100px;height:100px;border-radius:50%;object-fit:cover;margin:10px auto;display:block;" />
+
+    <!-- INFOS -->
+    <input type="text" id="artistName" placeholder="Nom / Nom d'artiste">
     <input type="text" id="artistFirstname" placeholder="Prénom">
 
+    <!-- AUTH -->
     <input type="email" id="artistEmail" placeholder="Email" autocomplete="off">
     <input type="password" id="artistPassword" placeholder="Mot de passe" autocomplete="new-password">
 
+    <!-- LOCALISATION -->
     <input type="text" id="artistCity" placeholder="Ville / Code postal">
 
+    <!-- SKILLS -->
     <input type="text" id="artistSkills" placeholder="Compétences (Beatmaker, Vidéaste...)">
 
+    <!-- PORTFOLIO -->
     <input type="text" id="artistPortfolio" placeholder="Lien portfolio">
 
+    <!-- SOCIAL -->
     <input type="text" id="artistInstagram" placeholder="Instagram">
+    <input type="text" id="artistTiktok" placeholder="TikTok">
 
     <button id="createArtistFinal" class="btn-gold">Créer profil</button>
 
   </div>
 </div>
 
-<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
+<!-- ================= SCRIPT ================= -->
 <script type="module" src="script.js"></script>
 
 </body>
