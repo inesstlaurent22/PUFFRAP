@@ -99,16 +99,18 @@ document.getElementById("createClient").onclick = async () => {
 
     const email = document.getElementById("clientEmail").value;
     const password = document.getElementById("clientPassword").value;
-    const username = document.getElementById("clientUsername").value;
+    const name = document.getElementById("clientUsername").value;
 
+    /* 🔥 CREATE AUTH */
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    await setDoc(doc(db, "users", user.uid), {
-      email: email,
-      username: username,
-      role: "client",
-      createdAt: new Date()
+    /* 🔥 FIRESTORE (ADAPTÉ À TA DB) */
+    await setDoc(doc(db, "Users", user.uid), {
+      Mail: email,
+      Name: name,
+      Role: "client",
+      CreatedAt: new Date()
     });
 
     alert("Client créé ✅");
