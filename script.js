@@ -226,6 +226,67 @@ function initMap() {
   loadArtists();
 }
 
+/* ================= SEARCH AUTOCOMPLETE ================= */
+
+const input = document.getElementById("searchInput");
+const suggestionsBox = document.getElementById("suggestions");
+
+/* GENERER CP PARIS */
+function generateParisCP(base) {
+
+  const list = [];
+
+  if (base.startsWith("75")) {
+    for (let i = 1; i <= 20; i++) {
+      const cp = "75" + (i < 10 ? "0" + i : i);
+      list.push(cp);
+    }
+  }
+
+  return list;
+}
+
+/* INPUT EVENT */
+input.addEventListener("input", () => {
+
+  const value = input.value;
+
+  suggestionsBox.innerHTML = "";
+
+  if (value.length < 2) return;
+
+  const results = generateParisCP(value);
+
+  results.forEach(cp => {
+
+    const div = document.createElement("div");
+    div.classList.add("suggestion-item");
+    div.innerText = cp;
+
+    div.onclick = () => {
+      input.value = cp;
+      suggestionsBox.innerHTML = "";
+    };
+
+    suggestionsBox.appendChild(div);
+
+  });
+
+});
+
+/* CLICK SEARCH */
+document.getElementById("searchBtn").onclick = () => {
+
+  const cp = input.value;
+
+  if (!cp) {
+    alert("Entre un code postal");
+    return;
+  }
+
+  alert("🔜 bientôt : filtrage des artistes autour de " + cp);
+};
+
 /* ================= LOAD ARTISTS ================= */
 
 async function loadArtists() {
