@@ -29,7 +29,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyA4IF_NqUVXXQxMWz3F1SM32NN5vLUpRoI",
   authDomain: "puffrap-46658.firebaseapp.com",
   projectId: "puffrap-46658",
-  storageBucket: "puffrap-46658.firebasestorage.app",
+  storageBucket: "puffrap-46658.appspot.com",
   messagingSenderId: "217849878785",
   appId: "1:217849878785:web:e4e7d90ae3b77a19e76300"
 };
@@ -177,8 +177,8 @@ document.getElementById("createArtist").onclick = async () => {
 
     /* 🔥 RÉCUP LAT LNG (IMPORTANT) */
     const addressInput = document.getElementById("artistAddress");
-    const lat = addressInput.dataset.lat;
-    const lng = addressInput.dataset.lng;
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
 
     if (!lat || !lng) {
       throw new Error("Choisis une adresse dans les suggestions");
