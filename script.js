@@ -61,40 +61,30 @@ window.onclick = (e) => {
   }
 };
 
-/* ================= PREVIEW IMAGE ================= */
-
-const imageInput = document.getElementById("artistImage");
-
-if (imageInput) {
-  imageInput.onchange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      document.getElementById("previewImage").src = URL.createObjectURL(file);
-    }
-  };
-}
 
 /* ================= DROPDOWN CLICK ================= */
 
 const toggleBtn = document.getElementById("signupToggle");
 const dropdown = document.getElementById("dropdownMenu");
 
-toggleBtn.onclick = (e) => {
-  e.stopPropagation(); // empêche fermeture immédiate
-  dropdown.classList.toggle("active");
-};
+if (toggleBtn && dropdown) {
 
-/* CLICK OUTSIDE = fermer */
-document.addEventListener("click", (e) => {
-  if (!dropdown.contains(e.target) && e.target !== toggleBtn) {
-    dropdown.classList.remove("active");
-  }
-});
+  toggleBtn.onclick = (e) => {
+    e.stopPropagation();
+    dropdown.classList.toggle("active");
+  };
 
-/* CLICK DANS LE MENU = NE PAS FERMER */
-dropdown.addEventListener("click", (e) => {
-  e.stopPropagation();
-});
+  document.addEventListener("click", (e) => {
+    if (!dropdown.contains(e.target) && e.target !== toggleBtn) {
+      dropdown.classList.remove("active");
+    }
+  });
+
+  dropdown.addEventListener("click", (e) => {
+    e.stopPropagation();
+  });
+
+}
 
 /* ================= LOGIN ================= */
 
@@ -186,9 +176,9 @@ document.getElementById("createArtist").onclick = async () => {
       throw new Error("Remplis tous les champs obligatoires");
     }
 
-    if (!lat || !lng) {
-      throw new Error("Choisis une adresse dans les suggestions");
-    }
+    if (isNaN(lat) || isNaN(lng)) {
+  throw new Error("Choisis une adresse dans les suggestions");
+}
 
     /* 🔥 VALIDATION URL */
     if (instagram && !instagram.startsWith("https://")) throw new Error("Instagram invalide");
@@ -294,22 +284,29 @@ function getSelectedSkills() {
 }
 
 /* ================= PHOTO PREVIEW ================= */
-
 const artistImage = document.getElementById("artistImage");
+const previewImage = document.getElementById("previewImage");
 
-if (artistImage) {
-  artistImage.onchange = (e) => {
+if (artistImage && previewImage) {
+
+  artistImage.addEventListener("change", (e) => {
+
     const file = e.target.files[0];
-    if (file) {
-    
-    const previewImage = document.getElementById("previewImage");
-    if (previewImage) {
-    previewImage.src = URL.createObjectURL(file);
-}
-    }
-  };
-}
 
+    if (!file) return;
+
+    /* 🔥 PREVIEW IMAGE */
+    const imageURL = URL.createObjectURL(file);
+    previewImage.src = imageURL;
+
+    /* 🔥 CLEAN MEMORY (IMPORTANT) */
+    previewImage.onload = () => {
+      URL.revokeObjectURL(imageURL);
+    };
+
+  });
+
+}
 
 /* ================= AUTOCOMPLETE ADRESSE ================= */
 
