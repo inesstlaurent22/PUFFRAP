@@ -309,54 +309,84 @@ if (artistImage && previewImage) {
 }
 
 /* ================= AUTOCOMPLETE ADRESSE ================= */
-
 const addressInput = document.getElementById("artistAddress");
 const suggestionsBox = document.getElementById("addressSuggestions");
 
+let debounceTimeout;
+
 if (addressInput && suggestionsBox) {
 
-  addressInput.addEventListener("input", async () => {
+  addressInput.addEventListener("input", () => {
 
-    const query = addressInput.value;
+    clearTimeout(debounceTimeout);
 
-    if (query.length < 3) {
+    debounceTimeout = setTimeout(async () => {
+
+      const query = addressInput.value.trim();
+
+      if (query.length < 3) {
+        suggestionsBox.innerHTML = "";
+        return;
+      }
+
+      try {
+
+        /* 🔥 LOADING UX */
+        suggestionsBox.innerHTML = "<div class='suggestion-item'>Recherche...</div>";
+
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&countrycodes=fr&format=json`,
+          {
+            headers: {
+              "Accept": "application/json"
+            }
+          }
+        );
+
+        const data = await res.json();
+
+        suggestionsBox.innerHTML = "";
+
+        if (data.length === 0) {
+          suggestionsBox.innerHTML = "<div class='suggestion-item'>Aucun résultat</div>";
+          return;
+        }
+
+        data.slice(0, 5).forEach(place => {
+
+          const div = document.createElement("div");
+          div.className = "suggestion-item";
+          div.innerText = place.display_name;
+
+          div.addEventListener("click", () => {
+
+            addressInput.value = place.display_name;
+
+            addressInput.dataset.lat = place.lat;
+            addressInput.dataset.lng = place.lon;
+
+            suggestionsBox.innerHTML = "";
+
+          });
+
+          suggestionsBox.appendChild(div);
+
+        });
+
+      } catch (error) {
+        console.error("Erreur autocomplete:", error);
+        suggestionsBox.innerHTML = "<div class='suggestion-item'>Erreur de recherche</div>";
+      }
+
+    }, 300); // 🔥 debounce 300ms
+
+  });
+
+  /* 🔥 CLIQUE EN DEHORS → FERME */
+  document.addEventListener("click", (e) => {
+    if (!addressInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
       suggestionsBox.innerHTML = "";
-      return;
     }
-
-    try {
-
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${query}&countrycodes=fr&format=json`
-      );
-
-      const data = await res.json();
-
-      suggestionsBox.innerHTML = "";
-
-      data.slice(0, 5).forEach(place => {
-
-        const div = document.createElement("div");
-        div.className = "suggestion-item";
-        div.innerText = place.display_name;
-
-        div.onclick = () => {
-          addressInput.value = place.display_name;
-
-          addressInput.dataset.lat = place.lat;
-          addressInput.dataset.lng = place.lon;
-
-          suggestionsBox.innerHTML = "";
-        };
-
-        suggestionsBox.appendChild(div);
-
-      });
-
-    } catch (error) {
-      console.error("Erreur autocomplete:", error);
-    }
-
   });
 
 }
@@ -601,23 +631,26 @@ function displayArtists(artists) {
 }
 
 /* ================= SEARCH ================= */
+const searchBtn = document.getElementById("searchBtn");
 
-document.getElementById("searchBtn").onclick = async () => {
+if (searchBtn) {
+  searchBtn.onclick = async () => {
 
-  const cp = document.getElementById("searchInput").value;
+    const cp = document.getElementById("searchInput").value;
 
-  if (!cp) return alert("Entre un code postal");
+    if (!cp) return alert("Entre un code postal");
 
-  const coords = await getCoordsFromPostalCode(cp);
+    const coords = await getCoordsFromPostalCode(cp);
 
-  if (!coords) return alert("Code postal invalide");
+    if (!coords) return alert("Code postal invalide");
 
-  map.setView([coords.lat, coords.lng], 13);
+    map.setView([coords.lat, coords.lng], 13);
 
-  const artists = await filterArtists(coords.lat, coords.lng);
+    const artists = await filterArtists(coords.lat, coords.lng);
 
-  displayArtists(artists);
-};
+    displayArtists(artists);
+  };
+}
 
 /* ================= INIT ================= */
 
