@@ -390,10 +390,17 @@ if (addressInput && suggestionsBox) {
 }
 
 /* ================= MAP ================= */
+
 let map;
 let markers = [];
+let userMarker;
 
 function initMap() {
+
+  /* 🔥 EVITE DOUBLE INIT */
+  if (map) {
+    map.remove();
+  }
 
   /* 🔥 INIT MAP */
   map = L.map('map').setView([48.8566, 2.3522], 12);
@@ -412,16 +419,21 @@ function initMap() {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
 
-        /* CENTRER */
+        /* 🔥 CENTRER MAP */
         map.setView([lat, lng], 13);
 
-        /* MARKER USER */
-        L.marker([lat, lng])
+        /* 🔥 SUPPRIME ANCIEN MARKER USER */
+        if (userMarker) {
+          map.removeLayer(userMarker);
+        }
+
+        /* 🔥 MARKER USER */
+        userMarker = L.marker([lat, lng])
           .addTo(map)
           .bindPopup("📍 Vous êtes ici")
           .openPopup();
 
-        /* 🔥 BONUS : cercle premium */
+        /* 🔥 CERCLE PREMIUM */
         L.circle([lat, lng], {
           radius: 500,
           color: "#00ff99",
@@ -429,14 +441,19 @@ function initMap() {
           fillOpacity: 0.1
         }).addTo(map);
 
+        /* 🔥 LOAD ARTISTS APRÈS GEO */
+        loadArtists();
+
       },
 
       (error) => {
 
         console.warn("Erreur géolocalisation :", error);
 
-        /* FALLBACK PARIS */
+        /* 🔥 FALLBACK PARIS */
         map.setView([48.8566, 2.3522], 12);
+
+        loadArtists(); // 🔥 IMPORTANT
 
       }
 
@@ -448,10 +465,9 @@ function initMap() {
 
     map.setView([48.8566, 2.3522], 12);
 
-  }
+    loadArtists(); // 🔥 IMPORTANT
 
-  /* 🔥 LOAD ARTISTS */
-  loadArtists();
+  }
 
 }
 
