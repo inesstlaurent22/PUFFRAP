@@ -138,26 +138,58 @@ document.getElementById("createClient").onclick = async () => {
   }
 };
 
+/* ================= VALIDATION URL ================= */
+
+function isValidURL(url) {
+  return url.startsWith("https://");
+}
+
+/* ================= GEOLOCALISATION (CODE POSTAL → GPS) ================= */
+
+async function getCoordinatesFromPostal(postal) {
+  const res = await fetch(`https://nominatim.openstreetmap.org/search?postalcode=${postal}&country=France&format=json`);
+  const data = await res.json();
+
+  if (data.length > 0) {
+    return {
+      lat: parseFloat(data[0].lat),
+      lng: parseFloat(data[0].lon)
+    };
+  } else {
+    throw new Error("Code postal invalide");
+  }
+}
+
 /* ================= SIGNUP ARTIST ================= */
 
-document.getElementById("createArtistFinal").onclick = async () => {
+document.getElementById("createArtist").onclick = async () => {
   try {
 
     const email = document.getElementById("artistEmail").value;
     const password = document.getElementById("artistPassword").value;
-    const file = document.getElementById("artistImage").files[0];
+    const username = document.getElementById("artistUsername").value;
+    const postal = document.getElementById("artistPostal").value;
 
-    const username = document.getElementById("artistName").value;
-    const city = document.getElementById("artistCity").value;
-    const skillsInput = document.getElementById("artistSkills").value;
-
-    const portfolio = document.getElementById("artistPortfolio").value;
     const instagram = document.getElementById("artistInstagram").value;
     const tiktok = document.getElementById("artistTiktok").value;
+    const portfolio = document.getElementById("artistPortfolio").value;
 
+    const file = document.getElementById("artistImage").files[0];
+
+    /* VALIDATION URL */
+    if (instagram && !isValidURL(instagram)) throw new Error("Instagram invalide");
+    if (tiktok && !isValidURL(tiktok)) throw new Error("TikTok invalide");
+    if (portfolio && !isValidURL(portfolio)) throw new Error("Portfolio invalide");
+
+    /* SKILLS */
+    const skillsSelect = document.getElementById("artistSkills");
+    const skills = Array.from(skillsSelect.selectedOptions).map(opt => opt.value);
+
+    /* AUTH */
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
+    /* IMAGE */
     let imageUrl = "";
 
     if (file) {
@@ -166,31 +198,42 @@ document.getElementById("createArtistFinal").onclick = async () => {
       imageUrl = await getDownloadURL(storageRef);
     }
 
-    const skills = skillsInput.split(",").map(s => s.trim());
+    /* GEO */
+    const location = await getCoordinatesFromPostal(postal);
 
-    const location = {
-      lat: 48.8566,
-      lng: 2.3522
-    };
+    /* FIRESTORE USERS */
+    await setDoc(doc(db, "Users", user.uid), {
+      Mail: email,
+      Name: username,
+      Role: "artist",
+      CreatedAt: new Date()
+    });
 
-    await setDoc(doc(db, "artists", user.uid), {
-      userId: user.uid,
-      username: username,
-      email: email,
-      city: city,
-      description: "",
-      skills: skills,
+    /* FIRESTORE ARTIST */
+    await setDoc(doc(db, "Artists", user.uid), {
+      UserID: user.uid,
+      Username: username,
+      Email: email,
+
       profileImage: imageUrl,
-      rating: 0,
-      reviewCount: 0,
-      isAvailable: true,
-      location: location,
-      socials: {
-        instagram: instagram,
-        portfolio: portfolio,
-        tiktok: tiktok
+
+      Skills: skills,
+
+      Location: {
+        Lat: location.lat,
+        Lng: location.lng
       },
-      createdAt: new Date()
+
+      Socials: {
+        Instagram: instagram,
+        TikTok: tiktok,
+        Portfolio: portfolio
+      },
+
+      Rating: 0,
+      isAvailable: true,
+      reviewCount: 0,
+      CreatedAt: new Date()
     });
 
     alert("Artiste créé 🔥");
@@ -200,6 +243,23 @@ document.getElementById("createArtistFinal").onclick = async () => {
     alert(error.message);
   }
 };
+
+snapshot.forEach(doc => {
+
+  const artist = doc.data();
+
+  if (!artist.Location) return;
+
+  const marker = L.marker([
+    artist.Location.Lat,
+    artist.Location.Lng
+  ]).addTo(map);
+
+  marker.bindPopup(`
+    <b>${artist.Username}</b><br/>
+    ⭐ ${artist.Rating}
+  `);
+});
 
 /* ================= MAP ================= */
 
