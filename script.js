@@ -72,6 +72,28 @@ if (imageInput) {
   };
 }
 
+/* ================= DROPDOWN CLICK ================= */
+
+const toggleBtn = document.getElementById("signupToggle");
+const dropdown = document.getElementById("dropdownMenu");
+
+toggleBtn.onclick = (e) => {
+  e.stopPropagation(); // empêche fermeture immédiate
+  dropdown.classList.toggle("active");
+};
+
+/* CLICK OUTSIDE = fermer */
+document.addEventListener("click", (e) => {
+  if (!dropdown.contains(e.target) && e.target !== toggleBtn) {
+    dropdown.classList.remove("active");
+  }
+});
+
+/* CLICK DANS LE MENU = NE PAS FERMER */
+dropdown.addEventListener("click", (e) => {
+  e.stopPropagation();
+});
+
 /* ================= LOGIN ================= */
 
 document.getElementById("loginSubmit").onclick = async () => {
