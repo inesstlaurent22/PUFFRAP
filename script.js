@@ -166,10 +166,8 @@ document.getElementById("createArtist").onclick = async () => {
 
     const file = document.getElementById("artistImage").files[0];
 
-    const addressInput = document.getElementById("artistAddress");
-
-    const lat = parseFloat(addressInput.dataset.lat);
-    const lng = parseFloat(addressInput.dataset.lng);
+    const lat = parseFloat(document.getElementById("artistAddress").dataset.lat);
+    const lng = parseFloat(document.getElementById("artistAddress").dataset.lng);
 
     /* 🔥 VALIDATION BASIQUE */
     if (!email || !password || !username) {
@@ -593,8 +591,10 @@ function displayArtists(artists) {
     /* 🔥 SÉCURITÉ */
     if (!artist.Location) return;
 
-    const lat = artist.Location.Lat;
-    const lng = artist.Location.Lng;
+    const lat = parseFloat(artist.Location.Lat);
+    const lng = parseFloat(artist.Location.Lng);
+
+    if (isNaN(lat) || isNaN(lng)) return;
 
     const marker = L.marker([lat, lng]).addTo(map);
 
@@ -654,4 +654,6 @@ if (searchBtn) {
 
 /* ================= INIT ================= */
 
-initMap();
+window.addEventListener("DOMContentLoaded", () => {
+  initMap();
+});
