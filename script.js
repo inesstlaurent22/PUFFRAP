@@ -191,7 +191,6 @@ document.getElementById("createArtist").onclick = async () => {
 
     /* SKILLS */
     const skills = getSelectedSkills();
-    const skills = Array.from(skillsSelect.selectedOptions).map(opt => opt.value);
 
     /* AUTH */
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
