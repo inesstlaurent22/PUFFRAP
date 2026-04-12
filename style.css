@@ -230,6 +230,51 @@ button {
   background: rgba(0,255,150,0.2);
 }
 
+.address-group {
+  position: relative;
+  width: 100%;
+}
+
+/* Suggestions sous l'input */
+.suggestions {
+  position: absolute;
+  top: 100%; /* 🔥 juste en dessous */
+  left: 0;
+  width: 100%;
+
+  background: rgba(15,15,15,0.98);
+  backdrop-filter: blur(10px);
+
+  border-radius: 12px;
+  margin-top: 5px;
+
+  border: 1px solid rgba(255,255,255,0.05);
+
+  z-index: 9999;
+
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Item */
+.suggestion-item {
+  padding: 12px;
+  cursor: pointer;
+  color: white;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+/* Hover premium */
+.suggestion-item:hover {
+  background: #00ff99;
+  color: black;
+}
+
+.suggestions {
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+}
+
 /* ================= PHOTO UPLOAD ================= */
 
 .upload-box {
