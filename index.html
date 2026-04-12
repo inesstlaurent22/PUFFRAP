@@ -84,37 +84,36 @@
 <div id="signupArtistModal" class="modal">
   <div class="modal-content">
 
-    <h2>Créer un profil artiste</h2>
+    <h2>Inscription Artiste</h2>
 
-    <!-- PHOTO -->
+    <input type="email" id="artistEmail" placeholder="Email">
+    <input type="password" id="artistPassword" placeholder="Mot de passe">
+
+    <input type="text" id="artistUsername" placeholder="Nom d'artiste">
+
+    <!-- 📸 PHOTO -->
     <input type="file" id="artistImage" accept="image/*">
 
-    <!-- PREVIEW -->
-    <img id="previewImage"
-         style="width:100px;height:100px;border-radius:50%;object-fit:cover;margin:10px auto;display:block;" />
-
-    <!-- INFOS -->
-    <input type="text" id="artistName" placeholder="Nom / Nom d'artiste">
-    <input type="text" id="artistFirstname" placeholder="Prénom">
-
-    <!-- AUTH -->
-    <input type="email" id="artistEmail" placeholder="Email" autocomplete="off">
-    <input type="password" id="artistPassword" placeholder="Mot de passe" autocomplete="new-password">
+    <!-- COMPÉTENCES -->
+    <label>Compétences :</label>
+    <select id="artistSkills" multiple>
+      <option>Beatmaker/Mix</option>
+      <option>Chanteur/Chanteuse</option>
+      <option>Vidéaste</option>
+      <option>Producteur/rice</option>
+      <option>Community Manager</option>
+      <option>Comptable</option>
+    </select>
 
     <!-- LOCALISATION -->
-    <input type="text" id="artistCity" placeholder="Ville / Code postal">
+    <input type="text" id="artistPostal" placeholder="Code postal">
 
-    <!-- SKILLS -->
-    <input type="text" id="artistSkills" placeholder="Compétences (Beatmaker, Vidéaste...)">
+    <!-- LIENS -->
+    <input type="text" id="artistInstagram" placeholder="Instagram (https://...)">
+    <input type="text" id="artistTiktok" placeholder="TikTok (https://...)">
+    <input type="text" id="artistPortfolio" placeholder="Portfolio (https://...)">
 
-    <!-- PORTFOLIO -->
-    <input type="text" id="artistPortfolio" placeholder="Lien portfolio">
-
-    <!-- SOCIAL -->
-    <input type="text" id="artistInstagram" placeholder="Instagram">
-    <input type="text" id="artistTiktok" placeholder="TikTok">
-
-    <button id="createArtistFinal" class="btn-gold">Créer profil</button>
+    <button id="createArtist" class="btn-gold">Créer mon profil</button>
 
   </div>
 </div>
