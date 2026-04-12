@@ -7,9 +7,8 @@
   <!-- CSS -->
   <link rel="stylesheet" href="style.css">
 
-  <!-- ✅ LEAFLET (MAP GRATUITE) -->
+  <!-- LEAFLET CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 </head>
 
@@ -17,8 +16,7 @@
 
 <!-- ================= MAP BACKGROUND ================= -->
 <div id="map"></div>
-
-  <div class="map-glow"></div>
+<div class="map-glow"></div>
 
 <!-- ================= NAVBAR ================= -->
 <header class="navbar">
@@ -31,14 +29,14 @@
     <button id="loginBtn" class="btn-outline">Connexion</button>
 
     <!-- SIGNUP DROPDOWN -->
-   <div class="dropdown">
-  <button id="signupToggle" class="btn-gold">Inscription</button>
+    <div class="dropdown">
+      <button id="signupToggle" class="btn-gold">Inscription</button>
 
-  <div id="dropdownMenu" class="dropdown-content">
-    <button id="signupClient">Client</button>
-    <button id="signupArtist">Artiste</button>
-  </div>
-</div>
+      <div id="dropdownMenu" class="dropdown-content">
+        <button id="signupClient">Client</button>
+        <button id="signupArtist">Artiste</button>
+      </div>
+    </div>
 
   </div>
 
@@ -46,9 +44,13 @@
 
 <!-- ================= SEARCH BAR ================= -->
 <div class="search-box">
+
+  <input type="text" id="searchInput" placeholder="Ville ou code postal..." />
+
   <div id="suggestions" class="suggestions"></div>
-  <input type="text" id="searchInput" placeholder="Code postal..." />
+
   <button id="searchBtn" class="btn-gold">Je cherche</button>
+
 </div>
 
 <!-- ================= LOGIN MODAL ================= -->
@@ -71,7 +73,7 @@
 
     <h2>Inscription Client</h2>
 
-    <input type="text" id="clientUsername" placeholder="Identifiant">
+    <input type="text" id="clientUsername" placeholder="Nom">
     <input type="email" id="clientEmail" placeholder="Email" autocomplete="off">
     <input type="password" id="clientPassword" placeholder="Mot de passe" autocomplete="new-password">
 
@@ -91,10 +93,10 @@
 
     <input type="text" id="artistUsername" placeholder="Nom d'artiste">
 
-    <!-- 📸 PHOTO -->
+    <!-- PHOTO -->
     <input type="file" id="artistImage" accept="image/*">
 
-    <!-- COMPÉTENCES -->
+    <!-- SKILLS -->
     <label>Compétences :</label>
     <select id="artistSkills" multiple>
       <option>Beatmaker/Mix</option>
@@ -105,8 +107,9 @@
       <option>Comptable</option>
     </select>
 
-    <!-- LOCALISATION -->
-    <input type="text" id="artistPostal" placeholder="Code postal">
+    <!-- ADRESSE AUTO -->
+    <input type="text" id="artistAddress" placeholder="Adresse ou code postal">
+    <div id="addressSuggestions" class="suggestions"></div>
 
     <!-- LIENS -->
     <input type="text" id="artistInstagram" placeholder="Instagram (https://...)">
@@ -118,7 +121,10 @@
   </div>
 </div>
 
-<!-- ================= SCRIPT ================= -->
+<!-- ================= LEAFLET JS (IMPORTANT ICI) ================= -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<!-- SCRIPT -->
 <script type="module" src="script.js"></script>
 
 </body>
