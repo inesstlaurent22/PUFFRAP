@@ -277,7 +277,11 @@ if (artistImage) {
   artistImage.onchange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      previewImage.src = URL.createObjectURL(file);
+    
+    const previewImage = document.getElementById("previewImage");
+    if (previewImage) {
+    previewImage.src = URL.createObjectURL(file);
+}
     }
   };
 }
@@ -337,38 +341,69 @@ if (addressInput && suggestionsBox) {
 }
 
 /* ================= MAP ================= */
-
 let map;
 let markers = [];
 
 function initMap() {
 
+  /* 🔥 INIT MAP */
   map = L.map('map').setView([48.8566, 2.3522], 12);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap'
   }).addTo(map);
 
+  /* 🔥 GEOLOCALISATION */
   if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(position => {
 
-     const lat = addressInput.dataset.lat;
-     const lng = addressInput.dataset.lng;
+    navigator.geolocation.getCurrentPosition(
 
-if (!lat || !lng) {
-  throw new Error("Veuillez sélectionner une adresse valide");
-}
+      (position) => {
 
-      map.setView([lat, lng], 13);
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
 
-      L.marker([lat, lng])
-        .addTo(map)
-        .bindPopup("📍 Vous êtes ici");
+        /* CENTRER */
+        map.setView([lat, lng], 13);
 
-    });
+        /* MARKER USER */
+        L.marker([lat, lng])
+          .addTo(map)
+          .bindPopup("📍 Vous êtes ici")
+          .openPopup();
+
+        /* 🔥 BONUS : cercle premium */
+        L.circle([lat, lng], {
+          radius: 500,
+          color: "#00ff99",
+          fillColor: "#00ff99",
+          fillOpacity: 0.1
+        }).addTo(map);
+
+      },
+
+      (error) => {
+
+        console.warn("Erreur géolocalisation :", error);
+
+        /* FALLBACK PARIS */
+        map.setView([48.8566, 2.3522], 12);
+
+      }
+
+    );
+
+  } else {
+
+    console.warn("Géolocalisation non supportée");
+
+    map.setView([48.8566, 2.3522], 12);
+
   }
 
+  /* 🔥 LOAD ARTISTS */
   loadArtists();
+
 }
 
 /* ================= LOAD ALL ARTISTS ================= */
@@ -455,10 +490,9 @@ function getDistance(lat1, lon1, lat2, lon2) {
 }
 
 /* ================= FILTER ================= */
-
 async function filterArtists(userLat, userLng) {
 
-  const snapshot = await getDocs(collection(db, "artists"));
+  const snapshot = await getDocs(collection(db, "Artists"));
 
   let artists = [];
 
@@ -466,13 +500,17 @@ async function filterArtists(userLat, userLng) {
 
     const artist = docSnap.data();
 
-    if (!artist.location) return;
+    /* 🔥 CHECK DATA FIRESTORE */
+    if (!artist.Location || !artist.Location.Lat || !artist.Location.Lng) return;
+
+    const lat = parseFloat(artist.Location.Lat);
+    const lng = parseFloat(artist.Location.Lng);
 
     const distance = getDistance(
       userLat,
       userLng,
-      artist.location.lat,
-      artist.location.lng
+      lat,
+      lng
     );
 
     artists.push({
@@ -483,6 +521,7 @@ async function filterArtists(userLat, userLng) {
 
   });
 
+  /* 🔥 TRI PAR DISTANCE (AIRBNB STYLE) */
   artists.sort((a, b) => a.distance - b.distance);
 
   return artists;
