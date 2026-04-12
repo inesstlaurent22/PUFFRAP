@@ -168,7 +168,6 @@ document.getElementById("createArtist").onclick = async () => {
     const email = document.getElementById("artistEmail").value;
     const password = document.getElementById("artistPassword").value;
     const username = document.getElementById("artistUsername").value;
-    const postal = document.getElementById("artistPostal").value;
 
     const instagram = document.getElementById("artistInstagram").value;
     const tiktok = document.getElementById("artistTiktok").value;
@@ -176,10 +175,19 @@ document.getElementById("createArtist").onclick = async () => {
 
     const file = document.getElementById("artistImage").files[0];
 
+    /* 🔥 RÉCUP LAT LNG (IMPORTANT) */
+    const addressInput = document.getElementById("artistAddress");
+    const lat = addressInput.dataset.lat;
+    const lng = addressInput.dataset.lng;
+
+    if (!lat || !lng) {
+      throw new Error("Choisis une adresse dans les suggestions");
+    }
+
     /* VALIDATION URL */
-    if (instagram && !isValidURL(instagram)) throw new Error("Instagram invalide");
-    if (tiktok && !isValidURL(tiktok)) throw new Error("TikTok invalide");
-    if (portfolio && !isValidURL(portfolio)) throw new Error("Portfolio invalide");
+    if (instagram && !instagram.startsWith("https://")) throw new Error("Instagram invalide");
+    if (tiktok && !tiktok.startsWith("https://")) throw new Error("TikTok invalide");
+    if (portfolio && !portfolio.startsWith("https://")) throw new Error("Portfolio invalide");
 
     /* SKILLS */
     const skillsSelect = document.getElementById("artistSkills");
@@ -198,9 +206,6 @@ document.getElementById("createArtist").onclick = async () => {
       imageUrl = await getDownloadURL(storageRef);
     }
 
-    /* GEO */
-    const location = await getCoordinatesFromPostal(postal);
-
     /* FIRESTORE USERS */
     await setDoc(doc(db, "Users", user.uid), {
       Mail: email,
@@ -211,92 +216,42 @@ document.getElementById("createArtist").onclick = async () => {
 
     /* FIRESTORE ARTIST */
     await setDoc(doc(db, "Artists", user.uid), {
-  UserID: user.uid,
-  Username: username,
-  Email: email,
+      UserID: user.uid,
+      Username: username,
+      Email: email,
+      profileImage: imageUrl,
+      Skills: skills,
 
-  profileImage: imageUrl,
+      Location: {
+        Lat: parseFloat(lat),
+        Lng: parseFloat(lng)
+      },
 
-  Skills: skills,
+      Socials: {
+        Instagram: instagram,
+        TikTok: tiktok,
+        Portfolio: portfolio
+      },
 
-  /* 🔥 ICI */
-  Location: {
-    Lat: parseFloat(lat),
-    Lng: parseFloat(lng)
-  },
+      Rating: 0,
+      isAvailable: true,
+      reviewCount: 0,
+      CreatedAt: new Date()
+    });
 
-  Socials: {
-    Instagram: instagram,
-    TikTok: tiktok,
-    Portfolio: portfolio
-  },
+    /* 🔥 AJOUT MARKER DIRECT */
+    L.marker([lat, lng]).addTo(map)
+      .bindPopup("Ton profil")
+      .openPopup();
 
-  Rating: 0,
-  isAvailable: true,
-  reviewCount: 0,
-  CreatedAt: new Date()
-});
+    map.setView([lat, lng], 13);
 
     alert("Artiste créé 🔥");
-    location.reload();
 
   } catch (error) {
     alert(error.message);
   }
 };
-
-snapshot.forEach(doc => {
-
-  const artist = doc.data();
-
-  if (!artist.Location) return;
-
-  const marker = L.marker([
-    artist.Location.Lat,
-    artist.Location.Lng
-  ]).addTo(map);
-
-  marker.bindPopup(`
-    <b>${artist.Username}</b><br/>
-    ⭐ ${artist.Rating}
-  `);
-});
-
-const addressInput = document.getElementById("artistAddress");
-const suggestionsBox = document.getElementById("addressSuggestions");
-
-addressInput.addEventListener("input", async () => {
-
-  const query = addressInput.value;
-
-  if (query.length < 3) {
-    suggestionsBox.innerHTML = "";
-    return;
-  }
-
-  const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${query}&countrycodes=fr&format=json`);
-  const data = await res.json();
-
-  suggestionsBox.innerHTML = "";
-
-  data.slice(0,5).forEach(place => {
-
-    const div = document.createElement("div");
-    div.className = "suggestion-item";
-    div.innerText = place.display_name;
-
-    div.onclick = () => {
-      addressInput.value = place.display_name;
-
-      addressInput.dataset.lat = place.lat;
-      addressInput.dataset.lng = place.lon;
-
-      suggestionsBox.innerHTML = "";
-    };
-
-    suggestionsBox.appendChild(div);
-  });
-});
 
 /* ================= MAP ================= */
 
@@ -334,35 +289,39 @@ if (!lat || !lng) {
 }
 
 /* ================= LOAD ALL ARTISTS ================= */
-
 async function loadArtists() {
 
-  const snapshot = await getDocs(collection(db, "artists"));
+  const snapshot = await getDocs(collection(db, "Artists"));
 
   snapshot.forEach(docSnap => {
 
     const artist = docSnap.data();
 
-    if (!artist.location) return;
+    /* 🔥 VÉRIFICATION */
+    if (!artist.Location) return;
 
-    const marker = L.marker([
-      artist.location.lat,
-      artist.location.lng
-    ]).addTo(map);
+    const lat = artist.Location.Lat;
+    const lng = artist.Location.Lng;
+
+    const marker = L.marker([lat, lng]).addTo(map);
 
     marker.bindPopup(`
       <div style="text-align:center;">
+        
         <img src="${artist.profileImage || 'https://via.placeholder.com/100'}"
         style="width:80px;height:80px;border-radius:50%;object-fit:cover;" />
 
-        <h3>${artist.username}</h3>
-        <p>${artist.city}</p>
+        <h3>${artist.Username || "Artiste"}</h3>
+
+        <p>⭐ ${artist.Rating || 0}</p>
+
       </div>
     `);
 
     markers.push(marker);
 
   });
+
 }
 
 /* ================= GEO CODE ================= */
@@ -436,7 +395,6 @@ async function filterArtists(userLat, userLng) {
 }
 
 /* ================= DISPLAY ================= */
-
 function clearMarkers() {
   markers.forEach(m => map.removeLayer(m));
   markers = [];
@@ -448,24 +406,38 @@ function displayArtists(artists) {
 
   artists.forEach(artist => {
 
-    const marker = L.marker([
-      artist.location.lat,
-      artist.location.lng
-    ]).addTo(map);
+    /* 🔥 SÉCURITÉ */
+    if (!artist.Location) return;
+
+    const lat = artist.Location.Lat;
+    const lng = artist.Location.Lng;
+
+    const marker = L.marker([lat, lng]).addTo(map);
 
     marker.bindPopup(`
       <div style="text-align:center;">
+        
         <img src="${artist.profileImage || 'https://via.placeholder.com/100'}"
         style="width:80px;height:80px;border-radius:50%;object-fit:cover;" />
 
-        <h3>${artist.username}</h3>
-        <p>${artist.city}</p>
-        <p>📍 ${artist.distance.toFixed(1)} km</p>
+        <h3>${artist.Username || "Artiste"}</h3>
 
-        <button onclick="window.location.href='profil.html?id=${artist.id}'"
-        style="margin-top:10px;padding:8px 12px;background:#D4AF37;border:none;border-radius:8px;">
-        Voir profil
+        <p>⭐ ${artist.Rating || 0}</p>
+
+        <p>
+          📍 ${
+            artist.distance 
+            ? artist.distance.toFixed(1) + " km"
+            : "Distance inconnue"
+          }
+        </p>
+
+        <button 
+          onclick="window.location.href='profil.html?id=${artist.id}'"
+          style="margin-top:10px;padding:8px 12px;background:#00ff99;border:none;border-radius:8px;color:black;font-weight:bold;">
+          Voir profil
         </button>
+
       </div>
     `);
 
