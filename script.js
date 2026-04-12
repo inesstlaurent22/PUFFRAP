@@ -23,6 +23,8 @@ import {
   getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
+import { fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
 /* ================= CONFIG ================= */
 
 const firebaseConfig = {
@@ -165,8 +167,23 @@ async function getCoordinatesFromPostal(postal) {
 document.getElementById("createArtist").onclick = async () => {
   try {
 
-    const email = document.getElementById("artistEmail").value;
-    const password = document.getElementById("artistPassword").value;
+const email = document.getElementById("artistEmail").value;
+const password = document.getElementById("artistPassword").value;
+
+/* 🔥 CHECK SI EMAIL EXISTE */
+const methods = await fetchSignInMethodsForEmail(auth, email);
+
+if (methods.length > 0) {
+
+  /* 🔥 AUTO LOGIN */
+  await signInWithEmailAndPassword(auth, email, password);
+
+  alert("Connexion automatique 🔥");
+
+  location.reload();
+  return;
+}
+    
     const username = document.getElementById("artistUsername").value;
 
     const instagram = document.getElementById("artistInstagram").value;
