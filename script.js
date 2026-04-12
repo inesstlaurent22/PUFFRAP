@@ -211,30 +211,31 @@ document.getElementById("createArtist").onclick = async () => {
 
     /* FIRESTORE ARTIST */
     await setDoc(doc(db, "Artists", user.uid), {
-      UserID: user.uid,
-      Username: username,
-      Email: email,
+  UserID: user.uid,
+  Username: username,
+  Email: email,
 
-      profileImage: imageUrl,
+  profileImage: imageUrl,
 
-      Skills: skills,
+  Skills: skills,
 
-      Location: {
-        Lat: location.lat,
-        Lng: location.lng
-      },
+  /* 🔥 ICI */
+  Location: {
+    Lat: parseFloat(lat),
+    Lng: parseFloat(lng)
+  },
 
-      Socials: {
-        Instagram: instagram,
-        TikTok: tiktok,
-        Portfolio: portfolio
-      },
+  Socials: {
+    Instagram: instagram,
+    TikTok: tiktok,
+    Portfolio: portfolio
+  },
 
-      Rating: 0,
-      isAvailable: true,
-      reviewCount: 0,
-      CreatedAt: new Date()
-    });
+  Rating: 0,
+  isAvailable: true,
+  reviewCount: 0,
+  CreatedAt: new Date()
+});
 
     alert("Artiste créé 🔥");
     location.reload();
@@ -261,6 +262,42 @@ snapshot.forEach(doc => {
   `);
 });
 
+const addressInput = document.getElementById("artistAddress");
+const suggestionsBox = document.getElementById("addressSuggestions");
+
+addressInput.addEventListener("input", async () => {
+
+  const query = addressInput.value;
+
+  if (query.length < 3) {
+    suggestionsBox.innerHTML = "";
+    return;
+  }
+
+  const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${query}&countrycodes=fr&format=json`);
+  const data = await res.json();
+
+  suggestionsBox.innerHTML = "";
+
+  data.slice(0,5).forEach(place => {
+
+    const div = document.createElement("div");
+    div.className = "suggestion-item";
+    div.innerText = place.display_name;
+
+    div.onclick = () => {
+      addressInput.value = place.display_name;
+
+      addressInput.dataset.lat = place.lat;
+      addressInput.dataset.lng = place.lon;
+
+      suggestionsBox.innerHTML = "";
+    };
+
+    suggestionsBox.appendChild(div);
+  });
+});
+
 /* ================= MAP ================= */
 
 let map;
@@ -277,8 +314,12 @@ function initMap() {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(position => {
 
-      const lat = position.coords.latitude;
-      const lng = position.coords.longitude;
+     const lat = addressInput.dataset.lat;
+     const lng = addressInput.dataset.lng;
+
+if (!lat || !lng) {
+  throw new Error("Veuillez sélectionner une adresse valide");
+}
 
       map.setView([lat, lng], 13);
 
