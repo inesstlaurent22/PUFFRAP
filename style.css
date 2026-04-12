@@ -142,14 +142,15 @@ button {
   border-radius: 12px;
   padding: 10px;
 
-  display: none;
+  display: none; /* important */
   flex-direction: column;
   gap: 5px;
 
   border: 1px solid rgba(255,255,255,0.05);
 }
 
-.dropdown:hover .dropdown-content {
+/* état actif */
+.dropdown-content.active {
   display: flex;
 }
 
