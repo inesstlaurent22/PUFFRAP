@@ -26,6 +26,29 @@ body {
   z-index: -1;
 }
 
+/* ================= SUGGESTIONS ================= */
+
+.suggestions {
+  position: absolute;
+  top: 55px;
+  width: 100%;
+  background: rgba(20,20,20,0.95);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.05);
+  z-index: 20;
+}
+
+.suggestion-item {
+  padding: 10px;
+  cursor: pointer;
+  color: white;
+}
+
+.suggestion-item:hover {
+  background: rgba(212,175,55,0.2);
+}
+
 /* ================= NAVBAR ================= */
 
 .navbar {
