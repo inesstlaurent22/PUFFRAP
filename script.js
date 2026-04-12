@@ -41,7 +41,6 @@ const storage = getStorage(app);
 
 /* ================= MODALS ================= */
 
-// OUVRIR
 document.getElementById("loginBtn").onclick = () => {
   document.getElementById("loginModal").style.display = "flex";
 };
@@ -54,7 +53,6 @@ document.getElementById("signupArtist").onclick = () => {
   document.getElementById("signupArtistModal").style.display = "flex";
 };
 
-// FERMER
 window.onclick = (e) => {
   if (e.target.classList.contains("modal")) {
     e.target.style.display = "none";
@@ -78,7 +76,6 @@ if (imageInput) {
 
 document.getElementById("loginSubmit").onclick = async () => {
   try {
-
     const email = document.getElementById("loginEmail").value;
     const password = document.getElementById("loginPassword").value;
 
@@ -101,11 +98,9 @@ document.getElementById("createClient").onclick = async () => {
     const password = document.getElementById("clientPassword").value;
     const name = document.getElementById("clientUsername").value;
 
-    /* 🔥 CREATE AUTH */
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    /* 🔥 FIRESTORE (ADAPTÉ À TA DB) */
     await setDoc(doc(db, "Users", user.uid), {
       Mail: email,
       Name: name,
@@ -143,30 +138,19 @@ document.getElementById("createArtistFinal").onclick = async () => {
 
     let imageUrl = "";
 
-    // UPLOAD IMAGE
     if (file) {
       const storageRef = ref(storage, `artists/${user.uid}/profile.jpg`);
       await uploadBytes(storageRef, file);
       imageUrl = await getDownloadURL(storageRef);
     }
 
-    // SKILLS ARRAY
     const skills = skillsInput.split(",").map(s => s.trim());
 
-    // DEFAULT LOCATION (Paris)
     const location = {
       lat: 48.8566,
       lng: 2.3522
     };
 
-    // USERS
-    await setDoc(doc(db, "users", user.uid), {
-      email: email,
-      role: "artist",
-      createdAt: new Date()
-    });
-
-    // ARTIST
     await setDoc(doc(db, "artists", user.uid), {
       userId: user.uid,
       username: username,
@@ -195,9 +179,10 @@ document.getElementById("createArtistFinal").onclick = async () => {
   }
 };
 
-/* ================= MAP (LEAFLET) ================= */
+/* ================= MAP ================= */
 
 let map;
+let markers = [];
 
 function initMap() {
 
@@ -207,7 +192,6 @@ function initMap() {
     attribution: '&copy; OpenStreetMap'
   }).addTo(map);
 
-  // GEO USER
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(position => {
 
@@ -226,68 +210,7 @@ function initMap() {
   loadArtists();
 }
 
-/* ================= SEARCH AUTOCOMPLETE ================= */
-
-const input = document.getElementById("searchInput");
-const suggestionsBox = document.getElementById("suggestions");
-
-/* GENERER CP PARIS */
-function generateParisCP(base) {
-
-  const list = [];
-
-  if (base.startsWith("75")) {
-    for (let i = 1; i <= 20; i++) {
-      const cp = "75" + (i < 10 ? "0" + i : i);
-      list.push(cp);
-    }
-  }
-
-  return list;
-}
-
-/* INPUT EVENT */
-input.addEventListener("input", () => {
-
-  const value = input.value;
-
-  suggestionsBox.innerHTML = "";
-
-  if (value.length < 2) return;
-
-  const results = generateParisCP(value);
-
-  results.forEach(cp => {
-
-    const div = document.createElement("div");
-    div.classList.add("suggestion-item");
-    div.innerText = cp;
-
-    div.onclick = () => {
-      input.value = cp;
-      suggestionsBox.innerHTML = "";
-    };
-
-    suggestionsBox.appendChild(div);
-
-  });
-
-});
-
-/* CLICK SEARCH */
-document.getElementById("searchBtn").onclick = () => {
-
-  const cp = input.value;
-
-  if (!cp) {
-    alert("Entre un code postal");
-    return;
-  }
-
-  alert("🔜 bientôt : filtrage des artistes autour de " + cp);
-};
-
-/* ================= LOAD ARTISTS ================= */
+/* ================= LOAD ALL ARTISTS ================= */
 
 async function loadArtists() {
 
@@ -299,38 +222,152 @@ async function loadArtists() {
 
     if (!artist.location) return;
 
-    const lat = artist.location.lat;
-    const lng = artist.location.lng;
-
-    const marker = L.marker([lat, lng]).addTo(map);
+    const marker = L.marker([
+      artist.location.lat,
+      artist.location.lng
+    ]).addTo(map);
 
     marker.bindPopup(`
       <div style="text-align:center;">
         <img src="${artist.profileImage || 'https://via.placeholder.com/100'}"
-             style="width:80px;height:80px;border-radius:50%;object-fit:cover;"/>
+        style="width:80px;height:80px;border-radius:50%;object-fit:cover;" />
 
-        <h3>${artist.username || "Artiste"}</h3>
-        <p>${artist.city || ""}</p>
-        <p>⭐ ${artist.rating || 0}</p>
+        <h3>${artist.username}</h3>
+        <p>${artist.city}</p>
+      </div>
+    `);
 
-        <button onclick="window.location.href='profil.html?id=${docSnap.id}'"
-          style="margin-top:10px;padding:8px 12px;background:#D4AF37;border:none;border-radius:8px;">
-          Voir profil
+    markers.push(marker);
+
+  });
+}
+
+/* ================= GEO CODE ================= */
+
+async function getCoordsFromPostalCode(cp) {
+
+  const response = await fetch(
+    `https://nominatim.openstreetmap.org/search?postalcode=${cp}&country=France&format=json`
+  );
+
+  const data = await response.json();
+
+  if (data.length === 0) return null;
+
+  return {
+    lat: parseFloat(data[0].lat),
+    lng: parseFloat(data[0].lon)
+  };
+}
+
+/* ================= DISTANCE ================= */
+
+function getDistance(lat1, lon1, lat2, lon2) {
+
+  const R = 6371;
+
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) ** 2;
+
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+/* ================= FILTER ================= */
+
+async function filterArtists(userLat, userLng) {
+
+  const snapshot = await getDocs(collection(db, "artists"));
+
+  let artists = [];
+
+  snapshot.forEach(docSnap => {
+
+    const artist = docSnap.data();
+
+    if (!artist.location) return;
+
+    const distance = getDistance(
+      userLat,
+      userLng,
+      artist.location.lat,
+      artist.location.lng
+    );
+
+    artists.push({
+      id: docSnap.id,
+      ...artist,
+      distance
+    });
+
+  });
+
+  artists.sort((a, b) => a.distance - b.distance);
+
+  return artists;
+}
+
+/* ================= DISPLAY ================= */
+
+function clearMarkers() {
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+}
+
+function displayArtists(artists) {
+
+  clearMarkers();
+
+  artists.forEach(artist => {
+
+    const marker = L.marker([
+      artist.location.lat,
+      artist.location.lng
+    ]).addTo(map);
+
+    marker.bindPopup(`
+      <div style="text-align:center;">
+        <img src="${artist.profileImage || 'https://via.placeholder.com/100'}"
+        style="width:80px;height:80px;border-radius:50%;object-fit:cover;" />
+
+        <h3>${artist.username}</h3>
+        <p>${artist.city}</p>
+        <p>📍 ${artist.distance.toFixed(1)} km</p>
+
+        <button onclick="window.location.href='profil.html?id=${artist.id}'"
+        style="margin-top:10px;padding:8px 12px;background:#D4AF37;border:none;border-radius:8px;">
+        Voir profil
         </button>
       </div>
     `);
+
+    markers.push(marker);
 
   });
 }
 
 /* ================= SEARCH ================= */
 
-document.getElementById("searchBtn").onclick = () => {
-  const input = document.getElementById("searchInput").value;
+document.getElementById("searchBtn").onclick = async () => {
 
-  if (!input) return alert("Entre un code postal");
+  const cp = document.getElementById("searchInput").value;
 
-  alert("🔜 Bientôt : recherche par zone");
+  if (!cp) return alert("Entre un code postal");
+
+  const coords = await getCoordsFromPostalCode(cp);
+
+  if (!coords) return alert("Code postal invalide");
+
+  map.setView([coords.lat, coords.lng], 13);
+
+  const artists = await filterArtists(coords.lat, coords.lng);
+
+  displayArtists(artists);
 };
 
 /* ================= INIT ================= */
