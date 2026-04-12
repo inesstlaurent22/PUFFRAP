@@ -1,3 +1,17 @@
+/* ================= VARIABLES ================= */
+
+:root {
+  --green: #00C896;
+  --green-light: #3EFACD;
+  --green-dark: #009E74;
+
+  --bg: #0A0F0D;
+  --card: rgba(18, 25, 22, 0.7);
+  --border: rgba(255,255,255,0.06);
+
+  --blur: blur(20px);
+}
+
 /* ================= RESET ================= */
 
 * {
@@ -10,7 +24,7 @@
 /* ================= BODY ================= */
 
 body {
-  background: #0B0B0B;
+  background: var(--bg);
   color: white;
   overflow: hidden;
 }
@@ -24,29 +38,8 @@ body {
   width: 100%;
   height: 100%;
   z-index: -1;
-}
 
-/* ================= SUGGESTIONS ================= */
-
-.suggestions {
-  position: absolute;
-  top: 55px;
-  width: 100%;
-  background: rgba(20,20,20,0.95);
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.05);
-  z-index: 20;
-}
-
-.suggestion-item {
-  padding: 10px;
-  cursor: pointer;
-  color: white;
-}
-
-.suggestion-item:hover {
-  background: rgba(212,175,55,0.2);
+  filter: grayscale(30%) brightness(0.7) contrast(1.1);
 }
 
 /* ================= NAVBAR ================= */
@@ -56,6 +49,7 @@ body {
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
+
   width: 90%;
   max-width: 1200px;
 
@@ -65,28 +59,34 @@ body {
 
   padding: 15px 25px;
 
-  background: rgba(20, 20, 20, 0.6);
-  backdrop-filter: blur(15px);
+  background: linear-gradient(
+    135deg,
+    rgba(20, 30, 25, 0.6),
+    rgba(10, 15, 13, 0.6)
+  );
 
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.05);
+  backdrop-filter: var(--blur);
 
-  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  border-radius: 18px;
+  border: 1px solid var(--border);
+
+  box-shadow:
+    0 10px 40px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+
   z-index: 10;
 }
 
+/* LOGO */
+
 .logo {
-  color: #D4AF37;
   font-size: 20px;
-  letter-spacing: 2px;
   font-weight: 600;
-}
+  letter-spacing: 2px;
 
-/* ================= NAV BUTTONS ================= */
-
-.nav-buttons {
-  display: flex;
-  gap: 10px;
+  background: linear-gradient(90deg, var(--green), var(--green-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* ================= BUTTONS ================= */
@@ -96,28 +96,30 @@ button {
   border-radius: 12px;
   padding: 10px 18px;
   font-size: 14px;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
 }
 
-/* GOLD BUTTON */
+/* PRIMARY */
 
 .btn-gold {
-  background: linear-gradient(135deg, #D4AF37, #FFD700);
+  background: linear-gradient(135deg, var(--green), var(--green-light));
   border: none;
   color: black;
   font-weight: 600;
+
+  box-shadow: 0 4px 20px rgba(0,200,150,0.25);
 }
 
 .btn-gold:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(212,175,55,0.4);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 30px rgba(0,200,150,0.4);
 }
 
-/* OUTLINE BUTTON */
+/* OUTLINE */
 
 .btn-outline {
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
   color: white;
 }
 
@@ -133,23 +135,24 @@ button {
 
 .dropdown-content {
   position: absolute;
-  top: 45px;
+  top: 50px;
   right: 0;
 
-  background: rgba(20,20,20,0.95);
-  backdrop-filter: blur(15px);
+  background: var(--card);
+  backdrop-filter: var(--blur);
 
   border-radius: 12px;
   padding: 10px;
 
-  display: none; /* important */
+  display: none;
   flex-direction: column;
   gap: 5px;
 
-  border: 1px solid rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+
+  animation: fadeIn 0.2s ease;
 }
 
-/* état actif */
 .dropdown-content.active {
   display: flex;
 }
@@ -163,7 +166,7 @@ button {
 }
 
 .dropdown-content button:hover {
-  background: rgba(255,255,255,0.05);
+  background: rgba(0,200,150,0.15);
   border-radius: 8px;
 }
 
@@ -171,22 +174,27 @@ button {
 
 .search-box {
   position: fixed;
-  top: 100px;
+  top: 110px;
   left: 50%;
   transform: translateX(-50%);
 
   display: flex;
   gap: 10px;
 
-  background: rgba(20,20,20,0.7);
-  backdrop-filter: blur(15px);
+  background: var(--card);
+  backdrop-filter: var(--blur);
 
   padding: 10px;
-  border-radius: 15px;
+  border-radius: 16px;
 
-  border: 1px solid rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+
   z-index: 10;
 }
+
+/* INPUT */
 
 .search-box input {
   padding: 12px;
@@ -194,9 +202,39 @@ button {
   border: none;
   outline: none;
 
-  background: #111;
+  background: #0f1412;
   color: white;
+
   width: 220px;
+
+  transition: 0.2s;
+}
+
+.search-box input:focus {
+  box-shadow: 0 0 0 2px var(--green);
+}
+
+/* ================= SUGGESTIONS ================= */
+
+.suggestions {
+  position: absolute;
+  top: 55px;
+  width: 100%;
+
+  background: var(--card);
+  backdrop-filter: var(--blur);
+
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+.suggestion-item {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.suggestion-item:hover {
+  background: rgba(0,200,150,0.2);
 }
 
 /* ================= MODALS ================= */
@@ -208,8 +246,8 @@ button {
   width: 100%;
   height: 100%;
 
-  background: rgba(0,0,0,0.7);
-  backdrop-filter: blur(5px);
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(10px);
 
   display: none;
   justify-content: center;
@@ -218,10 +256,12 @@ button {
   z-index: 20;
 }
 
-/* MODAL CARD */
+/* MODAL */
 
 .modal-content {
-  background: rgba(20,20,20,0.95);
+  background: var(--card);
+  backdrop-filter: var(--blur);
+
   padding: 30px;
   border-radius: 20px;
 
@@ -229,20 +269,25 @@ button {
   max-height: 90vh;
   overflow-y: auto;
 
-  border: 1px solid rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
 
-  box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.8),
+    inset 0 1px 0 rgba(255,255,255,0.05);
 
-  animation: fadeIn 0.3s ease;
+  animation: fadeUp 0.3s ease;
 }
 
 .modal-content h2 {
   margin-bottom: 20px;
-  color: #D4AF37;
   text-align: center;
+
+  background: linear-gradient(90deg, var(--green), var(--green-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-/* ================= INPUTS ================= */
+/* INPUTS */
 
 .modal-content input {
   width: 100%;
@@ -252,17 +297,17 @@ button {
   border-radius: 10px;
   border: none;
 
-  background: #111;
+  background: #0f1412;
   color: white;
+
+  transition: 0.2s;
 }
 
-/* FILE INPUT */
-
-.modal-content input[type="file"] {
-  background: none;
+.modal-content input:focus {
+  box-shadow: 0 0 0 2px var(--green);
 }
 
-/* IMAGE PREVIEW */
+/* IMAGE */
 
 #previewImage {
   display: block;
@@ -270,38 +315,29 @@ button {
   border-radius: 50%;
 }
 
-/* ================= SCROLLBAR ================= */
-
-.modal-content::-webkit-scrollbar {
-  width: 6px;
-}
-
-.modal-content::-webkit-scrollbar-thumb {
-  background: #D4AF37;
-  border-radius: 10px;
-}
-
-/* ================= LEAFLET CUSTOM ================= */
+/* ================= MAP POPUP ================= */
 
 .leaflet-popup-content-wrapper {
   border-radius: 15px;
-  background: #111;
+  background: #0f1412;
   color: white;
-}
-
-.leaflet-popup-tip {
-  background: #111;
+  border: 1px solid var(--border);
 }
 
 /* ================= ANIMATIONS ================= */
 
-@keyframes fadeIn {
+@keyframes fadeUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(25px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
