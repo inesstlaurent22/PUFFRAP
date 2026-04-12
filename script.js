@@ -320,36 +320,47 @@ if (!lat || !lng) {
 /* ================= LOAD ALL ARTISTS ================= */
 async function loadArtists() {
 
-  const snapshot = await getDocs(collection(db, "Artists"));
+  try {
 
-  snapshot.forEach(docSnap => {
+    /* 🔥 CLEAR OLD MARKERS */
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
 
-    const artist = docSnap.data();
+    const snapshot = await getDocs(collection(db, "Artists"));
 
-    /* 🔥 VÉRIFICATION */
-    if (!artist.Location) return;
+    snapshot.forEach(docSnap => {
 
-    const lat = artist.Location.Lat;
-    const lng = artist.Location.Lng;
+      const artist = docSnap.data();
 
-    const marker = L.marker([lat, lng]).addTo(map);
+      /* 🔥 SÉCURITÉ */
+      if (!artist.Location || !artist.Location.Lat || !artist.Location.Lng) return;
 
-    marker.bindPopup(`
-      <div style="text-align:center;">
-        
-        <img src="${artist.profileImage || 'https://via.placeholder.com/100'}"
-        style="width:80px;height:80px;border-radius:50%;object-fit:cover;" />
+      const lat = parseFloat(artist.Location.Lat);
+      const lng = parseFloat(artist.Location.Lng);
 
-        <h3>${artist.Username || "Artiste"}</h3>
+      /* 🔥 CRÉATION MARKER */
+      const marker = L.marker([lat, lng]).addTo(map);
 
-        <p>⭐ ${artist.Rating || 0}</p>
+      marker.bindPopup(`
+        <div style="text-align:center;">
+          
+          <img src="${artist.profileImage || 'https://via.placeholder.com/100'}"
+          style="width:80px;height:80px;border-radius:50%;object-fit:cover;" />
 
-      </div>
-    `);
+          <h3>${artist.Username || "Artiste"}</h3>
 
-    markers.push(marker);
+          <p>⭐ ${artist.Rating || 0}</p>
 
-  });
+        </div>
+      `);
+
+      markers.push(marker);
+
+    });
+
+  } catch (error) {
+    console.error("Erreur loadArtists:", error);
+  }
 
 }
 
