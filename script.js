@@ -163,57 +163,63 @@ async function getCoordinatesFromPostal(postal) {
 }
 
 /* ================= SIGNUP ARTIST ================= */
-
 document.getElementById("createArtist").onclick = async () => {
   try {
 
-const email = document.getElementById("artistEmail").value;
-const password = document.getElementById("artistPassword").value;
+    const email = document.getElementById("artistEmail").value.trim();
+    const password = document.getElementById("artistPassword").value.trim();
+    const username = document.getElementById("artistUsername").value.trim();
 
-/* 🔥 CHECK SI EMAIL EXISTE */
-const methods = await fetchSignInMethodsForEmail(auth, email);
-
-if (methods.length > 0) {
-
-  /* 🔥 AUTO LOGIN */
-  await signInWithEmailAndPassword(auth, email, password);
-
-  alert("Connexion automatique 🔥");
-
-  location.reload();
-  return;
-}
-    
-    const username = document.getElementById("artistUsername").value;
-
-    const instagram = document.getElementById("artistInstagram").value;
-    const tiktok = document.getElementById("artistTiktok").value;
-    const portfolio = document.getElementById("artistPortfolio").value;
+    const instagram = document.getElementById("artistInstagram").value.trim();
+    const tiktok = document.getElementById("artistTiktok").value.trim();
+    const portfolio = document.getElementById("artistPortfolio").value.trim();
 
     const file = document.getElementById("artistImage").files[0];
 
-    /* 🔥 RÉCUP LAT LNG (IMPORTANT) */
     const addressInput = document.getElementById("artistAddress");
-    const lat = addressInput.dataset.lat;
-    const lng = addressInput.dataset.lng;
+
+    const lat = parseFloat(addressInput.dataset.lat);
+    const lng = parseFloat(addressInput.dataset.lng);
+
+    /* 🔥 VALIDATION BASIQUE */
+    if (!email || !password || !username) {
+      throw new Error("Remplis tous les champs obligatoires");
+    }
 
     if (!lat || !lng) {
       throw new Error("Choisis une adresse dans les suggestions");
     }
 
-    /* VALIDATION URL */
+    /* 🔥 VALIDATION URL */
     if (instagram && !instagram.startsWith("https://")) throw new Error("Instagram invalide");
     if (tiktok && !tiktok.startsWith("https://")) throw new Error("TikTok invalide");
     if (portfolio && !portfolio.startsWith("https://")) throw new Error("Portfolio invalide");
 
-    /* SKILLS */
+    /* 🔥 SKILLS */
     const skills = getSelectedSkills();
 
-    /* AUTH */
+    /* 🔥 CHECK EMAIL EXISTANT */
+    const methods = await fetchSignInMethodsForEmail(auth, email);
+
+    if (methods.length > 0) {
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+
+        alert("Connexion automatique 🔥");
+        location.reload();
+        return;
+
+      } catch {
+        throw new Error("Mot de passe incorrect ❌");
+      }
+    }
+
+    /* 🔥 CREATE USER */
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    /* IMAGE */
+    /* 🔥 UPLOAD IMAGE */
     let imageUrl = "";
 
     if (file) {
@@ -222,7 +228,7 @@ if (methods.length > 0) {
       imageUrl = await getDownloadURL(storageRef);
     }
 
-    /* FIRESTORE USERS */
+    /* 🔥 FIRESTORE USERS */
     await setDoc(doc(db, "Users", user.uid), {
       Mail: email,
       Name: username,
@@ -230,7 +236,7 @@ if (methods.length > 0) {
       CreatedAt: new Date()
     });
 
-    /* FIRESTORE ARTIST */
+    /* 🔥 FIRESTORE ARTIST */
     await setDoc(doc(db, "Artists", user.uid), {
       UserID: user.uid,
       Username: username,
@@ -239,8 +245,8 @@ if (methods.length > 0) {
       Skills: skills,
 
       Location: {
-        Lat: parseFloat(lat),
-        Lng: parseFloat(lng)
+        Lat: lat,
+        Lng: lng
       },
 
       Socials: {
@@ -255,8 +261,9 @@ if (methods.length > 0) {
       CreatedAt: new Date()
     });
 
-    /* 🔥 AJOUT MARKER DIRECT */
-    L.marker([lat, lng]).addTo(map)
+    /* 🔥 AJOUT MARKER */
+    L.marker([lat, lng])
+      .addTo(map)
       .bindPopup("Ton profil")
       .openPopup();
 
