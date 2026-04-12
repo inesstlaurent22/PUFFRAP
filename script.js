@@ -271,12 +271,16 @@ function getSelectedSkills() {
 
 /* ================= PHOTO PREVIEW ================= */
 
-artistImage.onchange = (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    previewImage.src = URL.createObjectURL(file);
-  }
-};
+const artistImage = document.getElementById("artistImage");
+
+if (artistImage) {
+  artistImage.onchange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      previewImage.src = URL.createObjectURL(file);
+    }
+  };
+}
 
 /* ================= MAP ================= */
 
