@@ -160,60 +160,98 @@ async function getCoordinatesFromPostal(postal) {
   }
 }
 
+/* ================= SIGNUP ARTIST ================= */
 
-<!-- ================= SIGNUP ARTIST ================= -->
-  
-<div id="signupArtistModal" class="modal">
-  <div class="modal-content">
+document.getElementById("createArtist").onclick = async () => {
+  try {
 
-    <h2>Créer ton profil artiste</h2>
+    const email = document.getElementById("artistEmail").value;
+    const password = document.getElementById("artistPassword").value;
+    const username = document.getElementById("artistUsername").value;
 
-    <!-- PHOTO -->
-    <label class="upload-box">
-      <input type="file" id="artistImage" accept="image/*">
-      <span>📸 Ajouter une photo</span>
-    </label>
+    const instagram = document.getElementById("artistInstagram").value;
+    const tiktok = document.getElementById("artistTiktok").value;
+    const portfolio = document.getElementById("artistPortfolio").value;
 
-    <img id="previewImage" class="preview-img"/>
+    const file = document.getElementById("artistImage").files[0];
 
-    <!-- NOM / PRENOM -->
-    <input type="text" id="artistFirstName" placeholder="Prénom">
-    <input type="text" id="artistLastName" placeholder="Nom">
+    /* 🔥 RÉCUP LAT LNG (IMPORTANT) */
+    const addressInput = document.getElementById("artistAddress");
+    const lat = addressInput.dataset.lat;
+    const lng = addressInput.dataset.lng;
 
-    <!-- USERNAME -->
-    <input type="text" id="artistUsername" placeholder="Nom d'artiste">
+    if (!lat || !lng) {
+      throw new Error("Choisis une adresse dans les suggestions");
+    }
 
-    <!-- EMAIL / PASSWORD -->
-    <input type="email" id="artistEmail" placeholder="Email" autocomplete="off">
-    <input type="password" id="artistPassword" placeholder="Mot de passe" autocomplete="new-password">
+    /* VALIDATION URL */
+    if (instagram && !instagram.startsWith("https://")) throw new Error("Instagram invalide");
+    if (tiktok && !tiktok.startsWith("https://")) throw new Error("TikTok invalide");
+    if (portfolio && !portfolio.startsWith("https://")) throw new Error("Portfolio invalide");
 
-    <!-- ADRESSE -->
-    <input type="text" id="artistAddress" placeholder="Adresse complète">
+    /* SKILLS */
+    const skills = getSelectedSkills();
+    const skills = Array.from(skillsSelect.selectedOptions).map(opt => opt.value);
 
-    <div id="addressSuggestions" class="suggestions"></div>
+    /* AUTH */
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
 
-    <!-- COMPÉTENCES -->
-    <label>Compétences</label>
-    <div class="skills-container">
+    /* IMAGE */
+    let imageUrl = "";
 
-      <div class="skill">Beatmaker/Mix</div>
-      <div class="skill">Chanteur/Chanteuse</div>
-      <div class="skill">Vidéaste</div>
-      <div class="skill">Producteur/rice</div>
-      <div class="skill">Community Manager</div>
-      <div class="skill">Comptable</div>
+    if (file) {
+      const storageRef = ref(storage, `artists/${user.uid}/profile.jpg`);
+      await uploadBytes(storageRef, file);
+      imageUrl = await getDownloadURL(storageRef);
+    }
 
-    </div>
+    /* FIRESTORE USERS */
+    await setDoc(doc(db, "Users", user.uid), {
+      Mail: email,
+      Name: username,
+      Role: "artist",
+      CreatedAt: new Date()
+    });
 
-    <!-- LIENS -->
-    <input type="text" id="artistInstagram" placeholder="Instagram (https://...)">
-    <input type="text" id="artistTiktok" placeholder="TikTok (https://...)">
-    <input type="text" id="artistPortfolio" placeholder="Portfolio (https://...)">
+    /* FIRESTORE ARTIST */
+    await setDoc(doc(db, "Artists", user.uid), {
+      UserID: user.uid,
+      Username: username,
+      Email: email,
+      profileImage: imageUrl,
+      Skills: skills,
 
-    <button id="createArtist" class="btn-green">Créer mon profil</button>
+      Location: {
+        Lat: parseFloat(lat),
+        Lng: parseFloat(lng)
+      },
 
-  </div>
-</div>
+      Socials: {
+        Instagram: instagram,
+        TikTok: tiktok,
+        Portfolio: portfolio
+      },
+
+      Rating: 0,
+      isAvailable: true,
+      reviewCount: 0,
+      CreatedAt: new Date()
+    });
+
+    /* 🔥 AJOUT MARKER DIRECT */
+    L.marker([lat, lng]).addTo(map)
+      .bindPopup("Ton profil")
+      .openPopup();
+
+    map.setView([lat, lng], 13);
+
+    alert("Artiste créé 🔥");
+
+  } catch (error) {
+    alert(error.message);
+  }
+};
 
 /* ================= SKILLS CLICK ================= */
 
