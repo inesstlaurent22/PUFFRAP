@@ -212,21 +212,22 @@ button {
 
 .suggestions {
   position: absolute;
-  top: 50px;
+  top: 55px;
   width: 100%;
-
-  background: black;
+  background: rgba(20,20,20,0.95);
   border-radius: 10px;
   overflow: hidden;
+  z-index: 1000; /* 🔥 important */
 }
 
 .suggestion-item {
-  padding: 10px;
+  padding: 12px;
   cursor: pointer;
+  color: white;
 }
 
 .suggestion-item:hover {
-  background: var(--green-soft);
+  background: rgba(0,255,150,0.2);
 }
 
 /* ================= PHOTO UPLOAD ================= */
