@@ -282,6 +282,60 @@ if (artistImage) {
   };
 }
 
+
+/* ================= AUTOCOMPLETE ADRESSE ================= */
+
+const addressInput = document.getElementById("artistAddress");
+const suggestionsBox = document.getElementById("addressSuggestions");
+
+if (addressInput && suggestionsBox) {
+
+  addressInput.addEventListener("input", async () => {
+
+    const query = addressInput.value;
+
+    if (query.length < 3) {
+      suggestionsBox.innerHTML = "";
+      return;
+    }
+
+    try {
+
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${query}&countrycodes=fr&format=json`
+      );
+
+      const data = await res.json();
+
+      suggestionsBox.innerHTML = "";
+
+      data.slice(0, 5).forEach(place => {
+
+        const div = document.createElement("div");
+        div.className = "suggestion-item";
+        div.innerText = place.display_name;
+
+        div.onclick = () => {
+          addressInput.value = place.display_name;
+
+          addressInput.dataset.lat = place.lat;
+          addressInput.dataset.lng = place.lon;
+
+          suggestionsBox.innerHTML = "";
+        };
+
+        suggestionsBox.appendChild(div);
+
+      });
+
+    } catch (error) {
+      console.error("Erreur autocomplete:", error);
+    }
+
+  });
+
+}
+
 /* ================= MAP ================= */
 
 let map;
