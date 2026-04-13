@@ -356,3 +356,73 @@ button {
 .leaflet-popup-tip {
   background: white;
 }
+
+/* ================= USER MENU ================= */
+
+.user-menu {
+  position: relative;
+  display: none; /* caché par défaut */
+}
+
+/* BOUTON */
+#userToggle {
+  background: linear-gradient(135deg, #00ff99, #00cc77);
+  color: black;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* DROPDOWN */
+.user-dropdown {
+  position: absolute;
+  top: 50px;
+  right: 0;
+
+  background: rgba(10,10,10,0.95);
+  backdrop-filter: blur(10px);
+
+  border-radius: 15px;
+  padding: 10px;
+
+  display: flex;
+  flex-direction: column;
+
+  min-width: 180px;
+
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+  pointer-events: none;
+
+  transition: all 0.25s ease;
+
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+}
+
+/* ACTIVE */
+.user-dropdown.active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* BUTTONS */
+.user-dropdown button {
+  background: none;
+  border: none;
+  color: white;
+  padding: 12px;
+  text-align: left;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+/* HOVER PREMIUM */
+.user-dropdown button:hover {
+  background: rgba(0,255,150,0.15);
+  color: #00ff99;
+  transform: translateX(5px);
+}
