@@ -390,23 +390,27 @@ if (addressInput && suggestionsBox) {
 }
 
 /* ================= MAP ================= */
-
 let map;
 let markers = [];
 let userMarker;
+let userCircle;
 
 function initMap() {
 
   /* 🔥 EVITE DOUBLE INIT */
   if (map) {
     map.remove();
+    map = null;
   }
 
   /* 🔥 INIT MAP */
-  map = L.map('map').setView([48.8566, 2.3522], 12);
+  map = L.map('map', {
+    zoomControl: false // option premium
+  }).setView([48.8566, 2.3522], 12);
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap'
+  /* 🔥 MAP DARK PREMIUM */
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap & CartoDB'
   }).addTo(map);
 
   /* 🔥 GEOLOCALISATION */
@@ -422,23 +426,38 @@ function initMap() {
         /* 🔥 CENTRER MAP */
         map.setView([lat, lng], 13);
 
-        /* 🔥 SUPPRIME ANCIEN MARKER USER */
-        if (userMarker) {
-          map.removeLayer(userMarker);
-        }
+        /* 🔥 CLEAN ancien marker */
+        if (userMarker) map.removeLayer(userMarker);
+        if (userCircle) map.removeLayer(userCircle);
+
+        /* 🔥 ICON USER PREMIUM */
+        const userIcon = L.divIcon({
+          html: `
+            <div style="
+              width:20px;
+              height:20px;
+              background:#00ff99;
+              border-radius:50%;
+              box-shadow:0 0 15px #00ff99;
+              border:3px solid black;
+            "></div>
+          `,
+          className: ""
+        });
 
         /* 🔥 MARKER USER */
-        userMarker = L.marker([lat, lng])
+        userMarker = L.marker([lat, lng], { icon: userIcon })
           .addTo(map)
           .bindPopup("📍 Vous êtes ici")
           .openPopup();
 
         /* 🔥 CERCLE PREMIUM */
-        L.circle([lat, lng], {
+        userCircle = L.circle([lat, lng], {
           radius: 500,
           color: "#00ff99",
           fillColor: "#00ff99",
-          fillOpacity: 0.1
+          fillOpacity: 0.08,
+          weight: 2
         }).addTo(map);
 
         /* 🔥 LOAD ARTISTS APRÈS GEO */
@@ -453,8 +472,14 @@ function initMap() {
         /* 🔥 FALLBACK PARIS */
         map.setView([48.8566, 2.3522], 12);
 
-        loadArtists(); // 🔥 IMPORTANT
+        loadArtists();
 
+      },
+
+      {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0
       }
 
     );
@@ -465,7 +490,7 @@ function initMap() {
 
     map.setView([48.8566, 2.3522], 12);
 
-    loadArtists(); // 🔥 IMPORTANT
+    loadArtists();
 
   }
 
@@ -482,28 +507,61 @@ async function loadArtists() {
 
     const snapshot = await getDocs(collection(db, "Artists"));
 
+    /* 🔥 ICON GOLD PREMIUM */
+    const artistIcon = L.divIcon({
+      html: `
+        <div style="
+          width:18px;
+          height:18px;
+          background:#D4AF37;
+          border-radius:50%;
+          box-shadow:0 0 12px #D4AF37;
+          border:2px solid black;
+        "></div>
+      `,
+      className: ""
+    });
+
     snapshot.forEach(docSnap => {
 
       const artist = docSnap.data();
+      const id = docSnap.id;
 
-      /* 🔥 SÉCURITÉ */
+      /* 🔥 SÉCURITÉ DATA */
       if (!artist.Location || !artist.Location.Lat || !artist.Location.Lng) return;
 
       const lat = parseFloat(artist.Location.Lat);
       const lng = parseFloat(artist.Location.Lng);
 
-      /* 🔥 CRÉATION MARKER */
-      const marker = L.marker([lat, lng]).addTo(map);
+      if (isNaN(lat) || isNaN(lng)) return;
 
+      /* 🔥 MARKER PREMIUM */
+      const marker = L.marker([lat, lng], { icon: artistIcon }).addTo(map);
+
+      /* 🔥 POPUP PREMIUM */
       marker.bindPopup(`
         <div style="text-align:center;">
           
           <img src="${artist.profileImage || 'https://via.placeholder.com/100'}"
           style="width:80px;height:80px;border-radius:50%;object-fit:cover;" />
 
-          <h3>${artist.Username || "Artiste"}</h3>
+          <h3 style="margin:5px 0;">${artist.Username || "Artiste"}</h3>
 
-          <p>⭐ ${artist.Rating || 0}</p>
+          <p style="color:#D4AF37;">⭐ ${artist.Rating || 0}</p>
+
+          <button 
+            onclick="window.location.href='profil.html?id=${id}'"
+            style="
+              margin-top:8px;
+              padding:6px 10px;
+              background:#00ff99;
+              border:none;
+              border-radius:6px;
+              font-weight:bold;
+              cursor:pointer;
+            ">
+            Voir profil
+          </button>
 
         </div>
       `);
@@ -594,7 +652,12 @@ async function filterArtists(userLat, userLng) {
 
 /* ================= DISPLAY ================= */
 function clearMarkers() {
-  markers.forEach(m => map.removeLayer(m));
+  if (!map) return;
+
+  markers.forEach(m => {
+    if (m) map.removeLayer(m);
+  });
+
   markers = [];
 }
 
@@ -602,29 +665,46 @@ function displayArtists(artists) {
 
   clearMarkers();
 
+  /* 🔥 ICON GOLD PREMIUM */
+  const artistIcon = L.divIcon({
+    html: `
+      <div style="
+        width:18px;
+        height:18px;
+        background:#D4AF37;
+        border-radius:50%;
+        box-shadow:0 0 12px #D4AF37;
+        border:2px solid black;
+      "></div>
+    `,
+    className: ""
+  });
+
   artists.forEach(artist => {
 
-    /* 🔥 SÉCURITÉ */
-    if (!artist.Location) return;
+    /* 🔥 SÉCURITÉ DATA */
+    if (!artist.Location || !artist.Location.Lat || !artist.Location.Lng) return;
 
     const lat = parseFloat(artist.Location.Lat);
     const lng = parseFloat(artist.Location.Lng);
 
     if (isNaN(lat) || isNaN(lng)) return;
 
-    const marker = L.marker([lat, lng]).addTo(map);
+    /* 🔥 MARKER PREMIUM */
+    const marker = L.marker([lat, lng], { icon: artistIcon }).addTo(map);
 
+    /* 🔥 POPUP PREMIUM */
     marker.bindPopup(`
       <div style="text-align:center;">
         
         <img src="${artist.profileImage || 'https://via.placeholder.com/100'}"
         style="width:80px;height:80px;border-radius:50%;object-fit:cover;" />
 
-        <h3>${artist.Username || "Artiste"}</h3>
+        <h3 style="margin:5px 0;">${artist.Username || "Artiste"}</h3>
 
-        <p>⭐ ${artist.Rating || 0}</p>
+        <p style="color:#D4AF37;">⭐ ${artist.Rating || 0}</p>
 
-        <p>
+        <p style="font-size:12px;">
           📍 ${
             artist.distance 
             ? artist.distance.toFixed(1) + " km"
@@ -634,7 +714,15 @@ function displayArtists(artists) {
 
         <button 
           onclick="window.location.href='profil.html?id=${artist.id}'"
-          style="margin-top:10px;padding:8px 12px;background:#00ff99;border:none;border-radius:8px;color:black;font-weight:bold;">
+          style="
+            margin-top:8px;
+            padding:6px 10px;
+            background:#00ff99;
+            border:none;
+            border-radius:6px;
+            font-weight:bold;
+            cursor:pointer;
+          ">
           Voir profil
         </button>
 
