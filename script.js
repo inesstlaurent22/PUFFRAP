@@ -403,15 +403,15 @@ function initMap() {
     map = null;
   }
 
-  /* 🔥 INIT MAP */
+  /* 🔥 INIT MAP (STYLE APPLE) */
   map = L.map('map', {
-    zoomControl: false // option premium
+    zoomControl: false,
+    attributionControl: false
   }).setView([48.8566, 2.3522], 12);
 
-  /* 🔥 MAP BLANCHE PREMIUM */
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; OpenStreetMap & CartoDB'
-}).addTo(map);
+  /* 🍏 MAP ULTRA MINIMALISTE */
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png')
+    .addTo(map);
 
   /* 🔥 GEOLOCALISATION */
   if (navigator.geolocation) {
@@ -423,23 +423,22 @@ function initMap() {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
 
-        /* 🔥 CENTRER MAP */
         map.setView([lat, lng], 13);
 
-        /* 🔥 CLEAN ancien marker */
+        /* 🔥 CLEAN ancien */
         if (userMarker) map.removeLayer(userMarker);
         if (userCircle) map.removeLayer(userCircle);
 
-        /* 🔥 ICON USER PREMIUM */
+        /* 🍏 ICON USER (APPLE STYLE) */
         const userIcon = L.divIcon({
           html: `
             <div style="
-              width:20px;
-              height:20px;
-              background:#00ff99;
+              width:18px;
+              height:18px;
+              background:white;
               border-radius:50%;
-              box-shadow:0 0 15px #00ff99;
-              border:3px solid black;
+              border:4px solid #007AFF;
+              box-shadow:0 0 10px rgba(0,122,255,0.4);
             "></div>
           `,
           className: ""
@@ -448,19 +447,18 @@ function initMap() {
         /* 🔥 MARKER USER */
         userMarker = L.marker([lat, lng], { icon: userIcon })
           .addTo(map)
-          .bindPopup("📍 Vous êtes ici")
-          .openPopup();
+          .bindPopup("📍 Vous êtes ici");
 
-        /* 🔥 CERCLE PREMIUM */
+        /* 🍏 CERCLE STYLE APPLE */
         userCircle = L.circle([lat, lng], {
-          radius: 500,
-          color: "#00ff99",
-          fillColor: "#00ff99",
+          radius: 400,
+          color: "#007AFF",
+          fillColor: "#007AFF",
           fillOpacity: 0.08,
-          weight: 2
+          weight: 1
         }).addTo(map);
 
-        /* 🔥 LOAD ARTISTS APRÈS GEO */
+        /* 🔥 LOAD ARTISTS */
         loadArtists();
 
       },
@@ -469,7 +467,6 @@ function initMap() {
 
         console.warn("Erreur géolocalisation :", error);
 
-        /* 🔥 FALLBACK PARIS */
         map.setView([48.8566, 2.3522], 12);
 
         loadArtists();
@@ -497,26 +494,32 @@ function initMap() {
 }
 
 /* ================= LOAD ALL ARTISTS ================= */
+
 async function loadArtists() {
 
   try {
 
+    /* 🔥 SECURITÉ MAP */
+    if (!map) return;
+
     /* 🔥 CLEAR OLD MARKERS */
-    markers.forEach(m => map.removeLayer(m));
+    markers.forEach(m => {
+      if (m) map.removeLayer(m);
+    });
     markers = [];
 
     const snapshot = await getDocs(collection(db, "Artists"));
 
-    /* 🔥 ICON GOLD PREMIUM */
+    /* 🍏 ICON ARTISTE (WHITE + GOLD STYLE) */
     const artistIcon = L.divIcon({
       html: `
         <div style="
-          width:18px;
-          height:18px;
-          background:#D4AF37;
+          width:16px;
+          height:16px;
+          background:white;
           border-radius:50%;
-          box-shadow:0 0 12px #D4AF37;
-          border:2px solid black;
+          border:3px solid #D4AF37;
+          box-shadow:0 0 8px rgba(212,175,55,0.4);
         "></div>
       `,
       className: ""
@@ -535,29 +538,40 @@ async function loadArtists() {
 
       if (isNaN(lat) || isNaN(lng)) return;
 
-      /* 🔥 MARKER PREMIUM */
+      /* 🔥 MARKER */
       const marker = L.marker([lat, lng], { icon: artistIcon }).addTo(map);
 
-      /* 🔥 POPUP PREMIUM */
+      /* 🍏 POPUP CLEAN */
       marker.bindPopup(`
         <div style="text-align:center;">
           
           <img src="${artist.profileImage || 'https://via.placeholder.com/100'}"
-          style="width:80px;height:80px;border-radius:50%;object-fit:cover;" />
+          style="
+            width:70px;
+            height:70px;
+            border-radius:50%;
+            object-fit:cover;
+            margin-bottom:5px;
+          " />
 
-          <h3 style="margin:5px 0;">${artist.Username || "Artiste"}</h3>
+          <h3 style="margin:5px 0;font-size:14px;">
+            ${artist.Username || "Artiste"}
+          </h3>
 
-          <p style="color:#D4AF37;">⭐ ${artist.Rating || 0}</p>
+          <p style="color:#D4AF37;font-size:13px;">
+            ⭐ ${artist.Rating || 0}
+          </p>
 
           <button 
             onclick="window.location.href='profil.html?id=${id}'"
             style="
-              margin-top:8px;
+              margin-top:6px;
               padding:6px 10px;
-              background:#00ff99;
+              background:#007AFF;
+              color:white;
               border:none;
               border-radius:6px;
-              font-weight:bold;
+              font-size:12px;
               cursor:pointer;
             ">
             Voir profil
@@ -651,11 +665,14 @@ async function filterArtists(userLat, userLng) {
 }
 
 /* ================= DISPLAY ================= */
+
 function clearMarkers() {
   if (!map) return;
 
   markers.forEach(m => {
-    if (m) map.removeLayer(m);
+    if (m && map.hasLayer(m)) {
+      map.removeLayer(m);
+    }
   });
 
   markers = [];
@@ -663,18 +680,20 @@ function clearMarkers() {
 
 function displayArtists(artists) {
 
+  if (!map || !Array.isArray(artists)) return;
+
   clearMarkers();
 
-  /* 🔥 ICON GOLD PREMIUM */
+  /* 🍏 ICON ARTISTE (WHITE + GOLD CLEAN) */
   const artistIcon = L.divIcon({
     html: `
       <div style="
-        width:18px;
-        height:18px;
-        background:#D4AF37;
+        width:16px;
+        height:16px;
+        background:white;
         border-radius:50%;
-        box-shadow:0 0 12px #D4AF37;
-        border:2px solid black;
+        border:3px solid #D4AF37;
+        box-shadow:0 0 6px rgba(212,175,55,0.3);
       "></div>
     `,
     className: ""
@@ -683,28 +702,38 @@ function displayArtists(artists) {
   artists.forEach(artist => {
 
     /* 🔥 SÉCURITÉ DATA */
-    if (!artist.Location || !artist.Location.Lat || !artist.Location.Lng) return;
+    if (!artist?.Location?.Lat || !artist?.Location?.Lng) return;
 
     const lat = parseFloat(artist.Location.Lat);
     const lng = parseFloat(artist.Location.Lng);
 
     if (isNaN(lat) || isNaN(lng)) return;
 
-    /* 🔥 MARKER PREMIUM */
+    /* 🔥 MARKER */
     const marker = L.marker([lat, lng], { icon: artistIcon }).addTo(map);
 
-    /* 🔥 POPUP PREMIUM */
+    /* 🍏 POPUP CLEAN */
     marker.bindPopup(`
       <div style="text-align:center;">
         
         <img src="${artist.profileImage || 'https://via.placeholder.com/100'}"
-        style="width:80px;height:80px;border-radius:50%;object-fit:cover;" />
+        style="
+          width:70px;
+          height:70px;
+          border-radius:50%;
+          object-fit:cover;
+          margin-bottom:6px;
+        " />
 
-        <h3 style="margin:5px 0;">${artist.Username || "Artiste"}</h3>
+        <h3 style="margin:5px 0;font-size:14px;">
+          ${artist.Username || "Artiste"}
+        </h3>
 
-        <p style="color:#D4AF37;">⭐ ${artist.Rating || 0}</p>
+        <p style="color:#D4AF37;font-size:13px;">
+          ⭐ ${artist.Rating || 0}
+        </p>
 
-        <p style="font-size:12px;">
+        <p style="font-size:11px;color:#666;">
           📍 ${
             artist.distance 
             ? artist.distance.toFixed(1) + " km"
@@ -715,12 +744,13 @@ function displayArtists(artists) {
         <button 
           onclick="window.location.href='profil.html?id=${artist.id}'"
           style="
-            margin-top:8px;
+            margin-top:6px;
             padding:6px 10px;
-            background:#00ff99;
+            background:#007AFF;
+            color:white;
             border:none;
             border-radius:6px;
-            font-weight:bold;
+            font-size:12px;
             cursor:pointer;
           ">
           Voir profil
