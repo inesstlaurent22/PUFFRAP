@@ -18,6 +18,7 @@
 <div id="map"></div>
 <div class="map-glow"></div>
 
+
 <!-- ================= NAVBAR ================= -->
 <header class="navbar">
 
@@ -28,8 +29,8 @@
     <!-- LOGIN -->
     <button id="loginBtn" class="btn-outline">Connexion</button>
 
-    <!-- SIGNUP DROPDOWN -->
-    <div class="dropdown">
+    <!-- SIGNUP -->
+    <div class="dropdown" id="signupBlock">
       <button id="signupToggle" class="btn-gold">Inscription</button>
 
       <div id="dropdownMenu" class="dropdown-content">
@@ -38,10 +39,28 @@
       </div>
     </div>
 
+    <!-- USER MENU (CONNECTÉ) -->
+    <div id="userMenu" class="user-menu" style="display:none;">
+
+      <button id="userToggle" class="btn-gold">
+        Mon compte
+      </button>
+
+      <div id="userDropdown" class="user-dropdown">
+
+        <button onclick="location.href='profil.html'">Mon profil</button>
+        <button>Mes réservations</button>
+        <button>Mes favoris</button>
+        <button id="logoutBtn">Déconnecter</button>
+
+      </div>
+
+    </div>
+
   </div>
 
 </header>
-
+  
 <!-- ================= SEARCH BAR ================= -->
 <div class="search-box">
 
