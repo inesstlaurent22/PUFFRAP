@@ -390,29 +390,17 @@ if (addressInput && suggestionsBox) {
 }
 
 /* ================= MAP ================= */
-
 let map;
 let markers = [];
-let userMarker;
-let userCircle;
 
 function initMap() {
 
-  /* 🔥 EVITE DOUBLE INIT */
-  if (map) {
-    map.remove();
-    map = null;
-  }
+  /* 🔥 INIT MAP */
+  map = L.map('map').setView([48.8566, 2.3522], 12);
 
-  /* 🍏 INIT MAP ULTRA CLEAN */
-  map = L.map('map', {
-    zoomControl: false,
-    attributionControl: false
-  }).setView([48.8566, 2.3522], 12);
-
-  /* 🍏 MAP BLANCHE MINIMALISTE */
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png')
-    .addTo(map);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(map);
 
   /* 🔥 GEOLOCALISATION */
   if (navigator.geolocation) {
@@ -424,47 +412,22 @@ function initMap() {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
 
+        /* CENTRER */
         map.setView([lat, lng], 13);
 
-        /* 🔥 CLEAN ancien marker */
-        if (userMarker && map.hasLayer(userMarker)) {
-          map.removeLayer(userMarker);
-        }
-
-        if (userCircle && map.hasLayer(userCircle)) {
-          map.removeLayer(userCircle);
-        }
-
-        /* 🍏 ICON USER (ULTRA CLEAN) */
-        const userIcon = L.divIcon({
-          html: `
-            <div style="
-              width:14px;
-              height:14px;
-              background:white;
-              border-radius:50%;
-              border:3px solid #007AFF;
-            "></div>
-          `,
-          className: ""
-        });
-
-        /* 🔥 MARKER USER */
-        userMarker = L.marker([lat, lng], { icon: userIcon })
+        /* MARKER USER */
+        L.marker([lat, lng])
           .addTo(map)
-          .bindPopup("📍 Vous êtes ici");
+          .bindPopup("📍 Vous êtes ici")
+          .openPopup();
 
-        /* 🍏 CERCLE LÉGER */
-        userCircle = L.circle([lat, lng], {
-          radius: 400,
-          color: "#007AFF",
-          fillColor: "#007AFF",
-          fillOpacity: 0.05,
-          weight: 1
+        /* 🔥 BONUS : cercle premium */
+        L.circle([lat, lng], {
+          radius: 500,
+          color: "#00ff99",
+          fillColor: "#00ff99",
+          fillOpacity: 0.1
         }).addTo(map);
-
-        /* 🔥 LOAD ARTISTS */
-        loadArtists();
 
       },
 
@@ -472,16 +435,9 @@ function initMap() {
 
         console.warn("Erreur géolocalisation :", error);
 
+        /* FALLBACK PARIS */
         map.setView([48.8566, 2.3522], 12);
 
-        loadArtists();
-
-      },
-
-      {
-        enableHighAccuracy: true,
-        timeout: 5000,
-        maximumAge: 0
       }
 
     );
@@ -492,112 +448,49 @@ function initMap() {
 
     map.setView([48.8566, 2.3522], 12);
 
-    loadArtists();
-
   }
+
+  /* 🔥 LOAD ARTISTS */
+  loadArtists();
 
 }
 
 /* ================= LOAD ALL ARTISTS ================= */
-
 async function loadArtists() {
 
   try {
 
-    /* 🔥 SECURITÉ MAP */
-    if (!map) return;
-
-    /* 🔥 CLEAR OLD MARKERS PROPRE */
-    markers.forEach(marker => {
-      if (marker && map.hasLayer(marker)) {
-        map.removeLayer(marker);
-      }
-    });
+    /* 🔥 CLEAR OLD MARKERS */
+    markers.forEach(m => map.removeLayer(m));
     markers = [];
 
     const snapshot = await getDocs(collection(db, "Artists"));
 
-    /* 🍏 ICON ARTISTE (APPLE STYLE) */
-    const artistIcon = L.divIcon({
-      html: `
-        <div style="
-          width:12px;
-          height:12px;
-          background:white;
-          border-radius:50%;
-          border:2px solid #D4AF37;
-        "></div>
-      `,
-      className: ""
-    });
-
     snapshot.forEach(docSnap => {
 
       const artist = docSnap.data();
-      const id = docSnap.id;
 
-      /* 🔥 SÉCURITÉ DATA */
-      if (!artist?.Location?.Lat || !artist?.Location?.Lng) return;
+      /* 🔥 SÉCURITÉ */
+      if (!artist.Location || !artist.Location.Lat || !artist.Location.Lng) return;
 
       const lat = parseFloat(artist.Location.Lat);
       const lng = parseFloat(artist.Location.Lng);
 
-      if (isNaN(lat) || isNaN(lng)) return;
+      /* 🔥 CRÉATION MARKER */
+      const marker = L.marker([lat, lng]).addTo(map);
 
-      /* 🔥 MARKER */
-      const marker = L.marker([lat, lng], { icon: artistIcon }).addTo(map);
-
-      /* 🍏 POPUP ULTRA CLEAN */
-      const popupContent = `
-        <div style="
-          text-align:center;
-          font-family:-apple-system, BlinkMacSystemFont, sans-serif;
-        ">
+      marker.bindPopup(`
+        <div style="text-align:center;">
           
           <img src="${artist.profileImage || 'https://via.placeholder.com/100'}"
-          style="
-            width:60px;
-            height:60px;
-            border-radius:50%;
-            object-fit:cover;
-            margin-bottom:6px;
-          " />
+          style="width:80px;height:80px;border-radius:50%;object-fit:cover;" />
 
-          <div style="font-size:14px;font-weight:500;">
-            ${artist.Username || "Artiste"}
-          </div>
+          <h3>${artist.Username || "Artiste"}</h3>
 
-          <div style="color:#D4AF37;font-size:12px;margin-top:2px;">
-            ⭐ ${artist.Rating || 0}
-          </div>
-
-          <button 
-            onclick="window.location.href='profil.html?id=${id}'"
-            style="
-              margin-top:8px;
-              padding:6px 10px;
-              background:#007AFF;
-              color:white;
-              border:none;
-              border-radius:8px;
-              font-size:12px;
-              font-weight:500;
-              cursor:pointer;
-            ">
-            Voir profil
-          </button>
+          <p>⭐ ${artist.Rating || 0}</p>
 
         </div>
-      `;
-
-      marker.bindPopup(popupContent, {
-        closeButton: false,
-        offset: [0, -5]
-      });
-
-      /* 🍏 INTERACTION PREMIUM */
-      marker.on("mouseover", () => marker.openPopup());
-      marker.on("mouseout", () => marker.closePopup());
+      `);
 
       markers.push(marker);
 
@@ -684,117 +577,57 @@ async function filterArtists(userLat, userLng) {
 }
 
 /* ================= DISPLAY ================= */
-
 function clearMarkers() {
-
-  if (!map) return;
-
-  markers.forEach(marker => {
-    if (marker && map.hasLayer(marker)) {
-      map.removeLayer(marker);
-    }
-  });
-
+  markers.forEach(m => map.removeLayer(m));
   markers = [];
 }
 
 function displayArtists(artists) {
 
-  if (!map || !Array.isArray(artists)) return;
-
   clearMarkers();
-
-  /* 🍏 ICON ARTISTE (APPLE MINIMAL) */
-  const artistIcon = L.divIcon({
-    html: `
-      <div style="
-        width:12px;
-        height:12px;
-        background:white;
-        border-radius:50%;
-        border:2px solid #D4AF37;
-      "></div>
-    `,
-    className: ""
-  });
 
   artists.forEach(artist => {
 
-    /* 🔥 SÉCURITÉ DATA */
-    if (!artist?.Location?.Lat || !artist?.Location?.Lng) return;
+    /* 🔥 SÉCURITÉ */
+    if (!artist.Location) return;
 
     const lat = parseFloat(artist.Location.Lat);
     const lng = parseFloat(artist.Location.Lng);
 
     if (isNaN(lat) || isNaN(lng)) return;
 
-    /* 🔥 MARKER */
-    const marker = L.marker([lat, lng], { icon: artistIcon }).addTo(map);
+    const marker = L.marker([lat, lng]).addTo(map);
 
-    /* 🍏 POPUP ULTRA CLEAN */
-    const popupContent = `
-      <div style="
-        text-align:center;
-        font-family:-apple-system, BlinkMacSystemFont, sans-serif;
-      ">
+    marker.bindPopup(`
+      <div style="text-align:center;">
         
         <img src="${artist.profileImage || 'https://via.placeholder.com/100'}"
-        style="
-          width:60px;
-          height:60px;
-          border-radius:50%;
-          object-fit:cover;
-          margin-bottom:6px;
-        " />
+        style="width:80px;height:80px;border-radius:50%;object-fit:cover;" />
 
-        <div style="font-size:14px;font-weight:500;">
-          ${artist.Username || "Artiste"}
-        </div>
+        <h3>${artist.Username || "Artiste"}</h3>
 
-        <div style="color:#D4AF37;font-size:12px;margin-top:2px;">
-          ⭐ ${artist.Rating || 0}
-        </div>
+        <p>⭐ ${artist.Rating || 0}</p>
 
-        <div style="font-size:11px;color:#888;margin-top:2px;">
+        <p>
           📍 ${
             artist.distance 
             ? artist.distance.toFixed(1) + " km"
             : "Distance inconnue"
           }
-        </div>
+        </p>
 
         <button 
           onclick="window.location.href='profil.html?id=${artist.id}'"
-          style="
-            margin-top:8px;
-            padding:6px 10px;
-            background:#007AFF;
-            color:white;
-            border:none;
-            border-radius:8px;
-            font-size:12px;
-            font-weight:500;
-            cursor:pointer;
-          ">
+          style="margin-top:10px;padding:8px 12px;background:#00ff99;border:none;border-radius:8px;color:black;font-weight:bold;">
           Voir profil
         </button>
 
       </div>
-    `;
-
-    marker.bindPopup(popupContent, {
-      closeButton: false,
-      offset: [0, -5]
-    });
-
-    /* 🍏 UX PREMIUM */
-    marker.on("mouseover", () => marker.openPopup());
-    marker.on("mouseout", () => marker.closePopup());
+    `);
 
     markers.push(marker);
 
   });
-
 }
 
 /* ================= SEARCH ================= */
@@ -823,4 +656,4 @@ if (searchBtn) {
 
 window.addEventListener("DOMContentLoaded", () => {
   initMap();
-});
+}); 
