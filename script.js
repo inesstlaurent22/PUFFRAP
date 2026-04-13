@@ -408,10 +408,10 @@ function initMap() {
     zoomControl: false // option premium
   }).setView([48.8566, 2.3522], 12);
 
-  /* 🔥 MAP DARK PREMIUM */
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap & CartoDB'
-  }).addTo(map);
+  /* 🔥 MAP BLANCHE PREMIUM */
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap & CartoDB'
+}).addTo(map);
 
   /* 🔥 GEOLOCALISATION */
   if (navigator.geolocation) {
