@@ -460,41 +460,149 @@ async function loadArtists() {
 
   try {
 
-    /* 🔥 CLEAR OLD MARKERS */
-    markers.forEach(m => map.removeLayer(m));
+    /* 🔥 SÉCURITÉ MAP */
+    if (!map) return;
+
+    /* 🔥 CLEAR OLD MARKERS PROPRE */
+    markers.forEach(m => {
+      if (m && map.hasLayer(m)) {
+        map.removeLayer(m);
+      }
+    });
     markers = [];
 
     const snapshot = await getDocs(collection(db, "Artists"));
 
-    snapshot.forEach(docSnap => {
+    /* 🔥 ICON PREMIUM */
+    const artistIcon = L.divIcon({
+      html: `
+        <div style="
+          width:12px;
+          height:12px;
+          background:white;
+          border-radius:50%;
+          border:2px solid #D4AF37;
+        "></div>
+      `,
+      className: ""
+    });
+
+    /* 🔥 BOUCLE ASYNC */
+    for (const docSnap of snapshot.docs) {
 
       const artist = docSnap.data();
+      const id = docSnap.id;
 
-      /* 🔥 SÉCURITÉ */
-      if (!artist.Location || !artist.Location.Lat || !artist.Location.Lng) return;
+      /* 🔥 SÉCURITÉ DATA */
+      if (!artist?.Location?.Lat || !artist?.Location?.Lng) continue;
 
       const lat = parseFloat(artist.Location.Lat);
       const lng = parseFloat(artist.Location.Lng);
 
-      /* 🔥 CRÉATION MARKER */
-      const marker = L.marker([lat, lng]).addTo(map);
+      if (isNaN(lat) || isNaN(lng)) continue;
 
+      /* 🔥 RÉCUP SERVICES */
+      const servicesSnap = await getDocs(
+        collection(db, "Artists", id, "Services")
+      );
+
+      let services = [];
+
+      servicesSnap.forEach(doc => {
+        const s = doc.data();
+
+        if (!s.IsActive) return;
+
+        services.push({
+          title: s.Title,
+          price: s.Price
+        });
+      });
+
+      /* 🔥 HTML SERVICES */
+      const servicesHTML = services.length
+        ? services.slice(0, 3).map(s => `
+            <div style="
+              display:flex;
+              justify-content:space-between;
+              font-size:13px;
+              padding:4px 0;
+              border-bottom:1px solid #eee;
+            ">
+              <span>${s.title}</span>
+              <span style="font-weight:600;">${s.price}€</span>
+            </div>
+          `).join("")
+        : `<span style="font-size:12px;color:#999;">Aucun service</span>`;
+
+      const minPrice = services.length
+        ? Math.min(...services.map(s => s.price))
+        : null;
+
+      /* 🔥 MARKER */
+      const marker = L.marker([lat, lng], { icon: artistIcon }).addTo(map);
+
+      /* 💎 POPUP PREMIUM */
       marker.bindPopup(`
-        <div style="text-align:center;">
-          
-          <img src="${artist.profileImage || 'https://via.placeholder.com/100'}"
-          style="width:80px;height:80px;border-radius:50%;object-fit:cover;" />
+        <div style="
+          width:220px;
+          font-family:-apple-system, BlinkMacSystemFont, sans-serif;
+        ">
 
-          <h3>${artist.Username || "Artiste"}</h3>
+          <img src="${artist.profileImage || 'https://via.placeholder.com/300'}"
+            style="
+              width:100%;
+              height:120px;
+              object-fit:cover;
+              border-radius:12px;
+              margin-bottom:8px;
+            " />
 
-          <p>⭐ ${artist.Rating || 0}</p>
+          <div style="font-size:15px;font-weight:600;">
+            ${artist.Username || "Artiste"}
+          </div>
+
+          <div style="color:#D4AF37;font-size:12px;margin-bottom:8px;">
+            ⭐ ${artist.Rating || 0}
+          </div>
+
+          <div style="
+            background:#fafafa;
+            border-radius:10px;
+            padding:8px;
+            margin-bottom:8px;
+          ">
+            ${servicesHTML}
+          </div>
+
+          <button 
+            onclick="window.location.href='profil.html?id=${id}'"
+            style="
+              width:100%;
+              padding:10px;
+              background:#000;
+              color:white;
+              border:none;
+              border-radius:10px;
+              font-weight:600;
+              cursor:pointer;
+            ">
+            ${minPrice ? `Réserver dès ${minPrice}€` : "Voir profil"}
+          </button>
 
         </div>
-      `);
+      `, {
+        closeButton: false,
+        offset: [0, -5]
+      });
+
+      /* 🔥 UX PREMIUM */
+      marker.on("mouseover", () => marker.openPopup());
+      marker.on("mouseout", () => marker.closePopup());
 
       markers.push(marker);
 
-    });
+    }
 
   } catch (error) {
     console.error("Erreur loadArtists:", error);
@@ -650,6 +758,30 @@ if (searchBtn) {
 
     displayArtists(artists);
   };
+}
+
+/* ================= Fiche artiste ================= */
+async function getArtistServices(artistId) {
+
+  const snapshot = await getDocs(
+    collection(db, "Artists", artistId, "Services")
+  );
+
+  let services = [];
+
+  snapshot.forEach(doc => {
+    const data = doc.data();
+
+    if (!data.IsActive) return; // optionnel
+
+    services.push({
+      title: data.Title,
+      price: data.Price,
+      description: data.Description
+    });
+  });
+
+  return services;
 }
 
 /* ================= INIT ================= */
