@@ -5,7 +5,10 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import {
   getAuth,
   createUserWithEmailAndPassword,
-  signInWithEmailAndPassword
+  signInWithEmailAndPassword,
+  fetchSignInMethodsForEmail,
+  onAuthStateChanged,
+  signOut
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 import {
@@ -23,8 +26,6 @@ import {
   getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-import { fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
 /* ================= CONFIG ================= */
 
 const firebaseConfig = {
@@ -41,28 +42,59 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
+/* ================= AUTH UI ================= */
+
+onAuthStateChanged(auth, (user) => {
+
+  const loginBtn = document.getElementById("loginBtn");
+  const signupToggle = document.getElementById("signupToggle");
+  const userMenu = document.getElementById("userMenu");
+
+  if (user) {
+    if (loginBtn) loginBtn.style.display = "none";
+    if (signupToggle) signupToggle.style.display = "none";
+    if (userMenu) userMenu.style.display = "block";
+  } else {
+    if (loginBtn) loginBtn.style.display = "block";
+    if (signupToggle) signupToggle.style.display = "block";
+    if (userMenu) userMenu.style.display = "none";
+  }
+
+});
+
 /* ================= MODALS ================= */
 
-document.getElementById("loginBtn").onclick = () => {
-  document.getElementById("loginModal").style.display = "flex";
-};
+const loginBtn = document.getElementById("loginBtn");
+const signupClientBtn = document.getElementById("signupClient");
+const signupArtistBtn = document.getElementById("signupArtist");
 
-document.getElementById("signupClient").onclick = () => {
-  document.getElementById("signupClientModal").style.display = "flex";
-};
+if (loginBtn) {
+  loginBtn.onclick = () => {
+    document.getElementById("loginModal").style.display = "flex";
+  };
+}
 
-document.getElementById("signupArtist").onclick = () => {
-  document.getElementById("signupArtistModal").style.display = "flex";
-};
+if (signupClientBtn) {
+  signupClientBtn.onclick = () => {
+    document.getElementById("signupClientModal").style.display = "flex";
+  };
+}
 
-window.onclick = (e) => {
+if (signupArtistBtn) {
+  signupArtistBtn.onclick = () => {
+    document.getElementById("signupArtistModal").style.display = "flex";
+  };
+}
+
+/* ================= CLOSE MODAL ================= */
+
+window.addEventListener("click", (e) => {
   if (e.target.classList.contains("modal")) {
     e.target.style.display = "none";
   }
-};
+});
 
-
-/* ================= DROPDOWN CLICK ================= */
+/* ================= DROPDOWN INSCRIPTION ================= */
 
 const toggleBtn = document.getElementById("signupToggle");
 const dropdown = document.getElementById("dropdownMenu");
@@ -85,6 +117,21 @@ if (toggleBtn && dropdown) {
   });
 
 }
+
+/* ================= LOGOUT ================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  if (logoutBtn) {
+    logoutBtn.onclick = async () => {
+      await signOut(auth);
+      location.reload();
+    };
+  }
+
+});
 
 /* ================= LOGIN ================= */
 
@@ -759,6 +806,32 @@ if (searchBtn) {
     displayArtists(artists);
   };
 }
+
+
+/* ================= USER DROPDOWN ================= */
+
+const userToggle = document.getElementById("userToggle");
+const userDropdown = document.getElementById("userDropdown");
+
+if (userToggle && userDropdown) {
+
+  userToggle.onclick = (e) => {
+    e.stopPropagation();
+    userDropdown.classList.toggle("active");
+  };
+
+  document.addEventListener("click", () => {
+    userDropdown.classList.remove("active");
+  });
+
+}
+
+/* ================= LOGOUT ================= */
+
+document.getElementById("logoutBtn").onclick = async () => {
+  await signOut(auth);
+  location.reload();
+};
 
 /* ================= Fiche artiste ================= */
 async function getArtistServices(artistId) {
