@@ -443,6 +443,12 @@ button {
   }
 }
 
+@keyframes pulseGold {
+  0% { box-shadow: 0 0 5px #D4AF37; }
+  50% { box-shadow: 0 0 15px #D4AF37; }
+  100% { box-shadow: 0 0 5px #D4AF37; }
+}
+
 /* ================= MAP POPUP ================= */
 
 .leaflet-popup-content-wrapper {
