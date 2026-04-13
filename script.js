@@ -390,6 +390,7 @@ if (addressInput && suggestionsBox) {
 }
 
 /* ================= MAP ================= */
+
 let map;
 let markers = [];
 let userMarker;
@@ -403,13 +404,13 @@ function initMap() {
     map = null;
   }
 
-  /* 🔥 INIT MAP (STYLE APPLE) */
+  /* 🍏 INIT MAP ULTRA CLEAN */
   map = L.map('map', {
     zoomControl: false,
     attributionControl: false
   }).setView([48.8566, 2.3522], 12);
 
-  /* 🍏 MAP ULTRA MINIMALISTE */
+  /* 🍏 MAP BLANCHE MINIMALISTE */
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png')
     .addTo(map);
 
@@ -425,20 +426,24 @@ function initMap() {
 
         map.setView([lat, lng], 13);
 
-        /* 🔥 CLEAN ancien */
-        if (userMarker) map.removeLayer(userMarker);
-        if (userCircle) map.removeLayer(userCircle);
+        /* 🔥 CLEAN ancien marker */
+        if (userMarker && map.hasLayer(userMarker)) {
+          map.removeLayer(userMarker);
+        }
 
-        /* 🍏 ICON USER (APPLE STYLE) */
+        if (userCircle && map.hasLayer(userCircle)) {
+          map.removeLayer(userCircle);
+        }
+
+        /* 🍏 ICON USER (ULTRA CLEAN) */
         const userIcon = L.divIcon({
           html: `
             <div style="
-              width:18px;
-              height:18px;
+              width:14px;
+              height:14px;
               background:white;
               border-radius:50%;
-              border:4px solid #007AFF;
-              box-shadow:0 0 10px rgba(0,122,255,0.4);
+              border:3px solid #007AFF;
             "></div>
           `,
           className: ""
@@ -449,12 +454,12 @@ function initMap() {
           .addTo(map)
           .bindPopup("📍 Vous êtes ici");
 
-        /* 🍏 CERCLE STYLE APPLE */
+        /* 🍏 CERCLE LÉGER */
         userCircle = L.circle([lat, lng], {
           radius: 400,
           color: "#007AFF",
           fillColor: "#007AFF",
-          fillOpacity: 0.08,
+          fillOpacity: 0.05,
           weight: 1
         }).addTo(map);
 
@@ -502,24 +507,25 @@ async function loadArtists() {
     /* 🔥 SECURITÉ MAP */
     if (!map) return;
 
-    /* 🔥 CLEAR OLD MARKERS */
-    markers.forEach(m => {
-      if (m) map.removeLayer(m);
+    /* 🔥 CLEAR OLD MARKERS PROPRE */
+    markers.forEach(marker => {
+      if (marker && map.hasLayer(marker)) {
+        map.removeLayer(marker);
+      }
     });
     markers = [];
 
     const snapshot = await getDocs(collection(db, "Artists"));
 
-    /* 🍏 ICON ARTISTE (WHITE + GOLD STYLE) */
+    /* 🍏 ICON ARTISTE (APPLE STYLE) */
     const artistIcon = L.divIcon({
       html: `
         <div style="
-          width:16px;
-          height:16px;
+          width:12px;
+          height:12px;
           background:white;
           border-radius:50%;
-          border:3px solid #D4AF37;
-          box-shadow:0 0 8px rgba(212,175,55,0.4);
+          border:2px solid #D4AF37;
         "></div>
       `,
       className: ""
@@ -531,7 +537,7 @@ async function loadArtists() {
       const id = docSnap.id;
 
       /* 🔥 SÉCURITÉ DATA */
-      if (!artist.Location || !artist.Location.Lat || !artist.Location.Lng) return;
+      if (!artist?.Location?.Lat || !artist?.Location?.Lng) return;
 
       const lat = parseFloat(artist.Location.Lat);
       const lng = parseFloat(artist.Location.Lng);
@@ -541,44 +547,57 @@ async function loadArtists() {
       /* 🔥 MARKER */
       const marker = L.marker([lat, lng], { icon: artistIcon }).addTo(map);
 
-      /* 🍏 POPUP CLEAN */
-      marker.bindPopup(`
-        <div style="text-align:center;">
+      /* 🍏 POPUP ULTRA CLEAN */
+      const popupContent = `
+        <div style="
+          text-align:center;
+          font-family:-apple-system, BlinkMacSystemFont, sans-serif;
+        ">
           
           <img src="${artist.profileImage || 'https://via.placeholder.com/100'}"
           style="
-            width:70px;
-            height:70px;
+            width:60px;
+            height:60px;
             border-radius:50%;
             object-fit:cover;
-            margin-bottom:5px;
+            margin-bottom:6px;
           " />
 
-          <h3 style="margin:5px 0;font-size:14px;">
+          <div style="font-size:14px;font-weight:500;">
             ${artist.Username || "Artiste"}
-          </h3>
+          </div>
 
-          <p style="color:#D4AF37;font-size:13px;">
+          <div style="color:#D4AF37;font-size:12px;margin-top:2px;">
             ⭐ ${artist.Rating || 0}
-          </p>
+          </div>
 
           <button 
             onclick="window.location.href='profil.html?id=${id}'"
             style="
-              margin-top:6px;
+              margin-top:8px;
               padding:6px 10px;
               background:#007AFF;
               color:white;
               border:none;
-              border-radius:6px;
+              border-radius:8px;
               font-size:12px;
+              font-weight:500;
               cursor:pointer;
             ">
             Voir profil
           </button>
 
         </div>
-      `);
+      `;
+
+      marker.bindPopup(popupContent, {
+        closeButton: false,
+        offset: [0, -5]
+      });
+
+      /* 🍏 INTERACTION PREMIUM */
+      marker.on("mouseover", () => marker.openPopup());
+      marker.on("mouseout", () => marker.closePopup());
 
       markers.push(marker);
 
@@ -667,11 +686,12 @@ async function filterArtists(userLat, userLng) {
 /* ================= DISPLAY ================= */
 
 function clearMarkers() {
+
   if (!map) return;
 
-  markers.forEach(m => {
-    if (m && map.hasLayer(m)) {
-      map.removeLayer(m);
+  markers.forEach(marker => {
+    if (marker && map.hasLayer(marker)) {
+      map.removeLayer(marker);
     }
   });
 
@@ -684,16 +704,15 @@ function displayArtists(artists) {
 
   clearMarkers();
 
-  /* 🍏 ICON ARTISTE (WHITE + GOLD CLEAN) */
+  /* 🍏 ICON ARTISTE (APPLE MINIMAL) */
   const artistIcon = L.divIcon({
     html: `
       <div style="
-        width:16px;
-        height:16px;
+        width:12px;
+        height:12px;
         background:white;
         border-radius:50%;
-        border:3px solid #D4AF37;
-        box-shadow:0 0 6px rgba(212,175,55,0.3);
+        border:2px solid #D4AF37;
       "></div>
     `,
     className: ""
@@ -712,56 +731,70 @@ function displayArtists(artists) {
     /* 🔥 MARKER */
     const marker = L.marker([lat, lng], { icon: artistIcon }).addTo(map);
 
-    /* 🍏 POPUP CLEAN */
-    marker.bindPopup(`
-      <div style="text-align:center;">
+    /* 🍏 POPUP ULTRA CLEAN */
+    const popupContent = `
+      <div style="
+        text-align:center;
+        font-family:-apple-system, BlinkMacSystemFont, sans-serif;
+      ">
         
         <img src="${artist.profileImage || 'https://via.placeholder.com/100'}"
         style="
-          width:70px;
-          height:70px;
+          width:60px;
+          height:60px;
           border-radius:50%;
           object-fit:cover;
           margin-bottom:6px;
         " />
 
-        <h3 style="margin:5px 0;font-size:14px;">
+        <div style="font-size:14px;font-weight:500;">
           ${artist.Username || "Artiste"}
-        </h3>
+        </div>
 
-        <p style="color:#D4AF37;font-size:13px;">
+        <div style="color:#D4AF37;font-size:12px;margin-top:2px;">
           ⭐ ${artist.Rating || 0}
-        </p>
+        </div>
 
-        <p style="font-size:11px;color:#666;">
+        <div style="font-size:11px;color:#888;margin-top:2px;">
           📍 ${
             artist.distance 
             ? artist.distance.toFixed(1) + " km"
             : "Distance inconnue"
           }
-        </p>
+        </div>
 
         <button 
           onclick="window.location.href='profil.html?id=${artist.id}'"
           style="
-            margin-top:6px;
+            margin-top:8px;
             padding:6px 10px;
             background:#007AFF;
             color:white;
             border:none;
-            border-radius:6px;
+            border-radius:8px;
             font-size:12px;
+            font-weight:500;
             cursor:pointer;
           ">
           Voir profil
         </button>
 
       </div>
-    `);
+    `;
+
+    marker.bindPopup(popupContent, {
+      closeButton: false,
+      offset: [0, -5]
+    });
+
+    /* 🍏 UX PREMIUM */
+    marker.on("mouseover", () => marker.openPopup());
+    marker.on("mouseout", () => marker.closePopup());
 
     markers.push(marker);
 
   });
+
 }
 
 /* ================= SEARCH ================= */
