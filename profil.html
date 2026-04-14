@@ -2,29 +2,74 @@
 
   <h1>Mon profil</h1>
 
-  <!-- PHOTO -->
+  <!-- ================= PHOTO ================= -->
   <div class="profile-photo">
-    <img id="profileImage" src="" />
-    <input type="file" id="uploadImage" />
+    <label for="uploadImage">
+      <img id="profileImage" src="https://via.placeholder.com/100" />
+    </label>
+    <input type="file" id="uploadImage" accept="image/*" />
   </div>
 
-  <!-- NOM -->
-  <input type="text" id="username" placeholder="Nom artiste" />
+  <!-- ================= INFOS ================= -->
+  
+  <input type="text" id="artistFirstName" placeholder="Prénom" />
+  <input type="text" id="artistLastName" placeholder="Nom" />
 
-  <!-- EMAIL -->
+  <input type="text" id="username" placeholder="Nom d’artiste" />
+
+  <input type="email" id="artistEmail" placeholder="Email" disabled />
+
+  <input type="text" id="artistAddress" placeholder="Adresse" />
+
+  <!-- ================= SKILLS ================= -->
+  <label>Compétences</label>
+
+  <div class="skills-container">
+
+    <div class="skill">Beatmaker/Mix</div>
+    <div class="skill">Chanteur/Chanteuse</div>
+    <div class="skill">Vidéaste</div>
+    <div class="skill">Producteur/rice</div>
+    <div class="skill">Community Manager</div>
+    <div class="skill">Comptable</div>
+
+  </div>
+
+  <!-- ================= SOCIALS ================= -->
+
+  <input type="text" id="artistInstagram" placeholder="Instagram" />
+  <input type="text" id="artistTiktok" placeholder="TikTok" />
+  <input type="text" id="artistPortfolio" placeholder="Portfolio" />
+
+  <!-- ================= ACCOUNT ================= -->
+
   <div class="account-section">
     <button id="changeEmail">Changer email</button>
     <button id="changePassword">Changer mot de passe</button>
   </div>
 
-  <!-- SERVICES -->
+  <!-- ================= SERVICES ================= -->
+
   <h2>Mes services</h2>
 
   <div id="servicesList"></div>
 
   <button id="addService">+ Ajouter un service</button>
 
-  <!-- SAVE -->
+  <!-- ================= CREATIONS ================= -->
+
+  <h2>Mes créations</h2>
+
+  <input type="file" id="creationFile" accept="audio/*,video/*" />
+  <input type="text" id="creationTitle" placeholder="Titre de la création" />
+  <input type="text" id="creationDesc" placeholder="Description" />
+
+  <button id="addCreation">+ Ajouter création</button>
+
+  <div id="creationsList"></div>
+
+  <!-- ================= SAVE ================= -->
+
   <button id="saveProfile" class="btn-save">
     Sauvegarder
   </button>
