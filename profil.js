@@ -28,21 +28,55 @@ const storage = getStorage();
 let currentUser;
 
 /* ================= LOAD PROFILE ================= */
-async function loadProfile() {
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-  currentUser = auth.currentUser;
+function loadProfile() {
 
-  if (!currentUser) return alert("Non connecté");
+  onAuthStateChanged(auth, async (user) => {
 
-  const docRef = doc(db, "Artists", currentUser.uid);
-  const docSnap = await getDoc(docRef);
+    if (!user) {
+      alert("Non connecté");
+      window.location.href = "index.html";
+      return;
+    }
 
-  const data = docSnap.data();
+    currentUser = user;
 
-  document.getElementById("username").value = data.Username;
-  document.getElementById("profileImage").src = data.profileImage;
+    const docRef = doc(db, "Artists", user.uid);
+    const docSnap = await getDoc(docRef);
 
-  loadServices();
+    if (!docSnap.exists()) return;
+
+    const data = docSnap.data();
+
+    /* 🔥 REMPLISSAGE */
+    document.getElementById("username").value = data.Username || "";
+    document.getElementById("profileImage").src = data.profileImage || "";
+
+    document.getElementById("artistFirstName").value = data.FirstName || "";
+    document.getElementById("artistLastName").value = data.LastName || "";
+
+    document.getElementById("artistEmail").value = data.Email || "";
+
+    document.getElementById("artistAddress").value = data.Location?.Address || "";
+
+    /* 🔥 SOCIALS */
+    document.getElementById("artistInstagram").value = data.Socials?.Instagram || "";
+    document.getElementById("artistTiktok").value = data.Socials?.TikTok || "";
+    document.getElementById("artistPortfolio").value = data.Socials?.Portfolio || "";
+
+    /* 🔥 SKILLS */
+    document.querySelectorAll(".skill").forEach(skill => {
+      if (data.Skills?.includes(skill.innerText)) {
+        skill.classList.add("active");
+      }
+    });
+
+    loadServices();
+    loadCreations();
+
+  });
+
 }
 
 /* ================= LOAD SERVICES ================= */
@@ -78,6 +112,33 @@ async function loadServices() {
 
 }
 
+async function loadCreations() {
+
+  const container = document.getElementById("creationsList");
+  container.innerHTML = "";
+
+  const snapshot = await getDocs(
+    collection(db, "Artists", currentUser.uid, "Creations")
+  );
+
+  snapshot.forEach(doc => {
+
+    const c = doc.data();
+
+    const div = document.createElement("div");
+    div.className = "service-card";
+
+    div.innerHTML = `
+      <input class="title" value="${c.title}" placeholder="Titre"/>
+      <input class="url" value="${c.url}" placeholder="Lien média"/>
+    `;
+
+    container.appendChild(div);
+
+  });
+
+}
+
 /* ================= ADD SERVICE ================= */
 document.getElementById("addService").onclick = () => {
 
@@ -99,6 +160,7 @@ document.getElementById("addService").onclick = () => {
 };
 
 /* ================= SAVE PROFILE ================= */
+/* ================= SAVE PROFILE ================= */
 document.getElementById("saveProfile").onclick = async () => {
 
   const username = document.getElementById("username").value;
@@ -114,10 +176,41 @@ document.getElementById("saveProfile").onclick = async () => {
   }
 
   /* 🔥 UPDATE ARTIST */
-  await setDoc(doc(db, "Artists", currentUser.uid), {
-    Username: username,
-    profileImage: imageUrl
-  }, { merge: true });
+  await setDoc(doc(db, "Artists", user.uid), {
+  UserID: user.uid,
+
+  /* 🔥 INFOS */
+  Username: username,
+  Email: email,
+  FirstName: document.getElementById("artistFirstName").value,
+  LastName: document.getElementById("artistLastName").value,
+
+  profileImage: imageUrl,
+
+  /* 🔥 LOCALISATION */
+  Location: {
+    Lat: lat,
+    Lng: lng,
+    Address: document.getElementById("artistAddress").value
+  },
+
+  /* 🔥 COMPÉTENCES */
+  Skills: skills,
+
+  /* 🔥 SOCIALS */
+  Socials: {
+    Instagram: instagram,
+    TikTok: tiktok,
+    Portfolio: portfolio
+  },
+
+  /* 🔥 META */
+  Rating: 0,
+  reviewCount: 0,
+  isAvailable: true,
+  CreatedAt: new Date()
+
+});
 
   /* 🔥 SAVE SERVICES */
   const services = document.querySelectorAll(".service-card");
@@ -147,6 +240,7 @@ document.getElementById("saveProfile").onclick = async () => {
 
   alert("Profil mis à jour 🔥");
 };
+
 
 /* ================= CHANGE EMAIL ================= */
 document.getElementById("changeEmail").onclick = async () => {
