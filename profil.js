@@ -160,10 +160,19 @@ document.getElementById("addService").onclick = () => {
 };
 
 /* ================= SAVE PROFILE ================= */
-/* ================= SAVE PROFILE ================= */
+
 document.getElementById("saveProfile").onclick = async () => {
 
   const username = document.getElementById("username").value;
+
+  const email = currentUser.email;
+
+  const skills = Array.from(document.querySelectorAll(".skill.active"))
+    .map(s => s.innerText);
+
+  const instagram = document.getElementById("artistInstagram").value;
+  const tiktok = document.getElementById("artistTiktok").value;
+  const portfolio = document.getElementById("artistPortfolio").value;
 
   /* 🔥 IMAGE */
   const file = document.getElementById("uploadImage").files[0];
@@ -176,41 +185,39 @@ document.getElementById("saveProfile").onclick = async () => {
   }
 
   /* 🔥 UPDATE ARTIST */
-  await setDoc(doc(db, "Artists", user.uid), {
-  UserID: user.uid,
+  await setDoc(doc(db, "Artists", currentUser.uid), {
+    UserID: currentUser.uid,
 
-  /* 🔥 INFOS */
-  Username: username,
-  Email: email,
-  FirstName: document.getElementById("artistFirstName").value,
-  LastName: document.getElementById("artistLastName").value,
+    Username: username,
+    Email: email,
 
-  profileImage: imageUrl,
+    FirstName: document.getElementById("artistFirstName").value,
+    LastName: document.getElementById("artistLastName").value,
 
-  /* 🔥 LOCALISATION */
-  Location: {
-    Lat: lat,
-    Lng: lng,
-    Address: document.getElementById("artistAddress").value
-  },
+    profileImage: imageUrl || document.getElementById("profileImage").src,
 
-  /* 🔥 COMPÉTENCES */
-  Skills: skills,
+    Location: {
+      Lat: 0,
+      Lng: 0,
+      Address: document.getElementById("artistAddress").value
+    },
 
-  /* 🔥 SOCIALS */
-  Socials: {
-    Instagram: instagram,
-    TikTok: tiktok,
-    Portfolio: portfolio
-  },
+    Skills: skills,
 
-  /* 🔥 META */
-  Rating: 0,
-  reviewCount: 0,
-  isAvailable: true,
-  CreatedAt: new Date()
+    Socials: {
+      Instagram: instagram,
+      TikTok: tiktok,
+      Portfolio: portfolio
+    }
 
-});
+  }, { merge: true });
+
+  /* 🔥 DELETE OLD SERVICES */
+  const oldServices = await getDocs(
+    collection(db, "Artists", currentUser.uid, "Services")
+  );
+
+  oldServices.forEach(doc => doc.ref.delete());
 
   /* 🔥 SAVE SERVICES */
   const services = document.querySelectorAll(".service-card");
@@ -239,8 +246,8 @@ document.getElementById("saveProfile").onclick = async () => {
   }
 
   alert("Profil mis à jour 🔥");
-};
 
+};
 
 /* ================= CHANGE EMAIL ================= */
 document.getElementById("changeEmail").onclick = async () => {
