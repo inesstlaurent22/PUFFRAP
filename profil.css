@@ -1,8 +1,9 @@
 /* ================= GLOBAL ================= */
 
 body {
-  background: #050807;
+  margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: radial-gradient(circle at top, #111 0%, #000 100%);
   color: white;
 }
 
@@ -10,36 +11,39 @@ body {
 
 .profile-container {
   max-width: 520px;
-  margin: 60px auto;
-  padding: 30px;
+  margin: 40px auto;
+  padding: 25px;
+  border-radius: 24px;
 
-  background: rgba(15,15,15,0.9);
+  background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(20px);
 
-  border-radius: 25px;
-
-  border: 1px solid rgba(255,255,255,0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 
   box-shadow:
-    0 20px 60px rgba(0,0,0,0.8),
-    0 0 40px rgba(0,255,150,0.05);
+    0 10px 40px rgba(0,0,0,0.6),
+    inset 0 0 20px rgba(255,255,255,0.02);
 }
 
-/* ================= TITLE ================= */
+/* ================= TITRES ================= */
 
-.profile-container h1 {
+h1 {
   text-align: center;
   margin-bottom: 25px;
   font-weight: 600;
-  letter-spacing: 1px;
+}
+
+h2 {
+  margin-top: 30px;
+  font-size: 16px;
+  color: #D4AF37;
 }
 
 /* ================= PHOTO ================= */
 
 .profile-photo {
   text-align: center;
-  margin-bottom: 25px;
-  position: relative;
+  margin-bottom: 20px;
 }
 
 .profile-photo img {
@@ -48,23 +52,23 @@ body {
   border-radius: 50%;
   object-fit: cover;
 
-  border: 3px solid #00ff99;
+  border: 2px solid #D4AF37;
 
-  box-shadow: 0 0 25px rgba(0,255,150,0.4);
-}
-
-/* upload button invisible */
-#uploadImage {
-  display: none;
-}
-
-/* hover effet */
-.profile-photo:hover img {
-  transform: scale(1.05);
+  box-shadow:
+    0 0 20px rgba(212,175,55,0.3);
+  cursor: pointer;
   transition: 0.3s;
 }
 
-/* ================= INPUTS ================= */
+.profile-photo img:hover {
+  transform: scale(1.05);
+}
+
+.profile-photo input {
+  display: none;
+}
+
+/* ================= INPUT ================= */
 
 input {
   width: 100%;
@@ -72,143 +76,158 @@ input {
   margin-bottom: 12px;
 
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
 
-  background: #0c0c0c;
+  background: rgba(255,255,255,0.03);
   color: white;
 
-  font-size: 14px;
-
-  transition: 0.25s;
+  outline: none;
+  transition: 0.3s;
 }
 
 input::placeholder {
-  color: rgba(255,255,255,0.4);
+  color: #888;
 }
 
 input:focus {
-  outline: none;
-  border-color: #00ff99;
-
-  box-shadow: 0 0 15px rgba(0,255,150,0.2);
+  border: 1px solid #D4AF37;
+  box-shadow: 0 0 10px rgba(212,175,55,0.2);
 }
 
-/* ================= ACCOUNT BUTTONS ================= */
+/* ================= SKILLS ================= */
 
-.account-section {
+.skills-container {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 15px;
 }
 
-.account-section button {
-  flex: 1;
-
-  padding: 12px;
-  border-radius: 12px;
-  border: none;
+.skill {
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 12px;
 
   background: rgba(255,255,255,0.05);
-  color: white;
+  border: 1px solid rgba(255,255,255,0.1);
 
   cursor: pointer;
-  transition: 0.25s;
+  transition: 0.3s;
 }
 
-.account-section button:hover {
-  background: rgba(0,255,150,0.15);
-  color: #00ff99;
+.skill.active {
+  background: #D4AF37;
+  color: black;
+  border: none;
 }
 
-/* ================= SERVICES ================= */
+/* ================= SERVICES / CREATIONS ================= */
 
-#servicesList {
-  margin-top: 15px;
-}
-
-/* CARD */
 .service-card {
-  background: rgba(255,255,255,0.03);
-  padding: 15px;
-  border-radius: 15px;
+  background: rgba(255,255,255,0.04);
+  padding: 14px;
+  border-radius: 14px;
+  margin-bottom: 12px;
 
-  margin-bottom: 15px;
-
-  border: 1px solid rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
 
   transition: 0.3s;
 }
 
-/* hover */
 .service-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
 }
 
-/* ================= ADD SERVICE ================= */
+/* ================= BUTTONS ================= */
 
-#addService {
-  width: 100%;
-  padding: 12px;
-
-  margin-top: 10px;
-
-  border-radius: 12px;
-  border: none;
-
-  background: linear-gradient(135deg, #00ff99, #00cc77);
-  color: black;
-
-  font-weight: 600;
+button {
   cursor: pointer;
-
-  transition: 0.25s;
+  border: none;
 }
 
-#addService:hover {
-  transform: scale(1.03);
-  box-shadow: 0 10px 30px rgba(0,255,150,0.4);
-}
-
-/* ================= SAVE BUTTON ================= */
-
+/* GOLD BUTTON */
 .btn-save {
   width: 100%;
   padding: 16px;
-
   margin-top: 20px;
 
-  border-radius: 14px;
-  border: none;
-
-  background: linear-gradient(135deg, #00ff99, #00cc77);
+  background: linear-gradient(135deg, #D4AF37, #f5d97a);
   color: black;
 
-  font-weight: bold;
-  font-size: 15px;
-
-  cursor: pointer;
+  border-radius: 14px;
+  font-weight: 600;
 
   transition: 0.3s;
 }
 
 .btn-save:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 15px 40px rgba(0,255,150,0.5);
+  transform: scale(1.03);
+  box-shadow: 0 0 20px rgba(212,175,55,0.4);
+}
+
+/* ADD BUTTON */
+#addService,
+#addCreation {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 10px;
+
+  background: rgba(255,255,255,0.05);
+  color: white;
+
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+
+  transition: 0.3s;
+}
+
+#addService:hover,
+#addCreation:hover {
+  border-color: #D4AF37;
+  color: #D4AF37;
+}
+
+/* ================= ACCOUNT ================= */
+
+.account-section {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.account-section button {
+  flex: 1;
+  padding: 12px;
+
+  background: rgba(255,255,255,0.05);
+  color: white;
+
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+
+  transition: 0.3s;
+}
+
+.account-section button:hover {
+  border-color: #D4AF37;
+  color: #D4AF37;
+}
+
+/* ================= MEDIA ================= */
+
+audio, video {
+  margin-top: 8px;
+  border-radius: 10px;
 }
 
 /* ================= SCROLL ================= */
 
-.profile-container {
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.profile-container::-webkit-scrollbar {
+::-webkit-scrollbar {
   width: 6px;
 }
 
-.profile-container::-webkit-scrollbar-thumb {
-  background: rgba(0,255,150,0.3);
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
   border-radius: 10px;
 }
