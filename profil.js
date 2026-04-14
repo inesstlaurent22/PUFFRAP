@@ -172,6 +172,7 @@ document.getElementById("addService").onclick = () => {
 
   const div = document.createElement("div");
   div.className = "service-card";
+  div.dataset.id = ""; // 🔥 nouveau produit
 
   div.innerHTML = `
     <input class="title" placeholder="Titre"/>
