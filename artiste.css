@@ -1,0 +1,114 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* BODY */
+body {
+  background: #0d0d0d;
+  color: white;
+  font-family: 'Playfair Display', serif;
+}
+
+/* NAV */
+.top-bar {
+  padding: 20px;
+}
+
+#backBtn {
+  background: none;
+  border: 1px solid #D4AF37;
+  color: #D4AF37;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* CONTAINER */
+.artist-container {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+}
+
+/* IMAGE */
+.image-container {
+  width: 100%;
+  height: 250px;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* INFO */
+.info-section input {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #1a1a1a;
+  color: white;
+}
+
+/* ROW */
+.row {
+  display: flex;
+  gap: 10px;
+}
+
+/* SECTION */
+.section {
+  margin-top: 30px;
+}
+
+.section h2 {
+  color: #D4AF37;
+  margin-bottom: 10px;
+}
+
+/* SERVICES */
+#servicesList div {
+  background: #1a1a1a;
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+/* CREATIONS */
+#creationsList div {
+  margin-bottom: 15px;
+}
+
+/* AUDIO / VIDEO */
+audio, video {
+  width: 100%;
+  border-radius: 10px;
+  margin-top: 6px;
+}
+
+/* BUTTON */
+.btn-save {
+  width: 100%;
+  margin-top: 30px;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(45deg, #D4AF37, #FFD700);
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-save:hover {
+  opacity: 0.8;
+}
