@@ -43,20 +43,61 @@ function loadArtist() {
 
   onAuthStateChanged(auth, async (user) => {
 
-    currentUser = user;
+    try {
 
-    if (user && user.uid === artistId) {
-      isOwner = true;
+      /* 🔥 CHECK ID */
+      if (!artistId) {
+        alert("Aucun artiste spécifié");
+        window.location.href = "index.html";
+        return;
+      }
+
+      currentUser = user || null;
+
+      /* 🔥 RESET OWNER */
+      isOwner = false;
+
+      if (user && user.uid === artistId) {
+        isOwner = true;
+      }
+
+      /* 🔥 GET DATA */
+      const docRef = doc(db, "Artists", artistId);
+      const docSnap = await getDoc(docRef);
+
+      if (!docSnap.exists()) {
+        alert("Artiste introuvable");
+        window.location.href = "index.html";
+        return;
+      }
+
+      const data = docSnap.data();
+
+      /* 🔥 DISPLAY */
+      document.getElementById("username").value = data.Username || "";
+      document.getElementById("profileImage").src = data.profileImage || "";
+
+      document.getElementById("artistFirstName").value = data.FirstName || "";
+      document.getElementById("artistLastName").value = data.LastName || "";
+      document.getElementById("artistAddress").value = data.Location?.Address || "";
+
+      /* 🔥 MODE */
+      toggleMode();
+
+      /* 🔥 LOAD DATA */
+      loadServices();
+      loadCreations();
+
+    } catch (error) {
+
+      console.error("Erreur loadArtist:", error);
+      alert("Erreur lors du chargement du profil");
+
     }
 
-    const docSnap = await getDoc(doc(db, "Artists", artistId));
+  });
 
-    if (!docSnap.exists()) {
-      alert("Artiste introuvable");
-      return;
-    }
-
-    const data = docSnap.data();
+}
 
     /* ================= DISPLAY ================= */
 
