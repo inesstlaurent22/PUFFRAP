@@ -27,27 +27,45 @@ const auth = getAuth();
 const db = getFirestore();
 const storage = getStorage();
 
+const params = new URLSearchParams(window.location.search);
+const artistIdFromURL = params.get("id");
+
 let currentUser;
 
 /* ================= LOAD PROFILE ================= */
+
 function loadProfile() {
 
   onAuthStateChanged(auth, async (user) => {
 
-    if (!user) {
+    let artistId;
+
+    /* 🔥 SI ON VIENT DE LA MAP */
+    if (artistIdFromURL) {
+      artistId = artistIdFromURL;
+    } 
+    /* 🔥 SINON → PROFIL USER */
+    else if (user) {
+      artistId = user.uid;
+      currentUser = user;
+    } 
+    else {
       alert("Non connecté");
       window.location.href = "index.html";
       return;
     }
 
-    currentUser = user;
+    const docSnap = await getDoc(doc(db, "Artists", artistId));
 
-    const docSnap = await getDoc(doc(db, "Artists", user.uid));
-    if (!docSnap.exists()) return;
+    if (!docSnap.exists()) {
+      alert("Artiste introuvable");
+      return;
+    }
 
     const data = docSnap.data();
 
-    /* 🔥 REMPLISSAGE */
+    /* ================= DISPLAY ================= */
+
     document.getElementById("username").value = data.Username || "";
     document.getElementById("profileImage").src = data.profileImage || "";
 
@@ -60,25 +78,44 @@ function loadProfile() {
     document.getElementById("artistTiktok").value = data.Socials?.TikTok || "";
     document.getElementById("artistPortfolio").value = data.Socials?.Portfolio || "";
 
+    /* ================= SKILLS ================= */
+
     document.querySelectorAll(".skill").forEach(skill => {
-      if (data.Skills?.includes(skill.innerText)) {
-        skill.classList.add("active");
-      }
+      skill.classList.toggle(
+        "active",
+        data.Skills?.includes(skill.innerText)
+      );
     });
 
-    loadServices();
-    loadCreations();
+    /* ================= LOAD DATA ================= */
+
+    loadServices(artistId);
+    loadCreations(artistId);
+
+    /* 🔥 MODE VISITEUR */
+    if (artistIdFromURL) {
+
+      /* 🔒 désactive édition */
+      document.querySelectorAll("input").forEach(i => i.disabled = true);
+
+      document.getElementById("addService").style.display = "none";
+      document.getElementById("addCreation").style.display = "none";
+      document.getElementById("saveProfile").style.display = "none";
+    }
 
   });
 }
 
 /* ================= LOAD SERVICES ================= */
-async function loadServices() {
+
+async function loadServices(artistId) {
 
   const container = document.getElementById("servicesList");
   container.innerHTML = "";
 
-  const snapshot = await getDocs(collection(db, "Artists", currentUser.uid, "Services"));
+  const snapshot = await getDocs(
+    collection(db, "Artists", artistId, "Services")
+  );
 
   snapshot.forEach(docSnap => {
 
@@ -86,6 +123,13 @@ async function loadServices() {
     const id = docSnap.id;
 
     const div = createServiceCard(s, id);
+
+    /* 🔒 MODE VISITEUR */
+    if (artistIdFromURL) {
+      div.querySelectorAll("input").forEach(i => i.disabled = true);
+      div.querySelector(".delete-service")?.remove();
+    }
+
     container.appendChild(div);
 
   });
@@ -117,12 +161,15 @@ function createServiceCard(s = {}, id = "") {
 }
 
 /* ================= LOAD CREATIONS ================= */
-async function loadCreations() {
+
+async function loadCreations(artistId) {
 
   const container = document.getElementById("creationsList");
   container.innerHTML = "";
 
-  const snapshot = await getDocs(collection(db, "Artists", currentUser.uid, "Creations"));
+  const snapshot = await getDocs(
+    collection(db, "Artists", artistId, "Creations")
+  );
 
   snapshot.forEach(docSnap => {
 
@@ -134,10 +181,11 @@ async function loadCreations() {
     div.innerHTML = `
       <p>${c.Title || "Création"}</p>
       ${c.Type === "mp3" ? `<audio controls src="${c.FileURL}"></audio>` : ""}
-      ${c.Type === "mp4" ? `<video controls src="${c.FileURL}" width="100%"></video>` : ""}
+      ${c.Type === "mp4" || c.Type === "mov" ? `<video controls src="${c.FileURL}" width="100%"></video>` : ""}
     `;
 
     container.appendChild(div);
+
   });
 }
 
