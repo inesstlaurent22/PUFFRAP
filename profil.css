@@ -1,69 +1,43 @@
-/* ================= GLOBAL ================= */
-
-body {
+/* ================= RESET ================= */
+* {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ================= BODY ================= */
+body {
   background: radial-gradient(circle at top, #111 0%, #000 100%);
   color: white;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* ================= CONTAINER ================= */
-
 .profile-container {
-  max-width: 520px;
-  margin: 40px auto;
-  padding: 25px;
-  border-radius: 24px;
-
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(20px);
-
-  border: 1px solid rgba(255, 255, 255, 0.08);
-
-  box-shadow:
-    0 10px 40px rgba(0,0,0,0.6),
-    inset 0 0 20px rgba(255,255,255,0.02);
+  max-width: 500px;
+  margin: 60px auto;
+  padding: 30px;
+  background: rgba(20, 20, 20, 0.8);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
 }
 
-/* ================= TITRES ================= */
-
-h1 {
+/* ================= TITLE ================= */
+.profile-container h1 {
   text-align: center;
   margin-bottom: 25px;
-  font-weight: 600;
-}
-
-h2 {
-  margin-top: 30px;
-  font-size: 16px;
-  color: #D4AF37;
-}
-
-.back-btn {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-
-  padding: 10px 14px;
-  border-radius: 10px;
-
-  background: rgba(255,255,255,0.05);
-  color: white;
-
-  border: 1px solid rgba(255,255,255,0.1);
-  cursor: pointer;
-}
-
-.back-btn:hover {
-  border-color: #D4AF37;
+  font-size: 26px;
+  letter-spacing: 1px;
   color: #D4AF37;
 }
 
 /* ================= PHOTO ================= */
-
 .profile-photo {
-  text-align: center;
-  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 25px;
 }
 
 .profile-photo img {
@@ -71,183 +45,107 @@ h2 {
   height: 110px;
   border-radius: 50%;
   object-fit: cover;
-
-  border: 2px solid #D4AF37;
-
-  box-shadow:
-    0 0 20px rgba(212,175,55,0.3);
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.profile-photo img:hover {
-  transform: scale(1.05);
+  border: 3px solid #D4AF37;
+  margin-bottom: 10px;
+  box-shadow: 0 0 15px rgba(212,175,55,0.4);
 }
 
 .profile-photo input {
-  display: none;
+  color: white;
 }
 
-/* ================= INPUT ================= */
-
+/* ================= INPUTS ================= */
 input {
   width: 100%;
   padding: 14px;
   margin-bottom: 12px;
-
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.08);
-
-  background: rgba(255,255,255,0.03);
+  border: 1px solid transparent;
+  background: #1a1a1a;
   color: white;
-
-  outline: none;
-  transition: 0.3s;
-}
-
-input::placeholder {
-  color: #888;
+  font-size: 14px;
+  transition: 0.2s;
 }
 
 input:focus {
+  outline: none;
   border: 1px solid #D4AF37;
-  box-shadow: 0 0 10px rgba(212,175,55,0.2);
+  box-shadow: 0 0 8px rgba(212,175,55,0.3);
 }
 
-/* ================= SKILLS ================= */
-
-.skills-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 15px;
-}
-
-.skill {
-  padding: 8px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.skill.active {
-  background: #D4AF37;
-  color: black;
-  border: none;
-}
-
-/* ================= SERVICES / CREATIONS ================= */
-
-.service-card {
-  background: rgba(255,255,255,0.04);
-  padding: 14px;
-  border-radius: 14px;
-  margin-bottom: 12px;
-
-  border: 1px solid rgba(255,255,255,0.08);
-
-  transition: 0.3s;
-}
-
-.service-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-}
-
-/* ================= BUTTONS ================= */
-
-button {
-  cursor: pointer;
-  border: none;
-}
-
-/* GOLD BUTTON */
-.btn-save {
-  width: 100%;
-  padding: 16px;
-  margin-top: 20px;
-
-  background: linear-gradient(135deg, #D4AF37, #f5d97a);
-  color: black;
-
-  border-radius: 14px;
-  font-weight: 600;
-
-  transition: 0.3s;
-}
-
-.btn-save:hover {
-  transform: scale(1.03);
-  box-shadow: 0 0 20px rgba(212,175,55,0.4);
-}
-
-/* ADD BUTTON */
-#addService,
-#addCreation {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 10px;
-
-  background: rgba(255,255,255,0.05);
-  color: white;
-
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.1);
-
-  transition: 0.3s;
-}
-
-#addService:hover,
-#addCreation:hover {
-  border-color: #D4AF37;
-  color: #D4AF37;
-}
-
-/* ================= ACCOUNT ================= */
-
+/* ================= ACCOUNT BUTTONS ================= */
 .account-section {
   display: flex;
   gap: 10px;
-  margin-top: 10px;
+  margin: 15px 0 20px;
 }
 
 .account-section button {
   flex: 1;
   padding: 12px;
-
-  background: rgba(255,255,255,0.05);
-  color: white;
-
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.1);
-
-  transition: 0.3s;
+  border: 1px solid #D4AF37;
+  background: transparent;
+  color: #D4AF37;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
 .account-section button:hover {
-  border-color: #D4AF37;
+  background: #D4AF37;
+  color: black;
+}
+
+/* ================= SAVE BUTTON ================= */
+.btn-save {
+  width: 100%;
+  margin-top: 15px;
+  padding: 16px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(45deg, #D4AF37, #FFD700);
+  color: black;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.2s;
+  box-shadow: 0 5px 20px rgba(212,175,55,0.3);
+}
+
+.btn-save:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+/* ================= BACK BUTTON ================= */
+#backBtn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: transparent;
+  border: 1px solid #D4AF37;
   color: #D4AF37;
-}
-
-/* ================= MEDIA ================= */
-
-audio, video {
-  margin-top: 8px;
+  padding: 8px 14px;
   border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
-/* ================= SCROLL ================= */
-
-::-webkit-scrollbar {
-  width: 6px;
+#backBtn:hover {
+  background: #D4AF37;
+  color: black;
 }
 
-::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.2);
-  border-radius: 10px;
+/* ================= RESPONSIVE ================= */
+@media (max-width: 600px) {
+
+  .profile-container {
+    margin: 30px 15px;
+    padding: 20px;
+  }
+
+  input {
+    padding: 12px;
+  }
+
 }
