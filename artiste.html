@@ -1,34 +1,37 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
   <meta charset="UTF-8">
   <title>Artiste</title>
 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <link rel="stylesheet" href="artiste.css">
 
-  <!-- FONT PREMIUM -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
-  <!-- 🔥 NAV -->
-  <div class="top-bar">
-    <button id="backBtn">← Retour</button>
-  </div>
+  <!-- 🔙 BACK -->
+  <button class="back-btn" onclick="window.location.href='index.html'">
+    ← Retour
+  </button>
 
   <div class="artist-container">
 
     <!-- IMAGE -->
     <div class="image-container">
-      <img id="profileImage" src="" />
+      <img id="profileImage" />
+      <input type="file" id="uploadImage" class="edit-only">
     </div>
 
     <!-- INFOS -->
     <div class="info-section">
 
       <input id="username" placeholder="Nom artiste" />
-      
+
       <div class="row">
         <input id="artistFirstName" placeholder="Prénom" />
         <input id="artistLastName" placeholder="Nom" />
@@ -41,17 +44,29 @@
     <!-- SERVICES -->
     <div class="section">
       <h2>Services</h2>
+
       <div id="servicesList"></div>
+
+      <button id="addService" class="edit-only">+ Ajouter</button>
     </div>
 
     <!-- CREATIONS -->
     <div class="section">
       <h2>Créations</h2>
+
       <div id="creationsList"></div>
+
+      <input type="file" id="creationFile" class="edit-only">
+      <button id="addCreation" class="edit-only">+ Ajouter création</button>
     </div>
 
-    <!-- CTA -->
-    <button id="saveProfile" class="btn-save">
+    <!-- CTA CLIENT -->
+    <button id="bookBtn" class="client-only">
+      Réserver
+    </button>
+
+    <!-- SAVE ARTIST -->
+    <button id="saveProfile" class="btn-save edit-only">
       Sauvegarder
     </button>
 
