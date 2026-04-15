@@ -535,7 +535,7 @@ async function loadArtists() {
 
     if (!map) return;
 
-    /* 🔥 CLEAR MARKERS */
+    /* ================= CLEAR MARKERS ================= */
     markers.forEach(m => {
       if (m && map.hasLayer(m)) map.removeLayer(m);
     });
@@ -543,39 +543,35 @@ async function loadArtists() {
 
     const snapshot = await getDocs(collection(db, "Artists"));
 
-    /* 🍏 ICON CLEAN */
+    /* ================= ICON PREMIUM ================= */
     const artistIcon = L.divIcon({
       html: `
         <div style="
-          width:12px;
-          height:12px;
+          width:18px;
+          height:18px;
           background:white;
           border-radius:50%;
-          border:2px solid #D4AF37;
+          border:3px solid #D4AF37;
+          box-shadow:0 0 8px rgba(212,175,55,0.4);
+          transition:0.2s;
         "></div>
       `,
       className: ""
     });
 
-    /* 🔁 LOOP */
+    /* ================= LOOP ================= */
     for (const docSnap of snapshot.docs) {
 
       const artist = docSnap.data();
       const id = docSnap.id;
 
-      /* 🔒 SAFE DATA */
-      if (
-  artist?.Location?.Lat === undefined ||
-  artist?.Location?.Lng === undefined
-) continue;
-
-      const lat = parseFloat(artist.Location.Lat);
-      const lng = parseFloat(artist.Location.Lng);
+      /* ================= SAFE LOCATION ================= */
+      const lat = parseFloat(artist?.Location?.Lat);
+      const lng = parseFloat(artist?.Location?.Lng);
 
       if (isNaN(lat) || isNaN(lng)) continue;
 
       /* ================= SERVICES ================= */
-
       const servicesSnap = await getDocs(
         collection(db, "Artists", id, "Services")
       );
@@ -584,7 +580,7 @@ async function loadArtists() {
 
       servicesSnap.forEach(doc => {
         const s = doc.data();
-        if (!s.IsActive) return;
+        if (!s?.IsActive) return;
 
         services.push({
           title: s.Title || "Service",
@@ -593,7 +589,7 @@ async function loadArtists() {
       });
 
       services.sort((a, b) => a.price - b.price);
-      
+
       const servicesHTML = services.length
         ? services.slice(0, 3).map(s => `
             <div style="
@@ -614,182 +610,141 @@ async function loadArtists() {
         : null;
 
       /* ================= CREATIONS ================= */
-const creationsSnap = await getDocs(
-  collection(db, "Artists", id, "Creations")
-);
+      const creationsSnap = await getDocs(
+        collection(db, "Artists", id, "Creations")
+      );
 
-let creations = [];
+      let creations = [];
 
-creationsSnap.forEach(doc => {
-  const c = doc.data();
+      creationsSnap.forEach(doc => {
+        const c = doc.data();
 
-  if (!c || !c.IsActive) return;
-  if (!c.FileURL || !c.Type) return;
+        if (!c || !c.IsActive) return;
+        if (!c.FileURL || !c.Type) return;
 
-  creations.push({
-    url: c.FileURL,
-    type: c.Type.toLowerCase()
-  });
-});
+        creations.push({
+          url: c.FileURL,
+          type: c.Type.toLowerCase()
+        });
+      });
 
-/* 🔥 HTML CREATIONS */
-const creationsHTML = creations.length
-  ? creations.slice(0, 2).map(c => {
+      const creationsHTML = creations.length
+        ? creations.slice(0, 2).map(c => {
 
-      /* 🎧 AUDIO */
-      if (c.type.includes("mp3") || c.type.includes("audio")) {
-        return `
-          <audio controls style="
-            width:100%;
-            margin-top:6px;
-            border-radius:8px;
-          ">
-            <source src="${c.url}">
-          </audio>
-        `;
-      }
+            if (c.type.includes("mp3") || c.type.includes("audio")) {
+              return `
+                <audio controls style="width:100%;margin-top:6px;">
+                  <source src="${c.url}">
+                </audio>
+              `;
+            }
 
-      /* 🎬 VIDEO (MP4 + MOV) */
-      if (
-        c.type.includes("mp4") ||
-        c.type.includes("mov") ||
-        c.type.includes("video")
-      ) {
-        return `
-          <video controls style="
-            width:100%;
-            border-radius:10px;
-            margin-top:6px;
-            max-height:140px;
-            object-fit:cover;
-          ">
-            <source src="${c.url}">
-          </video>
-        `;
-      }
+            if (
+              c.type.includes("mp4") ||
+              c.type.includes("mov") ||
+              c.type.includes("video")
+            ) {
+              return `
+                <video controls style="
+                  width:100%;
+                  border-radius:10px;
+                  margin-top:6px;
+                  max-height:140px;
+                  object-fit:cover;
+                ">
+                  <source src="${c.url}">
+                </video>
+              `;
+            }
 
-      return "";
+            return "";
 
-    }).join("")
-
-  : `
-    <div style="
-      font-size:12px;
-      color:#999;
-      margin-top:6px;
-      text-align:center;
-    ">
-      Aucune création
-    </div>
-  `;
+          }).join("")
+        : `<div style="font-size:12px;color:#999;text-align:center;">Aucune création</div>`;
 
       /* ================= MARKER ================= */
-
       const marker = L.marker([lat, lng], { icon: artistIcon }).addTo(map);
 
       /* ================= POPUP ================= */
-marker.bindPopup(`
-  <div style="
-    width:250px;
-    font-family:-apple-system, BlinkMacSystemFont, sans-serif;
-  ">
+      marker.bindPopup(`
+        <div style="width:250px;font-family:-apple-system;">
+          
+          <img src="${artist.profileImage || 'https://via.placeholder.com/300'}"
+            style="width:100%;height:150px;object-fit:cover;border-radius:16px;margin-bottom:10px;" />
 
-    <!-- IMAGE -->
-    <img src="${artist.profileImage || 'https://via.placeholder.com/300'}"
-      style="
-        width:100%;
-        height:150px;
-        object-fit:cover;
-        border-radius:16px;
-        margin-bottom:10px;
-      " />
+          <div style="font-size:16px;font-weight:600;">
+            ${artist.Username || "Artiste"}
+          </div>
 
-    <!-- NOM -->
-    <div style="
-      font-size:16px;
-      font-weight:600;
-      margin-bottom:2px;
-    ">
-      ${artist.Username || "Artiste"}
-    </div>
+          <div style="color:#D4AF37;font-size:13px;margin-bottom:10px;">
+            ⭐ ${artist.Rating || 0}
+          </div>
 
-    <!-- RATING -->
-    <div style="
-      color:#D4AF37;
-      font-size:13px;
-      margin-bottom:10px;
-    ">
-      ⭐ ${artist.Rating || 0}
-    </div>
+          <div style="font-size:13px;font-weight:600;">Services</div>
 
-    <!-- SERVICES TITLE -->
-    <div style="
-      font-size:13px;
-      font-weight:600;
-      margin-bottom:4px;
-    ">
-      Services
-    </div>
+          <div style="background:#f9f9f9;border-radius:12px;padding:8px;margin-bottom:10px;">
+            ${servicesHTML}
+          </div>
 
-    <!-- SERVICES -->
-    <div style="
-      background:#f9f9f9;
-      border-radius:12px;
-      padding:8px;
-      margin-bottom:10px;
-    ">
-      ${servicesHTML}
-    </div>
+          <div style="font-size:13px;font-weight:600;">Créations</div>
 
-    <!-- CREATIONS TITLE -->
-    <div style="
-      font-size:13px;
-      font-weight:600;
-      margin-bottom:4px;
-    ">
-      Créations
-    </div>
+          <div style="margin-bottom:10px;">
+            ${creationsHTML}
+          </div>
 
-    <!-- CREATIONS -->
-    <div style="margin-bottom:10px;">
-      ${creationsHTML}
-    </div>
+          <button 
+            onclick="window.location.href='artiste.html?id=${id}'"
+            style="
+              width:100%;
+              padding:12px;
+              background:#000;
+              color:white;
+              border:none;
+              border-radius:12px;
+              font-weight:600;
+              cursor:pointer;
+            ">
+            ${minPrice ? `Réserver dès ${minPrice}€` : "Voir profil"}
+          </button>
 
-    <!-- CTA -->
-    <button 
-      onclick="window.location.href='artiste.html?id=${id}'"
-      style="
-        width:100%;
-        padding:12px;
-        background:#000;
-        color:white;
-        border:none;
-        border-radius:12px;
-        font-weight:600;
-        cursor:pointer;
-        transition:0.2s;
-      "
-      onmouseover="this.style.opacity='0.8'"
-      onmouseout="this.style.opacity='1'"
-    >
-      ${minPrice ? `Réserver dès ${minPrice}€` : "Voir profil"}
-    </button>
+        </div>
+      `, {
+        closeButton: false,
+        offset: [0, -8]
+      });
 
-  </div>
-`, {
-  closeButton: false,
-  offset: [0, -8],
-  className: "custom-popup"
-});
+      /* ================= UX PREMIUM ================= */
 
-/* 🍏 UX AMÉLIORÉ */
-marker.on("mouseover", () => marker.openPopup());
-marker.on("mouseout", () => marker.closePopup());
+      let isHoverPopup = false;
 
-/* 🔥 MOBILE FIX (TRÈS IMPORTANT) */
-marker.on("click", () => marker.openPopup());
+      marker.on("mouseover", () => {
+        marker.openPopup();
+      });
 
-markers.push(marker);
+      marker.on("mouseout", () => {
+        setTimeout(() => {
+          if (!isHoverPopup) marker.closePopup();
+        }, 200);
+      });
+
+      marker.on("popupopen", () => {
+        const popup = document.querySelector(".leaflet-popup");
+
+        if (!popup) return;
+
+        popup.addEventListener("mouseenter", () => {
+          isHoverPopup = true;
+        });
+
+        popup.addEventListener("mouseleave", () => {
+          isHoverPopup = false;
+          marker.closePopup();
+        });
+      });
+
+      marker.on("click", () => marker.openPopup());
+
+      markers.push(marker);
 
     }
 
@@ -797,7 +752,7 @@ markers.push(marker);
     console.error("Erreur loadArtists:", error);
   }
 
-} 
+}
 
 /* ================= GEO CODE ================= */
 
