@@ -1,7 +1,8 @@
 import {
   getAuth,
   updateEmail,
-  updatePassword
+  updatePassword,
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 import {
@@ -11,7 +12,8 @@ import {
   setDoc,
   collection,
   getDocs,
-  addDoc
+  addDoc,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import {
@@ -28,8 +30,6 @@ const storage = getStorage();
 let currentUser;
 
 /* ================= LOAD PROFILE ================= */
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
 function loadProfile() {
 
   onAuthStateChanged(auth, async (user) => {
@@ -42,9 +42,7 @@ function loadProfile() {
 
     currentUser = user;
 
-    const docRef = doc(db, "Artists", user.uid);
-    const docSnap = await getDoc(docRef);
-
+    const docSnap = await getDoc(doc(db, "Artists", user.uid));
     if (!docSnap.exists()) return;
 
     const data = docSnap.data();
@@ -55,17 +53,13 @@ function loadProfile() {
 
     document.getElementById("artistFirstName").value = data.FirstName || "";
     document.getElementById("artistLastName").value = data.LastName || "";
-
     document.getElementById("artistEmail").value = data.Email || "";
-
     document.getElementById("artistAddress").value = data.Location?.Address || "";
 
-    /* 🔥 SOCIALS */
     document.getElementById("artistInstagram").value = data.Socials?.Instagram || "";
     document.getElementById("artistTiktok").value = data.Socials?.TikTok || "";
     document.getElementById("artistPortfolio").value = data.Socials?.Portfolio || "";
 
-    /* 🔥 SKILLS */
     document.querySelectorAll(".skill").forEach(skill => {
       if (data.Skills?.includes(skill.innerText)) {
         skill.classList.add("active");
@@ -76,311 +70,176 @@ function loadProfile() {
     loadCreations();
 
   });
-
-}
-
-const backBtn = document.getElementById("backBtn");
-
-if (backBtn) {
-  backBtn.onclick = () => {
-    window.location.href = "index.html";
-  };
 }
 
 /* ================= LOAD SERVICES ================= */
 async function loadServices() {
 
   const container = document.getElementById("servicesList");
-  if (!container || !currentUser) return;
-
   container.innerHTML = "";
 
-  try {
+  const snapshot = await getDocs(collection(db, "Artists", currentUser.uid, "Services"));
 
-    const snapshot = await getDocs(
-      collection(db, "Artists", currentUser.uid, "Services")
-    );
+  snapshot.forEach(docSnap => {
 
-    snapshot.forEach(docSnap => {
+    const s = docSnap.data();
+    const id = docSnap.id;
 
-      const s = docSnap.data();
-      const id = docSnap.id;
+    const div = createServiceCard(s, id);
+    container.appendChild(div);
 
-      const div = document.createElement("div");
-      div.className = "service-card";
-
-      /* 🔥 IMPORTANT : ID FIRESTORE */
-      div.dataset.id = id;
-
-      div.innerHTML = `
-        <input class="title" value="${s.Title || ""}" placeholder="Titre"/>
-        <input class="price" value="${s.Price || ""}" placeholder="Prix"/>
-        <input class="desc" value="${s.Description || ""}" placeholder="Description"/>
-
-        <input class="mp3" value="${s.mp3 || ""}" placeholder="Lien MP3"/>
-        <input class="mp4" value="${s.mp4 || ""}" placeholder="Lien MP4"/>
-        <input class="mov" value="${s.mov || ""}" placeholder="Lien MOV"/>
-
-        <button class="delete-service">Supprimer</button>
-      `;
-
-      /* 🔥 DELETE SERVICE */
-      div.querySelector(".delete-service").onclick = async () => {
-        try {
-          await deleteDoc(
-            doc(db, "Artists", currentUser.uid, "Services", id)
-          );
-          div.remove();
-        } catch (error) {
-          console.error("Erreur suppression:", error);
-        }
-      };
-
-      container.appendChild(div);
-
-    });
-
-  } catch (error) {
-    console.error("Erreur loadServices:", error);
-  }
-
+  });
 }
 
+/* ================= CREATE SERVICE CARD ================= */
+function createServiceCard(s = {}, id = "") {
+
+  const div = document.createElement("div");
+  div.className = "service-card";
+  div.dataset.id = id;
+
+  div.innerHTML = `
+    <input class="title" value="${s.Title || ""}" placeholder="Titre"/>
+    <input class="price" value="${s.Price || ""}" placeholder="Prix"/>
+    <input class="desc" value="${s.Description || ""}" placeholder="Description"/>
+
+    <button class="delete-service">Supprimer</button>
+  `;
+
+  div.querySelector(".delete-service").onclick = async () => {
+    if (id) {
+      await deleteDoc(doc(db, "Artists", currentUser.uid, "Services", id));
+    }
+    div.remove();
+  };
+
+  return div;
+}
+
+/* ================= LOAD CREATIONS ================= */
 async function loadCreations() {
 
   const container = document.getElementById("creationsList");
   container.innerHTML = "";
 
-  const snapshot = await getDocs(
-    collection(db, "Artists", currentUser.uid, "Creations")
-  );
+  const snapshot = await getDocs(collection(db, "Artists", currentUser.uid, "Creations"));
 
-  snapshot.forEach(doc => {
+  snapshot.forEach(docSnap => {
 
-    const c = doc.data();
+    const c = docSnap.data();
 
     const div = document.createElement("div");
     div.className = "service-card";
 
     div.innerHTML = `
-      <input class="title" value="${c.title}" placeholder="Titre"/>
-      <input class="url" value="${c.url}" placeholder="Lien média"/>
+      <p>${c.Title || "Création"}</p>
+      ${c.Type === "mp3" ? `<audio controls src="${c.FileURL}"></audio>` : ""}
+      ${c.Type === "mp4" ? `<video controls src="${c.FileURL}" width="100%"></video>` : ""}
     `;
 
     container.appendChild(div);
-
   });
-
 }
 
 /* ================= ADD SERVICE ================= */
-document.getElementById("addService").onclick = () => {
-
+function addService() {
   const container = document.getElementById("servicesList");
+  container.appendChild(createServiceCard());
+}
 
-  const div = document.createElement("div");
-  div.className = "service-card";
-  div.dataset.id = ""; // 🔥 nouveau produit
+/* ================= ADD CREATION ================= */
+async function addCreation() {
 
-  div.innerHTML = `
-    <input class="title" placeholder="Titre"/>
-    <input class="price" placeholder="Prix"/>
-    <input class="desc" placeholder="Description"/>
-    <input class="mp3" placeholder="Lien MP3"/>
-    <input class="mp4" placeholder="Lien MP4"/>
-    <input class="mov" placeholder="Lien MOV"/>
-  `;
+  const file = document.getElementById("creationFile").files[0];
+  const title = document.getElementById("creationTitle").value;
 
-  container.appendChild(div);
-};
+  if (!file) return alert("Ajoute un fichier");
+
+  const type = file.type.includes("audio") ? "mp3" : "mp4";
+
+  const storageRef = ref(storage, `artists/${currentUser.uid}/creations/${Date.now()}`);
+
+  await uploadBytes(storageRef, file);
+  const url = await getDownloadURL(storageRef);
+
+  await addDoc(collection(db, "Artists", currentUser.uid, "Creations"), {
+    Title: title,
+    FileURL: url,
+    Type: type,
+    CreatedAt: new Date(),
+    IsActive: true
+  });
+
+  loadCreations();
+}
 
 /* ================= SAVE PROFILE ================= */
-
 async function saveProfile() {
-  try {
 
-    if (!currentUser) return alert("Utilisateur non connecté");
+  const file = document.getElementById("uploadImage").files[0];
+  let imageUrl = document.getElementById("profileImage").src;
 
-    const username = document.getElementById("username").value;
-    const email = currentUser.email;
-
-    const skills = Array.from(document.querySelectorAll(".skill.active"))
-      .map(s => s.innerText);
-
-    const instagram = document.getElementById("artistInstagram").value;
-    const tiktok = document.getElementById("artistTiktok").value;
-    const portfolio = document.getElementById("artistPortfolio").value;
-
-    /* ================= IMAGE ================= */
-    const file = document.getElementById("uploadImage").files[0];
-    let imageUrl = document.getElementById("profileImage").src;
-
-    if (file) {
-      const storageRef = ref(storage, `artists/${currentUser.uid}/profile.jpg`);
-      await uploadBytes(storageRef, file);
-      imageUrl = await getDownloadURL(storageRef);
-    }
-
-    /* ================= UPDATE ARTIST ================= */
-    await setDoc(doc(db, "Artists", currentUser.uid), {
-      UserID: currentUser.uid,
-      Username: username,
-      Email: email,
-
-      FirstName: document.getElementById("artistFirstName").value,
-      LastName: document.getElementById("artistLastName").value,
-
-      profileImage: imageUrl,
-
-      Location: {
-        Lat: 0,
-        Lng: 0,
-        Address: document.getElementById("artistAddress").value
-      },
-
-      Skills: skills,
-
-      Socials: {
-        Instagram: instagram,
-        TikTok: tiktok,
-        Portfolio: portfolio
-      }
-
-    }, { merge: true });
-
-    /* ================= SAVE SERVICES (SMART) ================= */
-
-    const services = document.querySelectorAll(".service-card");
-
-    for (const s of services) {
-
-      const id = s.dataset.id; // 🔥 IMPORTANT
-
-      const title = s.querySelector(".title").value;
-      const price = parseFloat(s.querySelector(".price").value);
-      const desc = s.querySelector(".desc").value;
-
-      const mp3 = s.querySelector(".mp3").value;
-      const mp4 = s.querySelector(".mp4").value;
-      const mov = s.querySelector(".mov").value;
-
-      /* 🔥 VALIDATION */
-      if (!title || isNaN(price)) continue;
-
-      if (id) {
-        /* 🔥 UPDATE EXISTING */
-        await setDoc(
-          doc(db, "Artists", currentUser.uid, "Services", id),
-          {
-            Title: title,
-            Price: price,
-            Description: desc,
-            mp3,
-            mp4,
-            mov,
-            IsActive: true
-          },
-          { merge: true }
-        );
-
-      } else {
-        /* 🔥 CREATE NEW */
-        const newDoc = await addDoc(
-          collection(db, "Artists", currentUser.uid, "Services"),
-          {
-            Title: title,
-            Price: price,
-            Description: desc,
-            mp3,
-            mp4,
-            mov,
-            IsActive: true,
-            CreatedAt: new Date()
-          }
-        );
-
-        /* 🔥 UPDATE ID FRONT */
-        s.dataset.id = newDoc.id;
-      }
-
-    }
-
-    alert("Profil mis à jour 🔥");
-
-  } catch (error) {
-    console.error("Erreur saveProfile:", error);
-    alert("Erreur lors de la sauvegarde");
+  if (file) {
+    const storageRef = ref(storage, `artists/${currentUser.uid}/profile.jpg`);
+    await uploadBytes(storageRef, file);
+    imageUrl = await getDownloadURL(storageRef);
   }
 
-};
+  await setDoc(doc(db, "Artists", currentUser.uid), {
+    Username: document.getElementById("username").value,
+    profileImage: imageUrl,
+    FirstName: document.getElementById("artistFirstName").value,
+    LastName: document.getElementById("artistLastName").value,
+    Email: currentUser.email,
+    Location: {
+      Address: document.getElementById("artistAddress").value
+    }
+  }, { merge: true });
 
-/* ================= CHANGE EMAIL ================= */
-document.getElementById("changeEmail").onclick = async () => {
-  const newEmail = prompt("Nouveau email");
+  /* 🔥 SAVE SERVICES */
+  const services = document.querySelectorAll(".service-card");
 
-  if (!newEmail) return;
+  for (const s of services) {
 
-  await updateEmail(auth.currentUser, newEmail);
+    const id = s.dataset.id;
 
-  alert("Email mis à jour");
-};
+    const title = s.querySelector(".title").value;
+    const price = parseFloat(s.querySelector(".price").value);
+    const desc = s.querySelector(".desc").value;
 
-/* ================= CHANGE PASSWORD ================= */
-document.getElementById("changePassword").onclick = async () => {
-  const newPassword = prompt("Nouveau mot de passe");
+    if (!title || isNaN(price)) continue;
 
-  if (!newPassword) return;
+    if (id) {
+      await setDoc(doc(db, "Artists", currentUser.uid, "Services", id), {
+        Title: title,
+        Price: price,
+        Description: desc
+      }, { merge: true });
+    } else {
+      const newDoc = await addDoc(collection(db, "Artists", currentUser.uid, "Services"), {
+        Title: title,
+        Price: price,
+        Description: desc,
+        CreatedAt: new Date()
+      });
+      s.dataset.id = newDoc.id;
+    }
+  }
 
-  await updatePassword(auth.currentUser, newPassword);
+  alert("Profil mis à jour 🔥");
+}
 
-  alert("Mot de passe mis à jour");
-};
-
+/* ================= INIT ================= */
 window.addEventListener("DOMContentLoaded", () => {
 
   loadProfile();
 
-  /* 🔥 ADD SERVICE */
-  const addServiceBtn = document.getElementById("addService");
+  document.getElementById("addService").onclick = addService;
+  document.getElementById("addCreation").onclick = addCreation;
+  document.getElementById("saveProfile").onclick = saveProfile;
 
-  if (addServiceBtn) {
-    addServiceBtn.onclick = () => {
-
-      const container = document.getElementById("servicesList");
-
-      const div = document.createElement("div");
-      div.className = "service-card";
-      div.dataset.id = "";
-
-      div.innerHTML = `
-        <input class="title" placeholder="Titre"/>
-        <input class="price" placeholder="Prix"/>
-        <input class="desc" placeholder="Description"/>
-        <input class="mp3" placeholder="Lien MP3"/>
-        <input class="mp4" placeholder="Lien MP4"/>
-        <input class="mov" placeholder="Lien MOV"/>
-
-        <button class="delete-service">Supprimer</button>
-      `;
-
-      div.querySelector(".delete-service").onclick = () => {
-        div.remove();
-      };
-
-      container.appendChild(div);
-    };
-  }
-
-  /* 🔥 SAVE PROFILE */
-  const saveBtn = document.getElementById("saveProfile");
-
-  if (saveBtn) {
-    saveBtn.onclick = async () => {
-      await saveProfile(); // on externalise la fonction
-    };
-  }
+  document.getElementById("backBtn").onclick = () => {
+    window.location.href = "index.html";
+  };
 
 });
-
-/* ================= INIT ================= */
-window.addEventListener("DOMContentLoaded", loadProfile); 
