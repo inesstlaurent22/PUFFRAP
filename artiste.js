@@ -21,6 +21,22 @@ const artistId = params.get("id");
 let currentUser;
 let isOwner = false;
 
+function toggleMode() {
+
+  if (isOwner) {
+    document.querySelectorAll(".edit-only").forEach(el => {
+      el.style.display = "block";
+    });
+  } else {
+    document.querySelectorAll(".client-only").forEach(el => {
+      el.style.display = "block";
+    });
+
+    /* désactive inputs */
+    document.querySelectorAll("input").forEach(i => i.disabled = true);
+  }
+
+}
 /* ================= LOAD ================= */
 
 function loadArtist() {
