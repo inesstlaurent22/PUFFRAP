@@ -538,7 +538,10 @@ async function loadArtists() {
       const id = docSnap.id;
 
       /* 🔒 SAFE DATA */
-      if (!artist?.Location?.Lat || !artist?.Location?.Lng) continue;
+      if (
+  artist?.Location?.Lat === undefined ||
+  artist?.Location?.Lng === undefined
+) continue;
 
       const lat = parseFloat(artist.Location.Lat);
       const lng = parseFloat(artist.Location.Lng);
@@ -563,6 +566,8 @@ async function loadArtists() {
         });
       });
 
+      services.sort((a, b) => a.price - b.price);
+      
       const servicesHTML = services.length
         ? services.slice(0, 3).map(s => `
             <div style="
@@ -583,129 +588,182 @@ async function loadArtists() {
         : null;
 
       /* ================= CREATIONS ================= */
+const creationsSnap = await getDocs(
+  collection(db, "Artists", id, "Creations")
+);
 
-      const creationsSnap = await getDocs(
-        collection(db, "Artists", id, "Creations")
-      );
+let creations = [];
 
-      let creations = [];
+creationsSnap.forEach(doc => {
+  const c = doc.data();
 
-      creationsSnap.forEach(doc => {
-        const c = doc.data();
-        if (!c.IsActive) return;
+  if (!c || !c.IsActive) return;
+  if (!c.FileURL || !c.Type) return;
 
-        creations.push({
-          url: c.FileURL,
-          type: c.Type
-        });
-      });
+  creations.push({
+    url: c.FileURL,
+    type: c.Type.toLowerCase()
+  });
+});
 
-      const creationsHTML = creations.length
-        ? creations.slice(0, 2).map(c => {
+/* 🔥 HTML CREATIONS */
+const creationsHTML = creations.length
+  ? creations.slice(0, 2).map(c => {
 
-            if (c.type === "mp3") {
-              return `
-                <audio controls style="width:100%;margin-top:6px;">
-                  <source src="${c.url}">
-                </audio>
-              `;
-            }
+      /* 🎧 AUDIO */
+      if (c.type.includes("mp3") || c.type.includes("audio")) {
+        return `
+          <audio controls style="
+            width:100%;
+            margin-top:6px;
+            border-radius:8px;
+          ">
+            <source src="${c.url}">
+          </audio>
+        `;
+      }
 
-            if (c.type === "mp4") {
-              return `
-                <video controls style="width:100%;border-radius:8px;margin-top:6px;">
-                  <source src="${c.url}">
-                </video>
-              `;
-            }
+      /* 🎬 VIDEO (MP4 + MOV) */
+      if (
+        c.type.includes("mp4") ||
+        c.type.includes("mov") ||
+        c.type.includes("video")
+      ) {
+        return `
+          <video controls style="
+            width:100%;
+            border-radius:10px;
+            margin-top:6px;
+            max-height:140px;
+            object-fit:cover;
+          ">
+            <source src="${c.url}">
+          </video>
+        `;
+      }
 
-            return "";
+      return "";
 
-          }).join("")
-        : "";
+    }).join("")
+
+  : `
+    <div style="
+      font-size:12px;
+      color:#999;
+      margin-top:6px;
+      text-align:center;
+    ">
+      Aucune création
+    </div>
+  `;
 
       /* ================= MARKER ================= */
 
       const marker = L.marker([lat, lng], { icon: artistIcon }).addTo(map);
 
       /* ================= POPUP ================= */
+marker.bindPopup(`
+  <div style="
+    width:250px;
+    font-family:-apple-system, BlinkMacSystemFont, sans-serif;
+  ">
 
-      marker.bindPopup(`
-        <div style="
-          width:240px;
-          font-family:-apple-system, BlinkMacSystemFont, sans-serif;
-        ">
+    <!-- IMAGE -->
+    <img src="${artist.profileImage || 'https://via.placeholder.com/300'}"
+      style="
+        width:100%;
+        height:150px;
+        object-fit:cover;
+        border-radius:16px;
+        margin-bottom:10px;
+      " />
 
-          <!-- IMAGE -->
-          <img src="${artist.profileImage || 'https://via.placeholder.com/300'}"
-            style="
-              width:100%;
-              height:140px;
-              object-fit:cover;
-              border-radius:14px;
-              margin-bottom:10px;
-            " />
+    <!-- NOM -->
+    <div style="
+      font-size:16px;
+      font-weight:600;
+      margin-bottom:2px;
+    ">
+      ${artist.Username || "Artiste"}
+    </div>
 
-          <!-- NOM -->
-          <div style="font-size:16px;font-weight:600;">
-            ${artist.Username || "Artiste"}
-          </div>
+    <!-- RATING -->
+    <div style="
+      color:#D4AF37;
+      font-size:13px;
+      margin-bottom:10px;
+    ">
+      ⭐ ${artist.Rating || 0}
+    </div>
 
-          <!-- RATING -->
-          <div style="color:#D4AF37;font-size:13px;margin-bottom:10px;">
-            ⭐ ${artist.Rating || 0}
-          </div>
+    <!-- SERVICES TITLE -->
+    <div style="
+      font-size:13px;
+      font-weight:600;
+      margin-bottom:4px;
+    ">
+      Services
+    </div>
 
-          <!-- SERVICES -->
-          <div style="
-            background:#f9f9f9;
-            border-radius:10px;
-            padding:8px;
-            margin-bottom:8px;
-          ">
-            ${servicesHTML}
-          </div>
+    <!-- SERVICES -->
+    <div style="
+      background:#f9f9f9;
+      border-radius:12px;
+      padding:8px;
+      margin-bottom:10px;
+    ">
+      ${servicesHTML}
+    </div>
 
-          <!-- CREATIONS -->
-          <div style="margin-bottom:10px;">
-            ${creationsHTML}
-          </div>
+    <!-- CREATIONS TITLE -->
+    <div style="
+      font-size:13px;
+      font-weight:600;
+      margin-bottom:4px;
+    ">
+      Créations
+    </div>
 
-          <!-- CTA -->
-          <button 
-            onclick="window.location.href='profil.html?id=${id}'"
-            style="
-              width:100%;
-              padding:12px;
-              background:#000;
-              color:white;
-              border:none;
-              border-radius:12px;
-              font-weight:600;
-              cursor:pointer;
-            ">
-            ${minPrice ? `Réserver dès ${minPrice}€` : "Voir profil"}
-          </button>
+    <!-- CREATIONS -->
+    <div style="margin-bottom:10px;">
+      ${creationsHTML}
+    </div>
 
-        </div>
-      `, {
-        closeButton: false,
-        offset: [0, -5]
-      });
+    <!-- CTA -->
+    <button 
+      onclick="window.location.href='artiste.html?id=${id}'"
+      style="
+        width:100%;
+        padding:12px;
+        background:#000;
+        color:white;
+        border:none;
+        border-radius:12px;
+        font-weight:600;
+        cursor:pointer;
+        transition:0.2s;
+      "
+      onmouseover="this.style.opacity='0.8'"
+      onmouseout="this.style.opacity='1'"
+    >
+      ${minPrice ? `Réserver dès ${minPrice}€` : "Voir profil"}
+    </button>
 
-      /* 🍏 UX */
-      marker.on("mouseover", () => marker.openPopup());
-      marker.on("mouseout", () => marker.closePopup());
+  </div>
+`, {
+  closeButton: false,
+  offset: [0, -8],
+  className: "custom-popup"
+});
 
-      markers.push(marker);
+/* 🍏 UX AMÉLIORÉ */
+marker.on("mouseover", () => marker.openPopup());
+marker.on("mouseout", () => marker.closePopup());
 
-    }
+/* 🔥 MOBILE FIX (TRÈS IMPORTANT) */
+marker.on("click", () => marker.openPopup());
 
-  } catch (error) {
-    console.error("Erreur loadArtists:", error);
-  }
-
-}
+markers.push(marker);
 
 /* ================= GEO CODE ================= */
 
@@ -822,7 +880,7 @@ function displayArtists(artists) {
         </p>
 
         <button 
-          onclick="window.location.href='profil.html?id=${artist.id}'"
+          onclick="window.location.href='artiste.html?id=${id}'"
           style="margin-top:10px;padding:8px 12px;background:#00ff99;border:none;border-radius:8px;color:black;font-weight:bold;">
           Voir profil
         </button>
