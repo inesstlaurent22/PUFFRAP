@@ -79,6 +79,14 @@ function loadProfile() {
 
 }
 
+const backBtn = document.getElementById("backBtn");
+
+if (backBtn) {
+  backBtn.onclick = () => {
+    window.location.href = "index.html";
+  };
+}
+
 /* ================= LOAD SERVICES ================= */
 async function loadServices() {
 
@@ -188,8 +196,7 @@ document.getElementById("addService").onclick = () => {
 
 /* ================= SAVE PROFILE ================= */
 
-document.getElementById("saveProfile").onclick = async () => {
-
+async function saveProfile() {
   try {
 
     if (!currentUser) return alert("Utilisateur non connecté");
@@ -328,6 +335,52 @@ document.getElementById("changePassword").onclick = async () => {
 
   alert("Mot de passe mis à jour");
 };
+
+window.addEventListener("DOMContentLoaded", () => {
+
+  loadProfile();
+
+  /* 🔥 ADD SERVICE */
+  const addServiceBtn = document.getElementById("addService");
+
+  if (addServiceBtn) {
+    addServiceBtn.onclick = () => {
+
+      const container = document.getElementById("servicesList");
+
+      const div = document.createElement("div");
+      div.className = "service-card";
+      div.dataset.id = "";
+
+      div.innerHTML = `
+        <input class="title" placeholder="Titre"/>
+        <input class="price" placeholder="Prix"/>
+        <input class="desc" placeholder="Description"/>
+        <input class="mp3" placeholder="Lien MP3"/>
+        <input class="mp4" placeholder="Lien MP4"/>
+        <input class="mov" placeholder="Lien MOV"/>
+
+        <button class="delete-service">Supprimer</button>
+      `;
+
+      div.querySelector(".delete-service").onclick = () => {
+        div.remove();
+      };
+
+      container.appendChild(div);
+    };
+  }
+
+  /* 🔥 SAVE PROFILE */
+  const saveBtn = document.getElementById("saveProfile");
+
+  if (saveBtn) {
+    saveBtn.onclick = async () => {
+      await saveProfile(); // on externalise la fonction
+    };
+  }
+
+});
 
 /* ================= INIT ================= */
 window.addEventListener("DOMContentLoaded", loadProfile);
