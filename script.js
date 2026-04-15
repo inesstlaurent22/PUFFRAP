@@ -135,20 +135,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* ================= LOGIN ================= */
 
-document.getElementById("loginSubmit").onclick = async () => {
-  try {
-    const email = document.getElementById("loginEmail").value;
-    const password = document.getElementById("loginPassword").value;
+const loginSubmit = document.getElementById("loginSubmit");
 
-    await signInWithEmailAndPassword(auth, email, password);
+if (loginSubmit) {
+  loginSubmit.onclick = async () => {
+    try {
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
 
-    alert("Connexion réussie 🔥");
-    location.reload();
+      await signInWithEmailAndPassword(auth, email, password);
 
-  } catch (error) {
-    alert(error.message);
-  }
-};
+      alert("Connexion réussie 🔥");
+      location.reload();
+
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+}
 
 /* ================= SIGNUP CLIENT ================= */
 
@@ -200,116 +204,138 @@ async function getCoordinatesFromPostal(postal) {
 }
 
 /* ================= SIGNUP ARTIST ================= */
-document.getElementById("createArtist").onclick = async () => {
-  try {
+const createArtistBtn = document.getElementById("createArtist");
 
-    const email = document.getElementById("artistEmail").value.trim();
-    const password = document.getElementById("artistPassword").value.trim();
-    const username = document.getElementById("artistUsername").value.trim();
+if (createArtistBtn) {
 
-    const instagram = document.getElementById("artistInstagram").value.trim();
-    const tiktok = document.getElementById("artistTiktok").value.trim();
-    const portfolio = document.getElementById("artistPortfolio").value.trim();
+  createArtistBtn.onclick = async () => {
 
-    const file = document.getElementById("artistImage").files[0];
+    try {
 
-    const lat = parseFloat(document.getElementById("artistAddress").dataset.lat);
-    const lng = parseFloat(document.getElementById("artistAddress").dataset.lng);
+      /* ================= GET ELEMENTS ================= */
+      const emailEl = document.getElementById("artistEmail");
+      const passwordEl = document.getElementById("artistPassword");
+      const usernameEl = document.getElementById("artistUsername");
+      const addressEl = document.getElementById("artistAddress");
 
-    /* 🔥 VALIDATION BASIQUE */
-    if (!email || !password || !username) {
-      throw new Error("Remplis tous les champs obligatoires");
-    }
-
-    if (isNaN(lat) || isNaN(lng)) {
-  throw new Error("Choisis une adresse dans les suggestions");
-}
-
-    /* 🔥 VALIDATION URL */
-    if (instagram && !instagram.startsWith("https://")) throw new Error("Instagram invalide");
-    if (tiktok && !tiktok.startsWith("https://")) throw new Error("TikTok invalide");
-    if (portfolio && !portfolio.startsWith("https://")) throw new Error("Portfolio invalide");
-
-    /* 🔥 SKILLS */
-    const skills = getSelectedSkills();
-
-    /* 🔥 CHECK EMAIL EXISTANT */
-    const methods = await fetchSignInMethodsForEmail(auth, email);
-
-    if (methods.length > 0) {
-
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-
-        alert("Connexion automatique 🔥");
-        location.reload();
-        return;
-
-      } catch {
-        throw new Error("Mot de passe incorrect ❌");
+      if (!emailEl || !passwordEl || !usernameEl || !addressEl) {
+        throw new Error("Erreur interface (éléments manquants)");
       }
+
+      const email = emailEl.value.trim();
+      const password = passwordEl.value.trim();
+      const username = usernameEl.value.trim();
+
+      const instagram = document.getElementById("artistInstagram")?.value.trim() || "";
+      const tiktok = document.getElementById("artistTiktok")?.value.trim() || "";
+      const portfolio = document.getElementById("artistPortfolio")?.value.trim() || "";
+
+      const file = document.getElementById("artistImage")?.files[0];
+
+      const lat = parseFloat(addressEl.dataset.lat);
+      const lng = parseFloat(addressEl.dataset.lng);
+
+      /* ================= VALIDATION ================= */
+
+      if (!email || !password || !username) {
+        throw new Error("Remplis tous les champs obligatoires");
+      }
+
+      if (isNaN(lat) || isNaN(lng)) {
+        throw new Error("Choisis une adresse dans les suggestions");
+      }
+
+      if (instagram && !instagram.startsWith("https://")) throw new Error("Instagram invalide");
+      if (tiktok && !tiktok.startsWith("https://")) throw new Error("TikTok invalide");
+      if (portfolio && !portfolio.startsWith("https://")) throw new Error("Portfolio invalide");
+
+      /* ================= SKILLS ================= */
+      const skills = getSelectedSkills ? getSelectedSkills() : [];
+
+      /* ================= CHECK EMAIL ================= */
+      const methods = await fetchSignInMethodsForEmail(auth, email);
+
+      if (methods.length > 0) {
+
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
+          alert("Connexion automatique 🔥");
+          location.reload();
+          return;
+
+        } catch {
+          throw new Error("Mot de passe incorrect ❌");
+        }
+      }
+
+      /* ================= CREATE USER ================= */
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      /* ================= UPLOAD IMAGE ================= */
+      let imageUrl = "";
+
+      if (file) {
+        const storageRef = ref(storage, `artists/${user.uid}/profile.jpg`);
+        await uploadBytes(storageRef, file);
+        imageUrl = await getDownloadURL(storageRef);
+      }
+
+      /* ================= FIRESTORE USERS ================= */
+      await setDoc(doc(db, "Users", user.uid), {
+        Mail: email,
+        Name: username,
+        Role: "artist",
+        CreatedAt: new Date()
+      });
+
+      /* ================= FIRESTORE ARTIST ================= */
+      await setDoc(doc(db, "Artists", user.uid), {
+        UserID: user.uid,
+        Username: username,
+        Email: email,
+        profileImage: imageUrl,
+        Skills: skills,
+
+        Location: {
+          Lat: lat,
+          Lng: lng,
+          Address: addressEl.value
+        },
+
+        Socials: {
+          Instagram: instagram,
+          TikTok: tiktok,
+          Portfolio: portfolio
+        },
+
+        Rating: 0,
+        isAvailable: true,
+        reviewCount: 0,
+        CreatedAt: new Date()
+      });
+
+      /* ================= MAP SAFE ================= */
+      if (typeof map !== "undefined" && map) {
+        L.marker([lat, lng])
+          .addTo(map)
+          .bindPopup("Ton profil")
+          .openPopup();
+
+        map.setView([lat, lng], 13);
+      }
+
+      alert("Artiste créé 🔥");
+      location.reload();
+
+    } catch (error) {
+      console.error("Erreur création artiste:", error);
+      alert(error.message);
     }
 
-    /* 🔥 CREATE USER */
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
+  };
 
-    /* 🔥 UPLOAD IMAGE */
-    let imageUrl = "";
-
-    if (file) {
-      const storageRef = ref(storage, `artists/${user.uid}/profile.jpg`);
-      await uploadBytes(storageRef, file);
-      imageUrl = await getDownloadURL(storageRef);
-    }
-
-    /* 🔥 FIRESTORE USERS */
-    await setDoc(doc(db, "Users", user.uid), {
-      Mail: email,
-      Name: username,
-      Role: "artist",
-      CreatedAt: new Date()
-    });
-
-    /* 🔥 FIRESTORE ARTIST */
-    await setDoc(doc(db, "Artists", user.uid), {
-      UserID: user.uid,
-      Username: username,
-      Email: email,
-      profileImage: imageUrl,
-      Skills: skills,
-
-      Location: {
-        Lat: lat,
-        Lng: lng
-      },
-
-      Socials: {
-        Instagram: instagram,
-        TikTok: tiktok,
-        Portfolio: portfolio
-      },
-
-      Rating: 0,
-      isAvailable: true,
-      reviewCount: 0,
-      CreatedAt: new Date()
-    });
-
-    /* 🔥 AJOUT MARKER */
-    L.marker([lat, lng])
-      .addTo(map)
-      .bindPopup("Ton profil")
-      .openPopup();
-
-    map.setView([lat, lng], 13);
-
-    alert("Artiste créé 🔥");
-
-  } catch (error) {
-    alert(error.message);
-  }
-};
+}
 
 /* ================= SKILLS CLICK ================= */
 
@@ -765,6 +791,14 @@ marker.on("click", () => marker.openPopup());
 
 markers.push(marker);
 
+    }
+
+  } catch (error) {
+    console.error("Erreur loadArtists:", error);
+  }
+
+} 
+
 /* ================= GEO CODE ================= */
 
 async function getCoordsFromPostalCode(cp) {
@@ -880,7 +914,7 @@ function displayArtists(artists) {
         </p>
 
         <button 
-          onclick="window.location.href='artiste.html?id=${id}'"
+          onclick="window.location.href='artiste.html?id=${artist.id}'"
           style="margin-top:10px;padding:8px 12px;background:#00ff99;border:none;border-radius:8px;color:black;font-weight:bold;">
           Voir profil
         </button>
