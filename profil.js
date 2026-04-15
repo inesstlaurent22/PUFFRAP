@@ -40,51 +40,67 @@ function loadProfile() {
       return;
     }
 
-    currentUser = user;
+    try {
 
-    const docRef = doc(db, "Artists", user.uid);
-    const docSnap = await getDoc(docRef);
+      currentUser = user;
 
-    if (!docSnap.exists()) return;
+      const docRef = doc(db, "Artists", user.uid);
+      const docSnap = await getDoc(docRef);
 
-    const data = docSnap.data();
+      if (!docSnap.exists()) return;
 
-    /* 🔥 REMPLISSAGE */
-    document.getElementById("username").value = data.Username || "";
-    document.getElementById("profileImage").src = data.profileImage || "";
+      const data = docSnap.data();
 
-    document.getElementById("artistFirstName").value = data.FirstName || "";
-    document.getElementById("artistLastName").value = data.LastName || "";
+      /* 🔥 SAFE GET ELEMENT */
+      const setValue = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.value = value || "";
+      };
 
-    document.getElementById("artistEmail").value = data.Email || "";
+      const setSrc = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.src = value || "";
+      };
 
-    document.getElementById("artistAddress").value = data.Location?.Address || "";
+      /* ================= REMPLISSAGE ================= */
 
-    /* 🔥 SOCIALS */
-    document.getElementById("artistInstagram").value = data.Socials?.Instagram || "";
-    document.getElementById("artistTiktok").value = data.Socials?.TikTok || "";
-    document.getElementById("artistPortfolio").value = data.Socials?.Portfolio || "";
+      setValue("username", data.Username);
+      setSrc("profileImage", data.profileImage);
 
-    /* 🔥 SKILLS */
-    document.querySelectorAll(".skill").forEach(skill => {
-      if (data.Skills?.includes(skill.innerText)) {
-        skill.classList.add("active");
-      }
-    });
+      setValue("artistFirstName", data.FirstName);
+      setValue("artistLastName", data.LastName);
 
-    loadServices();
-    loadCreations();
+      setValue("artistEmail", data.Email);
+
+      setValue("artistAddress", data.Location?.Address);
+
+      /* ================= SOCIALS ================= */
+
+      setValue("artistInstagram", data.Socials?.Instagram);
+      setValue("artistTiktok", data.Socials?.TikTok);
+      setValue("artistPortfolio", data.Socials?.Portfolio);
+
+      /* ================= SKILLS ================= */
+
+      document.querySelectorAll(".skill").forEach(skill => {
+        skill.classList.remove("active"); // reset propre
+
+        if (data.Skills?.includes(skill.innerText)) {
+          skill.classList.add("active");
+        }
+      });
+
+      /* ================= LOAD DATA ================= */
+
+      await loadServices();
+      await loadCreations();
+
+    } catch (error) {
+      console.error("Erreur loadProfile:", error);
+    }
 
   });
 
-}
-
-const backBtn = document.getElementById("backBtn");
-
-if (backBtn) {
-  backBtn.onclick = () => {
-    window.location.href = "index.html";
-  };
 }
 
 /* ================= LOAD SERVICES ================= */
@@ -174,25 +190,53 @@ async function loadCreations() {
 }
 
 /* ================= ADD SERVICE ================= */
-document.getElementById("addService").onclick = () => {
+const addServiceBtn = document.getElementById("addService");
 
-  const container = document.getElementById("servicesList");
+if (addServiceBtn) {
+  addServiceBtn.onclick = () => {
 
-  const div = document.createElement("div");
-  div.className = "service-card";
-  div.dataset.id = ""; // 🔥 nouveau produit
+    const container = document.getElementById("servicesList");
 
-  div.innerHTML = `
-    <input class="title" placeholder="Titre"/>
-    <input class="price" placeholder="Prix"/>
-    <input class="desc" placeholder="Description"/>
-    <input class="mp3" placeholder="Lien MP3"/>
-    <input class="mp4" placeholder="Lien MP4"/>
-    <input class="mov" placeholder="Lien MOV"/>
-  `;
+    const div = document.createElement("div");
+    div.className = "service-card";
+    div.dataset.id = "";
 
-  container.appendChild(div);
-};
+    div.innerHTML = `
+      <input class="title" placeholder="Nom du service"/>
+      <input class="price" placeholder="Prix"/>
+      <input class="desc" placeholder="Description"/>
+
+      <button class="delete-service">Supprimer</button>
+    `;
+
+    div.querySelector(".delete-service").onclick = () => div.remove();
+
+    container.appendChild(div);
+  };
+}
+
+const addCreationBtn = document.getElementById("addCreation");
+
+if (addCreationBtn) {
+  addCreationBtn.onclick = () => {
+
+    const container = document.getElementById("creationsList");
+
+    const div = document.createElement("div");
+    div.className = "service-card";
+
+    div.innerHTML = `
+      <input class="creation-title" placeholder="Titre"/>
+      <input class="creation-url" placeholder="Lien (mp3/mp4)"/>
+
+      <button class="delete-creation">Supprimer</button>
+    `;
+
+    div.querySelector(".delete-creation").onclick = () => div.remove();
+
+    container.appendChild(div);
+  };
+}
 
 /* ================= SAVE PROFILE ================= */
 
@@ -314,6 +358,30 @@ async function saveProfile() {
 
 };
 
+/* ================= SAVE CREATIONS ================= */
+
+const creations = document.querySelectorAll(".service-card");
+
+for (const c of creations) {
+
+  const title = c.querySelector(".creation-title");
+  const url = c.querySelector(".creation-url");
+
+  if (!title || !url) continue;
+
+  if (!title.value || !url.value) continue;
+
+  await addDoc(
+    collection(db, "Artists", currentUser.uid, "Creations"),
+    {
+      Title: title.value,
+      FileURL: url.value,
+      IsActive: true,
+      CreatedAt: new Date()
+    }
+  );
+}
+
 /* ================= CHANGE EMAIL ================= */
 document.getElementById("changeEmail").onclick = async () => {
   const newEmail = prompt("Nouveau email");
@@ -340,45 +408,25 @@ window.addEventListener("DOMContentLoaded", () => {
 
   loadProfile();
 
+  /* 🔥 BOUTON RETOUR */
+  const backBtn = document.getElementById("backBtn");
+
+  if (backBtn) {
+    backBtn.onclick = () => {
+      window.location.href = "index.html";
+    };
+  }
+
+  /* 🔥 SKILLS */
+  document.querySelectorAll(".skill").forEach(skill => {
+    skill.onclick = () => skill.classList.toggle("active");
+  });
+
   /* 🔥 ADD SERVICE */
-  const addServiceBtn = document.getElementById("addService");
+  // ton code
 
-  if (addServiceBtn) {
-    addServiceBtn.onclick = () => {
-
-      const container = document.getElementById("servicesList");
-
-      const div = document.createElement("div");
-      div.className = "service-card";
-      div.dataset.id = "";
-
-      div.innerHTML = `
-        <input class="title" placeholder="Titre"/>
-        <input class="price" placeholder="Prix"/>
-        <input class="desc" placeholder="Description"/>
-        <input class="mp3" placeholder="Lien MP3"/>
-        <input class="mp4" placeholder="Lien MP4"/>
-        <input class="mov" placeholder="Lien MOV"/>
-
-        <button class="delete-service">Supprimer</button>
-      `;
-
-      div.querySelector(".delete-service").onclick = () => {
-        div.remove();
-      };
-
-      container.appendChild(div);
-    };
-  }
-
-  /* 🔥 SAVE PROFILE */
-  const saveBtn = document.getElementById("saveProfile");
-
-  if (saveBtn) {
-    saveBtn.onclick = async () => {
-      await saveProfile(); // on externalise la fonction
-    };
-  }
+  /* 🔥 SAVE */
+  document.getElementById("saveProfile").onclick = saveProfile;
 
 });
 
