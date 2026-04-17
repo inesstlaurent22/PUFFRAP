@@ -4,20 +4,21 @@
   <meta charset="UTF-8">
   <title>PUFFRAP</title>
 
+  <!-- RESPONSIVE -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <!-- CSS -->
   <link rel="stylesheet" href="style.css">
 
   <!-- LEAFLET CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-
 </head>
 
 <body>
 
-<!-- ================= MAP BACKGROUND ================= -->
+<!-- ================= MAP ================= -->
 <div id="map"></div>
 <div class="map-glow"></div>
-
 
 <!-- ================= NAVBAR ================= -->
 <header class="navbar">
@@ -30,7 +31,7 @@
     <button id="loginBtn" class="btn-outline">Connexion</button>
 
     <!-- SIGNUP -->
-    <div class="dropdown" id="signupBlock">
+    <div class="dropdown">
       <button id="signupToggle" class="btn-gold">Inscription</button>
 
       <div id="dropdownMenu" class="dropdown-content">
@@ -39,7 +40,7 @@
       </div>
     </div>
 
-    <!-- USER MENU (CONNECTÉ) -->
+    <!-- USER MENU -->
     <div id="userMenu" class="user-menu" style="display:none;">
 
       <button id="userToggle" class="btn-gold">
@@ -47,12 +48,10 @@
       </button>
 
       <div id="userDropdown" class="user-dropdown">
-
         <button onclick="location.href='profil.html'">Mon profil</button>
         <button>Mes réservations</button>
         <button>Mes favoris</button>
-        <button id="logoutBtn">Déconnecter</button>
-
+        <button id="logoutBtn">Déconnexion</button>
       </div>
 
     </div>
@@ -60,13 +59,14 @@
   </div>
 
 </header>
-  
-<!-- ================= SEARCH BAR ================= -->
+
+<!-- ================= SEARCH ================= -->
 <div class="search-box">
 
   <input type="text" id="searchInput" placeholder="Ville ou code postal..." />
 
-  <div id="suggestions" class="suggestions"></div>
+  <!-- 🔥 IMPORTANT -->
+  <div id="suggestions" class="suggestions-box"></div>
 
   <button id="searchBtn" class="btn-gold">Je cherche</button>
 
@@ -78,8 +78,8 @@
 
     <h2>Connexion</h2>
 
-    <input type="email" id="loginEmail" placeholder="Email" autocomplete="off">
-    <input type="password" id="loginPassword" placeholder="Mot de passe" autocomplete="new-password">
+    <input type="email" id="loginEmail" placeholder="Email">
+    <input type="password" id="loginPassword" placeholder="Mot de passe">
 
     <button id="loginSubmit" class="btn-gold">Se connecter</button>
 
@@ -93,8 +93,8 @@
     <h2>Inscription Client</h2>
 
     <input type="text" id="clientUsername" placeholder="Nom">
-    <input type="email" id="clientEmail" placeholder="Email" autocomplete="off">
-    <input type="password" id="clientPassword" placeholder="Mot de passe" autocomplete="new-password">
+    <input type="email" id="clientEmail" placeholder="Email">
+    <input type="password" id="clientPassword" placeholder="Mot de passe">
 
     <button id="createClient" class="btn-gold">Créer compte</button>
 
@@ -115,40 +115,40 @@
 
     <img id="previewImage" class="preview-img"/>
 
-    <!-- NOM / PRENOM -->
+    <!-- NOM -->
     <input type="text" id="artistFirstName" placeholder="Prénom">
     <input type="text" id="artistLastName" placeholder="Nom">
 
     <!-- USERNAME -->
     <input type="text" id="artistUsername" placeholder="Nom d'artiste">
 
-    <!-- EMAIL / PASSWORD -->
-    <input type="email" id="artistEmail" placeholder="Email" autocomplete="off">
-    <input type="password" id="artistPassword" placeholder="Mot de passe" autocomplete="new-password">
+    <!-- EMAIL -->
+    <input type="email" id="artistEmail" placeholder="Email">
+    <input type="password" id="artistPassword" placeholder="Mot de passe">
 
-    <!-- ADRESSE -->
-    <div class="address-group">
+    <!-- 🔥 ADRESSE AVEC AUTOCOMPLETE -->
+    <div class="address-wrapper">
 
-  <input type="text" id="artistAddress" placeholder="Adresse complète">
+      <input type="text" id="artistAddress" placeholder="Adresse complète">
 
-  <div id="addressSuggestions" class="suggestions"></div>
+      <!-- 🔥 TRÈS IMPORTANT -->
+      <div id="addressSuggestions" class="suggestions-box"></div>
 
-</div>
+    </div>
 
     <!-- COMPÉTENCES -->
     <label>Compétences</label>
-    <div class="skills-container">
 
+    <div class="skills-container">
       <div class="skill">Beatmaker/Mix</div>
       <div class="skill">Chanteur/Chanteuse</div>
       <div class="skill">Vidéaste</div>
       <div class="skill">Producteur/rice</div>
       <div class="skill">Community Manager</div>
       <div class="skill">Comptable</div>
-
     </div>
 
-    <!-- LIENS -->
+    <!-- SOCIALS -->
     <input type="text" id="artistInstagram" placeholder="Instagram (https://...)">
     <input type="text" id="artistTiktok" placeholder="TikTok (https://...)">
     <input type="text" id="artistPortfolio" placeholder="Portfolio (https://...)">
@@ -158,10 +158,10 @@
   </div>
 </div>
 
-<!-- ================= LEAFLET JS (IMPORTANT ICI) ================= -->
+<!-- ================= LEAFLET ================= -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-<!-- SCRIPT -->
+<!-- ================= SCRIPT ================= -->
 <script type="module" src="script.js"></script>
 
 </body>
