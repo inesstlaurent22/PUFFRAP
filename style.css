@@ -426,3 +426,52 @@ button {
   color: #00ff99;
   transform: translateX(5px);
 }
+
+/* ================= AUTOCOMPLETE ================= */
+
+.address-wrapper {
+  position: relative;
+}
+
+.suggestions-box {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+
+  background: #111;
+  border-radius: 12px;
+  margin-top: 6px;
+
+  max-height: 200px;
+  overflow-y: auto;
+
+  z-index: 999;
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+
+/* ITEM */
+.suggestion-item {
+  padding: 12px;
+  font-size: 13px;
+  color: white;
+  cursor: pointer;
+  border-bottom: 1px solid #222;
+  transition: 0.2s;
+}
+
+.suggestion-item:hover {
+  background: #D4AF37;
+  color: black;
+}
+
+/* SCROLL BAR */
+.suggestions-box::-webkit-scrollbar {
+  width: 6px;
+}
+
+.suggestions-box::-webkit-scrollbar-thumb {
+  background: #D4AF37;
+  border-radius: 10px;
+}
