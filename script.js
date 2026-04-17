@@ -380,6 +380,7 @@ if (artistImage && previewImage) {
 }
 
 /* ================= AUTOCOMPLETE ADRESSE ================= */
+
 const addressInput = document.getElementById("artistAddress");
 const suggestionsBox = document.getElementById("addressSuggestions");
 
@@ -402,23 +403,17 @@ if (addressInput && suggestionsBox) {
 
       try {
 
-        /* 🔥 LOADING UX */
         suggestionsBox.innerHTML = "<div class='suggestion-item'>Recherche...</div>";
 
         const res = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&countrycodes=fr&format=json`,
-          {
-            headers: {
-              "Accept": "application/json"
-            }
-          }
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&countrycodes=fr&format=json`
         );
 
         const data = await res.json();
 
         suggestionsBox.innerHTML = "";
 
-        if (data.length === 0) {
+        if (!data.length) {
           suggestionsBox.innerHTML = "<div class='suggestion-item'>Aucun résultat</div>";
           return;
         }
@@ -429,31 +424,32 @@ if (addressInput && suggestionsBox) {
           div.className = "suggestion-item";
           div.innerText = place.display_name;
 
-          div.addEventListener("click", () => {
+          div.onclick = () => {
 
             addressInput.value = place.display_name;
 
+            /* 🔥 TRÈS IMPORTANT */
             addressInput.dataset.lat = place.lat;
             addressInput.dataset.lng = place.lon;
 
             suggestionsBox.innerHTML = "";
 
-          });
+          };
 
           suggestionsBox.appendChild(div);
 
         });
 
       } catch (error) {
-        console.error("Erreur autocomplete:", error);
-        suggestionsBox.innerHTML = "<div class='suggestion-item'>Erreur de recherche</div>";
+        console.error(error);
+        suggestionsBox.innerHTML = "<div class='suggestion-item'>Erreur</div>";
       }
 
-    }, 300); // 🔥 debounce 300ms
+    }, 300);
 
   });
 
-  /* 🔥 CLIQUE EN DEHORS → FERME */
+  /* 🔥 CLICK OUTSIDE */
   document.addEventListener("click", (e) => {
     if (!addressInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
       suggestionsBox.innerHTML = "";
