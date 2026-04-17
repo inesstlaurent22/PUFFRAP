@@ -159,10 +159,33 @@ if (loginSubmit) {
 document.getElementById("createClient").onclick = async () => {
   try {
 
-    const email = document.getElementById("clientEmail").value;
-    const password = document.getElementById("clientPassword").value;
-    const name = document.getElementById("clientUsername").value;
+    const email = document.getElementById("clientEmail").value.trim();
+    const password = document.getElementById("clientPassword").value.trim();
+    const name = document.getElementById("clientUsername").value.trim();
 
+    if (!email || !password || !name) {
+      throw new Error("Remplis tous les champs");
+    }
+
+    /* 🔥 CHECK EMAIL */
+    const methods = await fetchSignInMethodsForEmail(auth, email);
+
+    /* ================= CAS 1 : EMAIL EXISTE ================= */
+    if (methods.length > 0) {
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+
+        alert("Connexion automatique 🔥");
+        location.reload();
+        return;
+
+      } catch {
+        throw new Error("Mot de passe incorrect ❌");
+      }
+    }
+
+    /* ================= CAS 2 : NOUVEL UTILISATEUR ================= */
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
@@ -173,7 +196,7 @@ document.getElementById("createClient").onclick = async () => {
       CreatedAt: new Date()
     });
 
-    alert("Client créé ✅");
+    alert("Compte créé ✅");
     location.reload();
 
   } catch (error) {
