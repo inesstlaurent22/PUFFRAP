@@ -359,29 +359,40 @@ for (let i = 0; i < creations.length; i++) {
 
       /* ================= FIRESTORE ARTIST ================= */
       await setDoc(doc(db, "Artists", user.uid), {
-        UserID: user.uid,
-        Username: username,
-        Email: email,
-        profileImage: imageUrl,
-        Skills: skills,
+  UserID: user.uid,
 
-        Location: {
-          Lat: lat,
-          Lng: lng,
-          Address: addressEl.value
-        },
+  /* 🔥 IDENTITÉ */
+  Username: username,
+  FirstName: document.getElementById("artistFirstName")?.value || "",
+  LastName: document.getElementById("artistLastName")?.value || "",
 
-        Socials: {
-          Instagram: instagram,
-          TikTok: tiktok,
-          Portfolio: portfolio
-        },
+  Email: email,
+  profileImage: imageUrl,
 
-        Rating: 0,
-        isAvailable: true,
-        reviewCount: 0,
-        CreatedAt: new Date()
-      });
+  /* 🔥 SKILLS */
+  Skills: skills,
+
+  /* 🔥 LOCALISATION */
+  Location: {
+    Lat: lat,
+    Lng: lng,
+    Address: addressEl.value
+  },
+
+  /* 🔥 SOCIALS */
+  Socials: {
+    Instagram: instagram,
+    TikTok: tiktok,
+    Portfolio: portfolio
+  },
+
+  /* 🔥 STATS */
+  Rating: 0,
+  reviewCount: 0,
+  isAvailable: true,
+
+  CreatedAt: new Date()
+});
 
       /* ================= MAP SAFE ================= */
       if (typeof map !== "undefined" && map) {
