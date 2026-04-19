@@ -74,7 +74,9 @@ function loadArtist() {
       const data = docSnap.data();
 
       /* 🔥 DISPLAY */
-      document.getElementById("username").value = data.Username || "";
+      document.getElementById("artistName").value = data.ArtistName || "";
+      document.getElementById("artistFirstName").value = data.FirstName || "";
+      document.getElementById("artistLastName").value = data.LastName || "";
       document.getElementById("profileImage").src = data.profileImage || "";
 
       document.getElementById("artistFirstName").value = data.FirstName || "";
@@ -166,6 +168,9 @@ async function loadCreations() {
 
     const c = docSnap.data();
 
+    const fullName = `${data.FirstName} ${data.LastName}`;
+    const stageName = data.ArtistName;
+
     const div = document.createElement("div");
 
     div.innerHTML = `
@@ -198,16 +203,15 @@ document.getElementById("saveProfile").onclick = async () => {
 
   await setDoc(doc(db, "Artists", artistId), {
 
-    Username: document.getElementById("username").value,
+  ArtistName: document.getElementById("artistName").value,
+  FirstName: document.getElementById("artistFirstName").value,
+  LastName: document.getElementById("artistLastName").value,
 
-    FirstName: document.getElementById("artistFirstName").value,
-    LastName: document.getElementById("artistLastName").value,
+  Location: {
+    Address: document.getElementById("artistAddress").value
+  }
 
-    Location: {
-      Address: document.getElementById("artistAddress").value
-    }
-
-  }, { merge: true });
+}, { merge: true });
 
   alert("Profil mis à jour 🔥");
 
