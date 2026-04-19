@@ -825,6 +825,7 @@ const servicesHTML = services.length
   : `<span style="font-size:12px;color:#999;">Aucun service</span>`;
 
 /* ================= REVIEWS ================= */
+      
 const reviewsSnap = await getDocs(
   collection(db, "Artists", id, "Reviews")
 );
@@ -837,6 +838,11 @@ reviewsSnap.forEach(doc => {
 
   reviews.push(r);
 });
+
+/* 🔥 AJOUT ICI */
+const avgRating = reviews.length
+  ? (reviews.reduce((a, b) => a + b.Rating, 0) / reviews.length).toFixed(1)
+  : 0;
 
 const reviewsHTML = reviews.length
   ? reviews.slice(0, 2).map(r => `
