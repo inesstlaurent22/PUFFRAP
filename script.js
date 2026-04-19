@@ -304,6 +304,40 @@ if (createArtistBtn) {
         imageUrl = await getDownloadURL(storageRef);
       }
 
+      /* ================= UPLOAD CREATIONS ================= */
+
+let creations = [];
+
+if (selectedFiles.length > 0) {
+
+  for (let i = 0; i < selectedFiles.length; i++) {
+
+    const file = selectedFiles[i];
+
+    /* 🔥 VALIDATION FORMAT */
+    const allowedTypes = ["audio/mpeg", "video/mp4", "video/quicktime"];
+
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error("Format non supporté (mp3, mp4, mov uniquement)");
+    }
+
+    const storageRef = ref(storage, `artists/${user.uid}/creations/${Date.now()}_${file.name}`);
+
+    await uploadBytes(storageRef, file);
+
+    const url = await getDownloadURL(storageRef);
+
+    creations.push({
+      FileURL: url,
+      Type: file.type,
+      IsActive: true,
+      CreatedAt: new Date()
+    });
+
+  }
+
+}
+
       /* ================= FIRESTORE USERS ================= */
       await setDoc(doc(db, "Users", user.uid), {
         Mail: email,
@@ -311,6 +345,17 @@ if (createArtistBtn) {
         Role: "artist",
         CreatedAt: new Date()
       });
+
+      /* ================= SAVE CREATIONS ================= */
+
+for (let i = 0; i < creations.length; i++) {
+
+  await setDoc(
+    doc(collection(db, "Artists", user.uid, "Creations")),
+    creations[i]
+  );
+
+}
 
       /* ================= FIRESTORE ARTIST ================= */
       await setDoc(doc(db, "Artists", user.uid), {
@@ -477,6 +522,45 @@ if (addressInput && suggestionsBox) {
     if (!addressInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
       suggestionsBox.innerHTML = "";
     }
+  });
+
+}
+
+/* ================= FILE PREVIEW ================= */
+
+const artistFilesInput = document.getElementById("artistFiles");
+const filePreview = document.getElementById("filePreview");
+
+let selectedFiles = [];
+
+if (artistFilesInput) {
+
+  artistFilesInput.addEventListener("change", (e) => {
+
+    const files = Array.from(e.target.files);
+
+    if (files.length > 5) {
+      alert("Maximum 5 fichiers");
+      artistFilesInput.value = "";
+      return;
+    }
+
+    selectedFiles = files;
+
+    filePreview.innerHTML = "";
+
+    files.forEach(file => {
+
+      const div = document.createElement("div");
+      div.style.fontSize = "12px";
+      div.style.marginBottom = "5px";
+
+      div.innerText = `📁 ${file.name}`;
+
+      filePreview.appendChild(div);
+
+    });
+
   });
 
 }
