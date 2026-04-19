@@ -783,56 +783,143 @@ async function loadArtists() {
           }).join("")
         : `<div style="font-size:12px;color:#999;text-align:center;">Aucune création</div>`;
 
-      /* ================= MARKER ================= */
-      const marker = L.marker([lat, lng], { icon: artistIcon }).addTo(map);
+/* ================= MARKER ================= */
+const marker = L.marker([lat, lng], { icon: artistIcon }).addTo(map);
 
-      /* ================= POPUP ================= */
-      marker.bindPopup(`
-        <div style="width:250px;font-family:-apple-system;">
-          
-          <img src="${artist.profileImage || 'https://via.placeholder.com/300'}"
-            style="width:100%;height:150px;object-fit:cover;border-radius:16px;margin-bottom:10px;" />
+/* ================= NOM ================= */
+const fullName = `${artist.FirstName || ""} ${artist.LastName || ""}`.trim();
+const stageName = artist.ArtistName || "Artiste";
 
-          <div style="font-size:16px;font-weight:600;">
-            ${artist.ArtistName || "Artiste"}
-          </div>
+/* ================= SERVICES ================= */
+const servicesSnap = await getDocs(
+  collection(db, "Artists", id, "Services")
+);
 
-          <div style="color:#D4AF37;font-size:13px;margin-bottom:10px;">
-            ⭐ ${artist.Rating || 0}
-          </div>
+let services = [];
 
-          <div style="font-size:13px;font-weight:600;">Services</div>
+servicesSnap.forEach(doc => {
+  const s = doc.data();
+  if (!s?.IsActive) return;
 
-          <div style="background:#f9f9f9;border-radius:12px;padding:8px;margin-bottom:10px;">
-            ${servicesHTML}
-          </div>
+  services.push({
+    title: s.Title,
+    price: s.Price
+  });
+});
 
-          <div style="font-size:13px;font-weight:600;">Créations</div>
+services.sort((a, b) => a.price - b.price);
 
-          <div style="margin-bottom:10px;">
-            ${creationsHTML}
-          </div>
+const servicesHTML = services.length
+  ? services.slice(0, 3).map(s => `
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        font-size:13px;
+        padding:4px 0;
+        border-bottom:1px solid #eee;
+      ">
+        <span>${s.title}</span>
+        <span style="font-weight:600;">${s.price}€</span>
+      </div>
+    `).join("")
+  : `<span style="font-size:12px;color:#999;">Aucun service</span>`;
 
-          <button 
-            onclick="window.location.href='artiste.html?id=${id}'"
-            style="
-              width:100%;
-              padding:12px;
-              background:#000;
-              color:white;
-              border:none;
-              border-radius:12px;
-              font-weight:600;
-              cursor:pointer;
-            ">
-            ${minPrice ? `Réserver dès ${minPrice}€` : "Voir profil"}
-          </button>
+/* ================= REVIEWS ================= */
+const reviewsSnap = await getDocs(
+  collection(db, "Artists", id, "Reviews")
+);
 
-        </div>
-      `, {
-        closeButton: false,
-        offset: [0, -8]
-      });
+let reviews = [];
+
+reviewsSnap.forEach(doc => {
+  const r = doc.data();
+  if (!r?.Comment) return;
+
+  reviews.push(r);
+});
+
+const reviewsHTML = reviews.length
+  ? reviews.slice(0, 2).map(r => `
+      <div style="
+        font-size:12px;
+        padding:6px;
+        background:#f9f9f9;
+        border-radius:8px;
+        margin-top:5px;
+      ">
+        ⭐ ${r.Rating || 0} — ${r.Comment}
+      </div>
+    `).join("")
+  : `<span style="font-size:12px;color:#999;">Aucun avis</span>`;
+
+/* ================= POPUP ================= */
+marker.bindPopup(`
+  <div style="
+    width:260px;
+    font-family:-apple-system;
+  ">
+    
+    <!-- IMAGE -->
+    <img src="${artist.profileImage || 'https://via.placeholder.com/300'}"
+      style="
+        width:100%;
+        height:140px;
+        object-fit:cover;
+        border-radius:16px;
+        margin-bottom:10px;
+      " />
+
+    <!-- NOM -->
+    <div style="font-size:16px;font-weight:600;">
+      🎤 ${stageName}
+    </div>
+
+    <div style="font-size:13px;color:#666;margin-bottom:10px;">
+      👤 ${fullName}
+    </div>
+
+    <!-- NOTE -->
+    <div style="color:#D4AF37;font-size:13px;margin-bottom:10px;">
+      ⭐ ${artist.Rating || 0} (${artist.reviewCount || 0})
+    </div>
+
+    <!-- SERVICES -->
+    <div style="font-size:13px;font-weight:600;">Services</div>
+
+    <div style="
+      background:#f9f9f9;
+      border-radius:12px;
+      padding:8px;
+      margin-bottom:10px;
+    ">
+      ${servicesHTML}
+    </div>
+
+    <!-- REVIEWS -->
+    <div style="font-size:13px;font-weight:600;">Avis</div>
+
+    <div style="margin-bottom:10px;">
+      ${reviewsHTML}
+    </div>
+
+    <!-- CTA -->
+    <button 
+      onclick="window.location.href='artiste.html?id=${id}'"
+      style="
+        width:100%;
+        padding:12px;
+        background:#000;
+        color:white;
+        border:none;
+        border-radius:12px;
+        font-weight:600;
+        cursor:pointer;
+      ">
+      Voir profil
+    </button>
+
+  </div>
+`);
 
       /* ================= UX PREMIUM ================= */
 
