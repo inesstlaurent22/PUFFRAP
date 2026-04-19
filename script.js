@@ -247,7 +247,9 @@ if (createArtistBtn) {
 
       const email = emailEl.value.trim();
       const password = passwordEl.value.trim();
-      const username = usernameEl.value.trim();
+      const artistName = document.getElementById("artistStageName").value.trim();
+      const firstName = document.getElementById("artistFirstName").value.trim();
+      const lastName = document.getElementById("artistLastName").value.trim();
 
       const instagram = document.getElementById("artistInstagram")?.value.trim() || "";
       const tiktok = document.getElementById("artistTiktok")?.value.trim() || "";
@@ -257,6 +259,10 @@ if (createArtistBtn) {
 
       const lat = parseFloat(addressEl.dataset.lat);
       const lng = parseFloat(addressEl.dataset.lng);
+
+      if (!artistName || !firstName || !lastName) {
+  throw new Error("Nom, prénom et nom d'artiste obligatoires");
+}
 
       /* ================= VALIDATION ================= */
 
@@ -358,35 +364,36 @@ for (let i = 0; i < creations.length; i++) {
 }
 
       /* ================= FIRESTORE ARTIST ================= */
-      await setDoc(doc(db, "Artists", user.uid), {
+
+  await setDoc(doc(db, "Artists", user.uid), {
+
   UserID: user.uid,
 
   /* 🔥 IDENTITÉ */
-  Username: username,
-  FirstName: document.getElementById("artistFirstName")?.value || "",
-  LastName: document.getElementById("artistLastName")?.value || "",
+  ArtistName: artistName,
+  FirstName: firstName,
+  LastName: lastName,
+
+  /* (optionnel mais utile pour recherche) */
+  Username: artistName,
 
   Email: email,
   profileImage: imageUrl,
 
-  /* 🔥 SKILLS */
   Skills: skills,
 
-  /* 🔥 LOCALISATION */
   Location: {
     Lat: lat,
     Lng: lng,
     Address: addressEl.value
   },
 
-  /* 🔥 SOCIALS */
   Socials: {
     Instagram: instagram,
     TikTok: tiktok,
     Portfolio: portfolio
   },
 
-  /* 🔥 STATS */
   Rating: 0,
   reviewCount: 0,
   isAvailable: true,
@@ -787,7 +794,7 @@ async function loadArtists() {
             style="width:100%;height:150px;object-fit:cover;border-radius:16px;margin-bottom:10px;" />
 
           <div style="font-size:16px;font-weight:600;">
-            ${artist.Username || "Artiste"}
+            ${artist.ArtistName || "Artiste"}
           </div>
 
           <div style="color:#D4AF37;font-size:13px;margin-bottom:10px;">
