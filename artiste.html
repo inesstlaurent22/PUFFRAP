@@ -20,56 +20,70 @@
   </button>
 
   <div class="artist-container">
+<!-- ================= IMAGE ================= -->
+<div class="image-container">
+  <img id="profileImage" src="" alt="Photo artiste">
+  <input type="file" id="uploadImage" class="edit-only">
+</div>
 
-    <!-- IMAGE -->
-    <div class="image-container">
-      <img id="profileImage" />
-      <input type="file" id="uploadImage" class="edit-only">
-    </div>
+<!-- ================= INFOS ================= -->
+<div class="info-section">
 
-    <!-- INFOS -->
-    <div class="info-section">
+  <!-- 🎤 NOM D’ARTISTE -->
+  <input id="artistName" placeholder="Nom d'artiste">
 
-      <input id="username" placeholder="Nom artiste" />
+  <!-- 👤 NOM / PRÉNOM -->
+  <div class="row">
+    <input type="text" id="artistFirstName" placeholder="Prénom">
+    <input type="text" id="artistLastName" placeholder="Nom">
+  </div>
 
-      <div class="row">
-        <input type="text" id="artistFirstName" placeholder="Prénom">
-        <input type="text" id="artistLastName" placeholder="Nom">
-        <input type="text" id="artistStageName" placeholder="Nom d'artiste">
-      </div>
+  <!-- 📍 ADRESSE -->
+  <input id="artistAddress" placeholder="Adresse">
 
-      <input id="artistAddress" placeholder="Adresse" />
+  <!-- 🌐 RÉSEAUX -->
+  <input id="artistInstagram" placeholder="Instagram (https://...)">
+  <input id="artistTiktok" placeholder="TikTok (https://...)">
+  <input id="artistPortfolio" placeholder="Portfolio (https://...)">
 
-    </div>
+</div>
 
-    <!-- SERVICES -->
-    <div class="section">
-      <h2>Services</h2>
+<!-- ================= SERVICES ================= -->
+<div class="section">
+  <h2>Services</h2>
 
-      <div id="servicesList"></div>
+  <div id="servicesList"></div>
 
-      <button id="addService" class="edit-only">+ Ajouter</button>
-    </div>
+  <button id="addService" class="edit-only">+ Ajouter</button>
+</div>
 
-    <!-- CREATIONS -->
-    <div class="section">
-      <h2>Créations</h2>
+<!-- ================= CREATIONS ================= -->
+<div class="section">
+  <h2>Créations</h2>
 
-      <div id="creationsList"></div>
+  <div id="creationsList"></div>
 
-      <input type="file" id="creationFile" class="edit-only">
-      <button id="addCreation" class="edit-only">+ Ajouter création</button>
-    </div>
+  <input 
+    type="file" 
+    id="creationFile" 
+    class="edit-only" 
+    accept=".mp3,.mp4,.mov"
+  >
 
-    <!-- CTA CLIENT -->
-    <button id="bookBtn" class="client-only">
-      Réserver
-    </button>
+  <button id="addCreation" class="edit-only">
+    + Ajouter création
+  </button>
+</div>
 
-    <!-- SAVE ARTIST -->
-    <button id="saveProfile" class="btn-save edit-only">
-      Sauvegarder
-    </button>
+<!-- ================= CTA CLIENT ================= -->
+<button id="bookBtn" class="client-only">
+  Réserver
+</button>
+
+<!-- ================= SAVE ================= -->
+<button id="saveProfile" class="btn-save edit-only">
+  Sauvegarder
+</button>
 
   </div>
 
