@@ -347,7 +347,7 @@ if (selectedFiles.length > 0) {
       /* ================= FIRESTORE USERS ================= */
       await setDoc(doc(db, "Users", user.uid), {
         Mail: email,
-        Name: username,
+        Name: artistName,
         Role: "artist",
         CreatedAt: new Date()
       });
@@ -839,7 +839,6 @@ reviewsSnap.forEach(doc => {
   reviews.push(r);
 });
 
-/* 🔥 AJOUT ICI */
 const avgRating = reviews.length
   ? (reviews.reduce((a, b) => a + b.Rating, 0) / reviews.length).toFixed(1)
   : 0;
