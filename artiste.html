@@ -4,111 +4,56 @@
 <head>
   <meta charset="UTF-8">
   <title>Artiste</title>
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- CSS -->
   <link rel="stylesheet" href="artiste.css">
 
+  <!-- FONT -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
-  <!-- 🔙 BACK -->
-  <button class="back-btn" onclick="window.location.href='index.html'">
-    ← Retour
-  </button>
-
-  <div class="artist-container">
-<!-- ================= IMAGE ================= -->
-<div class="image-container">
-  <img id="profileImage" src="" alt="Photo artiste">
-  <input type="file" id="uploadImage" class="edit-only">
-</div>
-
-<!-- ================= INFOS ================= -->
-<div class="info-section">
-
-  <h1 id="displayStageName"></h1>
-  <p id="displayFullName"></p>
-
-  <!-- 🎤 NOM D’ARTISTE -->
-  <input id="artistName" placeholder="Nom d'artiste">
-
-  <!-- 👤 NOM / PRÉNOM -->
-  <div class="row">
-    <input type="text" id="artistFirstName" placeholder="Prénom">
-    <input type="text" id="artistLastName" placeholder="Nom">
+  <!-- ================= HEADER COVER ================= -->
+  <div class="cover">
+    <img id="coverImage" src="" alt="Cover artiste">
+    <button class="back-btn" onclick="window.location.href='index.html'">←</button>
   </div>
 
-  <!-- 📍 ADRESSE -->
-  <input id="artistAddress" placeholder="Adresse">
+  <!-- ================= PROFIL ================= -->
+  <div class="profile">
 
-  <!-- 🌐 RÉSEAUX -->
-  <input id="artistInstagram" placeholder="Instagram (https://...)">
-  <input id="artistTiktok" placeholder="TikTok (https://...)">
-  <input id="artistPortfolio" placeholder="Portfolio (https://...)">
+    <img id="profileImage" class="avatar" src="" alt="Photo artiste">
 
-</div>
+    <h1 id="displayStageName"></h1>
+    <p id="displayFullName"></p>
 
-  <!-- 🎤 NOM D’ARTISTE -->
-  <input id="artistName" placeholder="Nom d'artiste">
-
-  <!-- 👤 NOM / PRÉNOM -->
-  <div class="row">
-    <input type="text" id="artistFirstName" placeholder="Prénom">
-    <input type="text" id="artistLastName" placeholder="Nom">
-  </div>
-
-  <!-- 📍 ADRESSE -->
-  <input id="artistAddress" placeholder="Adresse">
-
-  <!-- 🌐 RÉSEAUX -->
-  <input id="artistInstagram" placeholder="Instagram (https://...)">
-  <input id="artistTiktok" placeholder="TikTok (https://...)">
-  <input id="artistPortfolio" placeholder="Portfolio (https://...)">
-
-</div>
-
-<!-- ================= SERVICES ================= -->
-<div class="section">
-  <h2>Services</h2>
-
-  <div id="servicesList"></div>
-
-  <button id="addService" class="edit-only">+ Ajouter</button>
-</div>
-
-<!-- ================= CREATIONS ================= -->
-<div class="section">
-  <h2>Créations</h2>
-
-  <div id="creationsList"></div>
-
-  <input 
-    type="file" 
-    id="creationFile" 
-    class="edit-only" 
-    accept=".mp3,.mp4,.mov"
-  >
-
-  <button id="addCreation" class="edit-only">
-    + Ajouter création
-  </button>
-</div>
-
-<!-- ================= CTA CLIENT ================= -->
-<button id="bookBtn" class="client-only">
-  Réserver
-</button>
-
-<!-- ================= SAVE ================= -->
-<button id="saveProfile" class="btn-save edit-only">
-  Sauvegarder
-</button>
+    <!-- SOCIALS -->
+    <div class="socials">
+      <a id="linkInstagram" target="_blank">Instagram</a>
+      <a id="linkTiktok" target="_blank">TikTok</a>
+      <a id="linkPortfolio" target="_blank">Portfolio</a>
+    </div>
 
   </div>
 
+  <!-- ================= CREATIONS ================= -->
+  <div class="section">
+    <h2>🎧 Créations</h2>
+    <div id="creationsList"></div>
+  </div>
+
+  <!-- ================= SERVICES ================= -->
+  <div class="section">
+    <h2>💼 Services</h2>
+    <div id="servicesList"></div>
+  </div>
+
+  <!-- ================= CTA ================= -->
+  <button id="bookBtn">Réserver</button>
+
+  <!-- JS -->
   <script type="module" src="artiste.js"></script>
 
 </body>
