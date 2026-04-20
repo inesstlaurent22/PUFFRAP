@@ -156,7 +156,10 @@ if (loginSubmit) {
 
 /* ================= SIGNUP CLIENT ================= */
 
-document.getElementById("createClient").onclick = async () => {
+const createClientBtn = document.getElementById("createClient");
+
+if (createClientBtn) {
+  createClientBtn.onclick = async () => {
   try {
 
     const email = document.getElementById("clientEmail").value.trim();
@@ -1138,7 +1141,14 @@ if (userToggle && userDropdown) {
 
 /* ================= LOGOUT ================= */
 
-document.getElementById("logoutBtn").onclick = async () => {
+const logoutBtn = document.getElementById("logoutBtn");
+
+if (logoutBtn) {
+  logoutBtn.onclick = async () => {
+    await signOut(auth);
+    location.reload();
+  };
+}
   await signOut(auth);
   location.reload();
 };
