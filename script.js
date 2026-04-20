@@ -206,6 +206,7 @@ if (createClientBtn) {
     alert(error.message);
   }
 };
+}
 
 /* ================= VALIDATION URL ================= */
 
