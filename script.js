@@ -660,7 +660,7 @@ async function loadArtists() {
 
     if (!map) return;
 
-    /* ================= CLEAR MARKERS ================= */
+    /* CLEAR MARKERS */
     markers.forEach(m => {
       if (m && map.hasLayer(m)) map.removeLayer(m);
     });
@@ -668,7 +668,6 @@ async function loadArtists() {
 
     const snapshot = await getDocs(collection(db, "Artists"));
 
-    /* ================= ICON PREMIUM ================= */
     const artistIcon = L.divIcon({
       html: `
         <div style="
@@ -678,25 +677,22 @@ async function loadArtists() {
           border-radius:50%;
           border:3px solid #D4AF37;
           box-shadow:0 0 8px rgba(212,175,55,0.4);
-          transition:0.2s;
         "></div>
       `,
       className: ""
     });
 
-    /* ================= LOOP ================= */
     for (const docSnap of snapshot.docs) {
 
       const artist = docSnap.data();
       const id = docSnap.id;
 
-      /* ================= SAFE LOCATION ================= */
       const lat = parseFloat(artist?.Location?.Lat);
       const lng = parseFloat(artist?.Location?.Lng);
 
       if (isNaN(lat) || isNaN(lng)) continue;
 
-      /* ================= SERVICES ================= */
+      /* ================= SERVICES (UNE SEULE FOIS) ================= */
       const servicesSnap = await getDocs(
         collection(db, "Artists", id, "Services")
       );
@@ -730,205 +726,107 @@ async function loadArtists() {
           `).join("")
         : `<span style="font-size:12px;color:#999;">Aucun service</span>`;
 
-      const minPrice = services.length
-        ? Math.min(...services.map(s => s.price))
-        : null;
-
-      /* ================= CREATIONS ================= */
-      const creationsSnap = await getDocs(
-        collection(db, "Artists", id, "Creations")
+      /* ================= REVIEWS ================= */
+      const reviewsSnap = await getDocs(
+        collection(db, "Artists", id, "Reviews")
       );
 
-      let creations = [];
+      let reviews = [];
 
-      creationsSnap.forEach(doc => {
-        const c = doc.data();
-
-        if (!c || !c.IsActive) return;
-        if (!c.FileURL || !c.Type) return;
-
-        creations.push({
-          url: c.FileURL,
-          type: c.Type.toLowerCase()
-        });
+      reviewsSnap.forEach(doc => {
+        const r = doc.data();
+        if (!r?.Comment) return;
+        reviews.push(r);
       });
 
-      const creationsHTML = creations.length
-        ? creations.slice(0, 2).map(c => {
+      const reviewsHTML = reviews.length
+        ? reviews.slice(0, 2).map(r => `
+            <div style="
+              font-size:12px;
+              padding:6px;
+              background:#f9f9f9;
+              border-radius:8px;
+              margin-top:5px;
+            ">
+              ⭐ ${r.Rating || 0} — ${r.Comment}
+            </div>
+          `).join("")
+        : `<span style="font-size:12px;color:#999;">Aucun avis</span>`;
 
-            if (c.type.includes("mp3") || c.type.includes("audio")) {
-              return `
-                <audio controls style="width:100%;margin-top:6px;">
-                  <source src="${c.url}">
-                </audio>
-              `;
-            }
+      /* ================= MARKER ================= */
+      const marker = L.marker([lat, lng], { icon: artistIcon }).addTo(map);
 
-            if (
-              c.type.includes("mp4") ||
-              c.type.includes("mov") ||
-              c.type.includes("video")
-            ) {
-              return `
-                <video controls style="
-                  width:100%;
-                  border-radius:10px;
-                  margin-top:6px;
-                  max-height:140px;
-                  object-fit:cover;
-                ">
-                  <source src="${c.url}">
-                </video>
-              `;
-            }
+      const fullName = `${artist.FirstName || ""} ${artist.LastName || ""}`.trim();
+      const stageName = artist.ArtistName || "Artiste";
 
-            return "";
+      /* ================= POPUP ================= */
+      marker.bindPopup(`
+        <div style="width:260px;font-family:-apple-system;">
+          
+          <img src="${artist.profileImage || 'https://via.placeholder.com/300'}"
+            style="
+              width:100%;
+              height:140px;
+              object-fit:cover;
+              border-radius:16px;
+              margin-bottom:10px;
+            " />
 
-          }).join("")
-        : `<div style="font-size:12px;color:#999;text-align:center;">Aucune création</div>`;
+          <div style="font-size:16px;font-weight:600;">
+            🎤 ${stageName}
+          </div>
 
-/* ================= MARKER ================= */
-const marker = L.marker([lat, lng], { icon: artistIcon }).addTo(map);
+          <div style="font-size:13px;color:#666;margin-bottom:10px;">
+            👤 ${fullName}
+          </div>
 
-/* ================= NOM ================= */
-const fullName = `${artist.FirstName || ""} ${artist.LastName || ""}`.trim();
-const stageName = artist.ArtistName || "Artiste";
+          <div style="color:#D4AF37;font-size:13px;margin-bottom:10px;">
+            ⭐ ${artist.Rating || 0} (${artist.reviewCount || 0})
+          </div>
 
-/* ================= SERVICES ================= */
-const servicesSnap = await getDocs(
-  collection(db, "Artists", id, "Services")
-);
+          <div style="font-size:13px;font-weight:600;">Services</div>
 
-let services = [];
+          <div style="
+            background:#f9f9f9;
+            border-radius:12px;
+            padding:8px;
+            margin-bottom:10px;
+          ">
+            ${servicesHTML}
+          </div>
 
-servicesSnap.forEach(doc => {
-  const s = doc.data();
-  if (!s?.IsActive) return;
+          <div style="font-size:13px;font-weight:600;">Avis</div>
 
-  services.push({
-    title: s.Title,
-    price: s.Price
-  });
-});
+          <div style="margin-bottom:10px;">
+            ${reviewsHTML}
+          </div>
 
-services.sort((a, b) => a.price - b.price);
+          <button 
+            onclick="window.location.href='artiste.html?id=${id}'"
+            style="
+              width:100%;
+              padding:12px;
+              background:#000;
+              color:white;
+              border:none;
+              border-radius:12px;
+              font-weight:600;
+              cursor:pointer;
+            ">
+            Voir profil
+          </button>
 
-const servicesHTML = services.length
-  ? services.slice(0, 3).map(s => `
-      <div style="
-        display:flex;
-        justify-content:space-between;
-        font-size:13px;
-        padding:4px 0;
-        border-bottom:1px solid #eee;
-      ">
-        <span>${s.title}</span>
-        <span style="font-weight:600;">${s.price}€</span>
-      </div>
-    `).join("")
-  : `<span style="font-size:12px;color:#999;">Aucun service</span>`;
+        </div>
+      `);
 
-/* ================= REVIEWS ================= */
-      
-const reviewsSnap = await getDocs(
-  collection(db, "Artists", id, "Reviews")
-);
+      markers.push(marker);
+    }
 
-let reviews = [];
+  } catch (error) {
+    console.error("Erreur loadArtists:", error);
+  }
 
-reviewsSnap.forEach(doc => {
-  const r = doc.data();
-  if (!r?.Comment) return;
-
-  reviews.push(r);
-});
-
-const avgRating = reviews.length
-  ? (reviews.reduce((a, b) => a + b.Rating, 0) / reviews.length).toFixed(1)
-  : 0;
-
-const reviewsHTML = reviews.length
-  ? reviews.slice(0, 2).map(r => `
-      <div style="
-        font-size:12px;
-        padding:6px;
-        background:#f9f9f9;
-        border-radius:8px;
-        margin-top:5px;
-      ">
-        ⭐ ${r.Rating || 0} — ${r.Comment}
-      </div>
-    `).join("")
-  : `<span style="font-size:12px;color:#999;">Aucun avis</span>`;
-
-/* ================= POPUP ================= */
-marker.bindPopup(`
-  <div style="
-    width:260px;
-    font-family:-apple-system;
-  ">
-    
-    <!-- IMAGE -->
-    <img src="${artist.profileImage || 'https://via.placeholder.com/300'}"
-      style="
-        width:100%;
-        height:140px;
-        object-fit:cover;
-        border-radius:16px;
-        margin-bottom:10px;
-      " />
-
-    <!-- NOM -->
-    <div style="font-size:16px;font-weight:600;">
-      🎤 ${stageName}
-    </div>
-
-    <div style="font-size:13px;color:#666;margin-bottom:10px;">
-      👤 ${fullName}
-    </div>
-
-    <!-- NOTE -->
-    <div style="color:#D4AF37;font-size:13px;margin-bottom:10px;">
-      ⭐ ${artist.Rating || 0} (${artist.reviewCount || 0})
-    </div>
-
-    <!-- SERVICES -->
-    <div style="font-size:13px;font-weight:600;">Services</div>
-
-    <div style="
-      background:#f9f9f9;
-      border-radius:12px;
-      padding:8px;
-      margin-bottom:10px;
-    ">
-      ${servicesHTML}
-    </div>
-
-    <!-- REVIEWS -->
-    <div style="font-size:13px;font-weight:600;">Avis</div>
-
-    <div style="margin-bottom:10px;">
-      ${reviewsHTML}
-    </div>
-
-    <!-- CTA -->
-    <button 
-      onclick="window.location.href='artiste.html?id=${id}'"
-      style="
-        width:100%;
-        padding:12px;
-        background:#000;
-        color:white;
-        border:none;
-        border-radius:12px;
-        font-weight:600;
-        cursor:pointer;
-      ">
-      Voir profil
-    </button>
-
-  </div>
-`);
+}
 
       /* ================= UX PREMIUM ================= */
 
@@ -1150,9 +1048,6 @@ if (logoutBtn) {
     location.reload();
   };
 }
-  await signOut(auth);
-  location.reload();
-};
 
 /* ================= Fiche artiste ================= */
 async function getArtistServices(artistId) {
