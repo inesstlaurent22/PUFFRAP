@@ -266,7 +266,7 @@ if (createArtistBtn) {
 
       /* ================= VALIDATION ================= */
 
-      if (!email || !password || !username) {
+      if (!email || !password || !artistName) {
         throw new Error("Remplis tous les champs obligatoires");
       }
 
@@ -648,7 +648,211 @@ function initMap() {
   loadArtists();
 
 }
+/* ================= LOAD ALL ARTISTS ================= */
+async function loadArtists() {
 
+  try {
+
+    if (!map) return;
+
+    /* ================= CLEAR MARKERS ================= */
+    markers.forEach(m => {
+      if (m && map.hasLayer(m)) map.removeLayer(m);
+    });
+    markers = [];
+
+    const snapshot = await getDocs(collection(db, "Artists"));
+
+    /* ================= ICON PREMIUM ================= */
+    const artistIcon = L.divIcon({
+      html: `
+        <div style="
+          width:18px;
+          height:18px;
+          background:white;
+          border-radius:50%;
+          border:3px solid #D4AF37;
+          box-shadow:0 0 8px rgba(212,175,55,0.4);
+        "></div>
+      `,
+      className: ""
+    });
+
+    /* ================= LOOP ================= */
+    for (const docSnap of snapshot.docs) {
+
+      const artist = docSnap.data();
+      const id = docSnap.id;
+
+      /* ================= LOCATION ================= */
+      const lat = parseFloat(artist?.Location?.Lat);
+      const lng = parseFloat(artist?.Location?.Lng);
+
+      if (isNaN(lat) || isNaN(lng)) continue;
+
+      /* ================= NOM ================= */
+      const fullName = `${artist.FirstName || ""} ${artist.LastName || ""}`.trim();
+      const stageName = artist.ArtistName || "Artiste";
+
+      /* ================= SERVICES ================= */
+      const servicesSnap = await getDocs(
+        collection(db, "Artists", id, "Services")
+      );
+
+      let services = [];
+
+      servicesSnap.forEach(doc => {
+        const s = doc.data();
+        if (!s?.IsActive) return;
+
+        services.push({
+          title: s.Title || "Service",
+          price: s.Price || 0
+        });
+      });
+
+      services.sort((a, b) => a.price - b.price);
+
+      const servicesHTML = services.length
+        ? services.slice(0, 3).map(s => `
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid #eee;">
+              <span>${s.title}</span>
+              <span style="font-weight:600;">${s.price}€</span>
+            </div>
+          `).join("")
+        : `<span style="font-size:12px;color:#999;">Aucun service</span>`;
+
+      /* ================= CREATIONS ================= */
+      const creationsSnap = await getDocs(
+        collection(db, "Artists", id, "Creations")
+      );
+
+      let creations = [];
+
+      creationsSnap.forEach(doc => {
+        const c = doc.data();
+
+        if (!c?.IsActive || !c?.FileURL || !c?.Type) return;
+
+        creations.push({
+          url: c.FileURL,
+          type: c.Type.toLowerCase()
+        });
+      });
+
+      const creationsHTML = creations.length
+        ? creations.slice(0, 2).map(c => {
+
+            if (c.type.includes("audio")) {
+              return `<audio controls style="width:100%;margin-top:6px;">
+                        <source src="${c.url}">
+                      </audio>`;
+            }
+
+            if (c.type.includes("video")) {
+              return `<video controls style="width:100%;border-radius:10px;margin-top:6px;max-height:140px;object-fit:cover;">
+                        <source src="${c.url}">
+                      </video>`;
+            }
+
+            return "";
+
+          }).join("")
+        : `<div style="font-size:12px;color:#999;text-align:center;">Aucune création</div>`;
+
+      /* ================= REVIEWS ================= */
+      const reviewsSnap = await getDocs(
+        collection(db, "Artists", id, "Reviews")
+      );
+
+      let reviews = [];
+
+      reviewsSnap.forEach(doc => {
+        const r = doc.data();
+        if (!r?.Comment) return;
+        reviews.push(r);
+      });
+
+      const reviewsHTML = reviews.length
+        ? reviews.slice(0, 2).map(r => `
+            <div style="font-size:12px;padding:6px;background:#f9f9f9;border-radius:8px;margin-top:5px;">
+              ⭐ ${r.Rating || 0} — ${r.Comment}
+            </div>
+          `).join("")
+        : `<span style="font-size:12px;color:#999;">Aucun avis</span>`;
+
+      /* ================= MARKER ================= */
+      const marker = L.marker([lat, lng], { icon: artistIcon }).addTo(map);
+
+      /* ================= POPUP ================= */
+      marker.bindPopup(`
+        <div style="width:260px;font-family:-apple-system;">
+          
+          <img src="${artist.profileImage || 'https://via.placeholder.com/300'}"
+            style="width:100%;height:140px;object-fit:cover;border-radius:16px;margin-bottom:10px;" />
+
+          <div style="font-size:16px;font-weight:600;">🎤 ${stageName}</div>
+
+          <div style="font-size:13px;color:#666;margin-bottom:10px;">
+            👤 ${fullName}
+          </div>
+
+          <div style="color:#D4AF37;font-size:13px;margin-bottom:10px;">
+            ⭐ ${artist.Rating || 0} (${artist.reviewCount || 0})
+          </div>
+
+          <div style="font-size:13px;font-weight:600;">Services</div>
+          <div style="background:#f9f9f9;border-radius:12px;padding:8px;margin-bottom:10px;">
+            ${servicesHTML}
+          </div>
+
+          <div style="font-size:13px;font-weight:600;">Avis</div>
+          <div style="margin-bottom:10px;">
+            ${reviewsHTML}
+          </div>
+
+          <button 
+            onclick="window.location.href='artiste.html?id=${id}'"
+            style="width:100%;padding:12px;background:#000;color:white;border:none;border-radius:12px;font-weight:600;cursor:pointer;">
+            Voir profil
+          </button>
+
+        </div>
+      `);
+
+      /* ================= UX ================= */
+      let isHoverPopup = false;
+
+      marker.on("mouseover", () => marker.openPopup());
+
+      marker.on("mouseout", () => {
+        setTimeout(() => {
+          if (!isHoverPopup) marker.closePopup();
+        }, 200);
+      });
+
+      marker.on("popupopen", () => {
+        const popup = document.querySelector(".leaflet-popup");
+
+        if (!popup) return;
+
+        popup.addEventListener("mouseenter", () => {
+          isHoverPopup = true;
+        });
+
+        popup.addEventListener("mouseleave", () => {
+          isHoverPopup = false;
+          marker.closePopup();
+        });
+      });
+
+      markers.push(marker);
+    }
+
+  } catch (error) {
+    console.error("Erreur loadArtists:", error);
+  }
+}
 /* ================= LOAD ALL ARTISTS ================= */
 async function loadArtists() {
 
